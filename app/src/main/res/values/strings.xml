@@ -5,4 +5,6 @@
     <string name="confirm">确定</string>
     <string name="network_can_not_be_accessed_please_check_the_network_connection">网络无法访问，请检查网络连接!</string>
     <string name="configure">配置</string>
+    <string name="please_scan_right_qr_code">请扫描正确的车辆二维码！</string>
+    <string name="scan_failed_try_again">扫描失败，请重新扫描！</string>
 </resources>
