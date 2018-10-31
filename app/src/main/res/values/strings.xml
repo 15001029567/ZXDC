@@ -1,0 +1,8 @@
+<resources>
+    <string name="app_name">ZXDC</string>
+    <string name="dialog_scenic_hot_hint">温馨提示</string>
+    <string name="cancel">取消</string>
+    <string name="confirm">确定</string>
+    <string name="network_can_not_be_accessed_please_check_the_network_connection">网络无法访问，请检查网络连接!</string>
+    <string name="configure">配置</string>
+</resources>
