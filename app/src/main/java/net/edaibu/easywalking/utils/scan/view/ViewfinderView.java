@@ -27,10 +27,10 @@ import android.graphics.Typeface;
 import android.graphics.drawable.BitmapDrawable;
 import android.util.AttributeSet;
 import android.view.View;
-
 import com.google.zxing.ResultPoint;
-import com.youmai.project.R;
-import com.youmai.project.utils.scan.cameras.CameraManager;
+
+import net.edaibu.easywalking.R;
+import net.edaibu.easywalking.utils.scan.cameras.CameraManager;
 
 import java.util.Collection;
 import java.util.HashSet;
@@ -123,7 +123,7 @@ public final class ViewfinderView extends View {
             canvas.drawBitmap(resultBitmap, null, frame, paint);
         } else {
 
-            paint.setColor(getResources().getColor(R.color.color_FF4081));
+            paint.setColor(getResources().getColor(R.color.main_color));
             canvas.drawRect(frame.left, frame.top, frame.left + ScreenRate,
                     frame.top + CORNER_WIDTH, paint);
             canvas.drawRect(frame.left, frame.top, frame.left + CORNER_WIDTH,
