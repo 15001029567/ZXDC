@@ -86,7 +86,7 @@ public class BleService extends Service {
     //蓝牙名称
     private String bleName;
     //timeOut：发送命令超时         scanTime:扫描蓝牙超时
-    private long timeOut = 1000 * 15, scanTime = 1000 * 15;
+    private long timeOut = 1000 * 7, scanTime = 1000 * 15;
     private TimerUtil timerUtil, startUtil, scanMarkTimeOut;
     private Handler handler = new Handler();
     //信标的蓝牙名称

@@ -7,6 +7,7 @@ import com.baidu.mapapi.SDKInitializer;
 import com.google.gson.Gson;
 import com.tencent.bugly.crashreport.CrashReport;
 
+import net.edaibu.easywalking.utils.ActivitysLifecycle;
 import net.edaibu.easywalking.utils.SPUtil;
 import net.edaibu.easywalking.utils.Util;
 
@@ -26,6 +27,9 @@ public class MyApplication extends Application {
 
         //初始化百度地图
         initMap();
+
+        //管理Activity
+        registerActivityLifecycleCallbacks(ActivitysLifecycle.getInstance());
     }
 
 

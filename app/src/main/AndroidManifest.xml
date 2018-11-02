@@ -60,6 +60,9 @@
         <activity android:name=".activity.webview.WebViewActivity"  android:screenOrientation="portrait" />
 
 
+        <service android:name=".service.BleService" android:enabled="true" />
+
+
         <!-- 配置腾讯bugly-->
         <meta-data
             android:name="BUGLY_APPID"

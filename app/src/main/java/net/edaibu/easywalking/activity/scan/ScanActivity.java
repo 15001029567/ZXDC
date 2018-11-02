@@ -113,13 +113,11 @@ public class ScanActivity extends BaseActivity implements SurfaceHolder.Callback
     }
 
 
-    private Handler mHandler=new Handler(){
-        public void handleMessage(Message msg) {
-            super.handleMessage(msg);
-            clearTask();
-
-        }
-    };
+   private Handler mHandler=new Handler(new Handler.Callback() {
+       public boolean handleMessage(Message msg) {
+           return false;
+       }
+   });
 
     /**
      * 重复扫描

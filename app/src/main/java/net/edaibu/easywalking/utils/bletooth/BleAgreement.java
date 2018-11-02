@@ -5,7 +5,7 @@ import android.text.TextUtils;
 /**
  * 发送的蓝牙指令
  */
-public class BleInstruction {
+public class BleAgreement {
 
     //验证消息
     public static byte[] checkLock(String imei) {
