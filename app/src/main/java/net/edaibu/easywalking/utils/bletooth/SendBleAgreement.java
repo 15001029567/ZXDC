@@ -30,30 +30,40 @@ public class SendBleAgreement {
     /**
      *
      * @param bleStatus:指定的蓝牙协议
-     * @param isTimeOut:是否开启接收数据的超时计时器
      */
-    public void sendBleData(final int bleStatus,final boolean isTimeOut){
+    public void sendBleData(final int bleStatus){
         byte[] bleByte=null;
+        boolean isTimeOut=false;
         switch (bleStatus){
             //获取认证命令
             case BleStatus.BLE_CERTIFICATION_ING:
                   bleByte=BleAgreement.checkLock("");
+                  isTimeOut=true;
                   break;
             //获取开锁命令
             case BleStatus.BLE_OPEN_LOCK_ING:
                   bleByte=AesUtils.encrypt(BleAgreement.openLock(""));
+                  isTimeOut=true;
                   break;
             //获取关锁命令
             case BleStatus.BLE_CLOSE_LOCK_ING:
                   bleByte=AesUtils.encrypt(BleAgreement.closeLock(""));
+                  isTimeOut=true;
                   break;
             //获取闪动或响铃命令
             case BleStatus.BLE_FLASH_ING:
                   bleByte=AesUtils.encrypt(BleAgreement.findLock("",0x00));
+                  isTimeOut=true;
                   break;
             //获取结算锁车命令
             case BleStatus.BLE_PAY_CLOSE_LOCK_ING:
                   bleByte=AesUtils.encrypt(BleAgreement.balanceCar(""));
+                  isTimeOut=true;
+                  break;
+            //获取旋轮DIY命令
+            case BleStatus.BLE_SEND_DIY_ING:
+                  bleByte=AesUtils.encrypt(BleAgreement.sendDIY());
+                  isTimeOut=true;
                   break;
               default:
                   break;

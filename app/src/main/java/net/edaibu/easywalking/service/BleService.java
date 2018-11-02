@@ -219,7 +219,7 @@ public class BleService extends Service {
             connectionState = STATE_DISCONNECTED;
             return false;
         }
-        LogUtils.e("调connectGatt开始连接");
+        LogUtils.e("开始连接蓝牙");
         mBluetoothGatt = bleDevice.connectGatt(BleService.this, false, mGattCallback);
         return true;
     }
@@ -251,8 +251,8 @@ public class BleService extends Service {
             mBluetoothGatt.writeDescriptor(descriptor);
             broadcastUpdate(ACTION_ENABLE_NOTIFICATION_SUCCES);
         } catch (Exception e) {
-            //建立通道失败，发送没有找到蓝牙广播
-            broadcastUpdate(ACTION_GATT_DISCONNECTED);
+            //建立通道失败，就断开蓝牙连接
+            disconnect();
         }
     }
 
@@ -261,7 +261,7 @@ public class BleService extends Service {
      * 传输蓝牙数据
      */
     public boolean writeRXCharacteristic(byte[] value, boolean isTimeOut) {
-//        LogUtils.e(ByteStringHexUtil.bytesToHexString(AesUtils.decrypt(value))+"++++++++++++++++"+ByteStringHexUtil.bytesToHexString(value));
+        LogUtils.e("发送的数据是："+ByteStringHexUtil.bytesToHexString(AesUtils.decrypt(value))+"++++++++++++++++"+ByteStringHexUtil.bytesToHexString(value));
         try {
             BluetoothGattService RxService = mBluetoothGatt.getService(RX_SERVICE_UUID);
             if (RxService == null) {
@@ -374,19 +374,14 @@ public class BleService extends Service {
             if(null==txValue){
                 return;
             }
-            LogUtils.e("接收数据=" + ByteStringHexUtil.bytesToHexString(txValue));
             if (ByteUtil.byteToInt(txValue[2]) != 128) {
                 txValue = AesUtils.decrypt(txValue);
-                LogUtils.e("解密数据=" + ByteStringHexUtil.bytesToHexString(txValue));
             }
-            if (txValue.length > 0) {
-                final int action = ByteUtil.byteToInt(txValue[2]);
-                //128到132之间是开始关锁认证等常规操作,139是还车结算,    140是租用命令的回执     147表示锁正在忙，不能处理你发的命令    152是炫轮回执数据   143是强制还车
-                if ((action >= 128 && action <= 132) || action == 139 || action == 140 || action == 145 || action==146 || action==147 || action==152 || action==143) {
-                    stopTimeOut();
-                }
-                broadcastUpdate(ACTION_DATA_AVAILABLE, characteristic);
-            }
+            LogUtils.e("接收数据：" + ByteStringHexUtil.bytesToHexString(txValue)+"______________"+"解密数据：" + ByteStringHexUtil.bytesToHexString(txValue));
+            //关闭超时计时器
+            stopTimeOut();
+            //发送数据广播
+            broadcastUpdate(ACTION_DATA_AVAILABLE, characteristic);
         }
     };
 

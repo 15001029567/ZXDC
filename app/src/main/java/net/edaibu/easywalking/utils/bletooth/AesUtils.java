@@ -1,6 +1,8 @@
 package net.edaibu.easywalking.utils.bletooth;
 
 
+import net.edaibu.easywalking.utils.LogUtils;
+
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -18,12 +20,12 @@ public class AesUtils {
     // aes128加密（）
     public static byte[] encrypt(byte[] sSrc) {
         if (cKey == null) {
-            System.out.print("Key为空null");
+            LogUtils.e("Key为空null");
             return null;
         }
         // 判断Key是否为16位
         if (cKey.length != 16) {
-            System.out.print("Key长度不是16位");
+            LogUtils.e("Key长度不是16位");
             return null;
         }
         byte[] raw;
@@ -56,12 +58,12 @@ public class AesUtils {
         try {
             // 判断Key是否正确
             if (cKey == null) {
-                System.out.print("Key为空null");
+                LogUtils.e("Key为空null");
                 return null;
             }
             // 判断Key是否为16位
             if (cKey.length != 16) {
-                System.out.print("Key长度不是16位");
+                LogUtils.e("Key长度不是16位");
                 return null;
             }
             byte[] raw = cKey;

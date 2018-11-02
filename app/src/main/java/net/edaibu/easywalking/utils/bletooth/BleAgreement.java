@@ -167,19 +167,26 @@ public class BleAgreement {
     }
 
 
-    //下发炫轮命令
-    public static byte[] sendDazzle(String leftCode,String rightCode,String dration){
+    /**
+     * 旋轮命令
+     * @param beforeCode：前轮code
+     * @param afterCode：后轮code
+     * @param dration：展示时长
+     * @return
+     */
+    public static String beforeCode,afterCode,dration;
+    public static byte[] sendDIY(){
         byte[] result = new byte[14];
         result[0] = (byte) 0xAB;
         result[1] = (byte) 0xAB;
         result[2] = (byte) 0x98;
         result[3] = (byte) 0x0A;
-        byte[] leftBy=codeToByte(leftCode);
+        byte[] leftBy=codeToByte(beforeCode);
         for(int i=0,len=leftBy.length;i<len;i++){
             result[i+4]=leftBy[i];
         }
 
-        byte[] rightBy=codeToByte(rightCode);
+        byte[] rightBy=codeToByte(afterCode);
         for(int i=0,len=rightBy.length;i<len;i++){
             result[i+8]=rightBy[i];
         }
@@ -192,6 +199,11 @@ public class BleAgreement {
     }
 
 
+    /**
+     * 将前后轮code转换为16进制的byte数组
+     * @param code
+     * @return
+     */
     public static byte[] codeToByte(String code){
         if(!TextUtils.isEmpty(code)){
             String codeHx = Long.toHexString(Long.valueOf(code));
@@ -210,6 +222,11 @@ public class BleAgreement {
     }
 
 
+    /**
+     * 将展示时长转换为16进制的byte数组
+     * @param dration
+     * @return
+     */
     public static byte[] drationToByte(String dration){
         if(!TextUtils.isEmpty(dration) && !dration.equals("0")){
             String codeHx = Long.toHexString(Long.valueOf(dration));

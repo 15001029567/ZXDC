@@ -8,6 +8,7 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.ServiceConnection;
 import android.os.Bundle;
+import android.os.Handler;
 import android.os.IBinder;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
@@ -15,9 +16,14 @@ import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.view.KeyEvent;
 import net.edaibu.easywalking.R;
+import net.edaibu.easywalking.application.MyApplication;
 import net.edaibu.easywalking.fragment.MapFragment;
 import net.edaibu.easywalking.service.BleService;
 import net.edaibu.easywalking.utils.ActivitysLifecycle;
+import net.edaibu.easywalking.utils.LogUtils;
+import net.edaibu.easywalking.utils.SPUtil;
+import net.edaibu.easywalking.utils.bletooth.BleStatus;
+import net.edaibu.easywalking.utils.bletooth.ParseBleDataTask;
 import net.edaibu.easywalking.utils.bletooth.SendBleAgreement;
 import net.edaibu.easywalking.view.DialogView;
 
@@ -26,6 +32,8 @@ import net.edaibu.easywalking.view.DialogView;
  */
 public class MainActivity extends BaseActivity{
 
+    //蓝牙指令状态
+    private int BLE_STATUS= BleStatus.BLE_NORMAL_STATE;
     //蓝牙服务对象
     public BleService mService = null;
     //蓝牙适配器
@@ -34,6 +42,7 @@ public class MainActivity extends BaseActivity{
     public DialogView dialogView;
     //地图的fragment
     private MapFragment mapFragment=new MapFragment();
+    private Handler mHandler=new Handler();
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
@@ -71,22 +80,95 @@ public class MainActivity extends BaseActivity{
     private void registerBoradcastReceiver(){
         IntentFilter myIntentFilter = new IntentFilter();
         myIntentFilter.addAction(BleService.ACTION_NO_SCAN_BLE_DEVICE);//扫描不到指定蓝牙设备
+        myIntentFilter.addAction(BleService.ACTION_GATT_DISCONNECTED);//蓝牙断开连接
+        myIntentFilter.addAction(BleService.ACTION_ENABLE_NOTIFICATION_SUCCES);//初始化通信通道成功
+        myIntentFilter.addAction(BleService.ACTION_DATA_AVAILABLE);//获取到锁的回执数据
         registerReceiver(mBroadcastReceiver, myIntentFilter);
     }
 
+    private boolean isConnect = true;
     private BroadcastReceiver mBroadcastReceiver = new BroadcastReceiver() {
         public void onReceive(Context context, Intent intent) {
             switch (intent.getAction()){
                 //扫描不到指定蓝牙设备
                 case BleService.ACTION_NO_SCAN_BLE_DEVICE:
+                      clearTask();
                       dialogView = new DialogView(dialogView, mContext, getString(R.string.can_not_find_bluttooth_please_close_bike_and_connect_custom_service), getString(R.string.known), null, null, null);
                       dialogView.show();
+                      break;
+                //蓝牙连接断开
+                case BleService.ACTION_GATT_DISCONNECTED:
+                      final int status=intent.getIntExtra("status",0);
+                      //重连一次蓝牙
+                      if (status!=0) {
+                          if(isConnect) {
+                              LogUtils.e("重新连接一次蓝牙!");
+                              isConnect=false;
+                              mHandler.postDelayed(new Runnable() {
+                                public void run() {
+                                    mService.connect(MyApplication.spUtil.getString(SPUtil.DEVICE_MAC));
+                                 }
+                             },500);
+                             return;
+                         }else{
+                            isConnect=true;
+                         }
+                      }
+                      clearTask();
+                      break;
+                //蓝牙通信通道成功
+                case BleService.ACTION_ENABLE_NOTIFICATION_SUCCES:
+                      LogUtils.e("蓝牙初始化通信通道成功");
+                      //发送认证命令
+                      SendBleAgreement.getInstance().sendBleData(BleStatus.BLE_NORMAL_STATE);
+                      break;
+                //获取到锁的回执数据
+                case BleService.ACTION_DATA_AVAILABLE:
+                      final byte[] bleData = intent.getByteArrayExtra(BleService.ACTION_EXTRA_DATA);
+                      final int resultCode= ParseBleDataTask.parseData(mContext,bleData);
+                      lockResult(resultCode);
                       break;
                   default:
                       break;
             }
         }
     };
+
+
+    /**
+     * 根据锁回执的数据进行处理
+     */
+    private void lockResult(int resultCode){
+        if(resultCode!=BleStatus.BLE_CERTIFICATION_SUCCESS){
+            this.BLE_STATUS=resultCode;
+        }
+        switch (resultCode){
+            case -1:
+                 clearTask();
+                 break;
+            //认证成功
+            case BleStatus.BLE_CERTIFICATION_SUCCESS:
+                  sendBleCmd(BLE_STATUS);
+                  break;
+            default:
+                  break;
+        }
+    }
+
+
+    /**
+     * 发送蓝牙指令
+     * @param status：蓝牙指令类型
+     */
+    private void sendBleCmd(int status){
+        this.BLE_STATUS=status;
+        //扫描并连接蓝牙
+        if (mService.connectionState != mService.STATE_CONNECTED){
+            mService.connectScan("");
+            return;
+        }
+        SendBleAgreement.getInstance().sendBleData(status);
+    }
 
     /**
      * 开启fragment
