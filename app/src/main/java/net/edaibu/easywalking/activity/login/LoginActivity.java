@@ -1,5 +1,6 @@
 package net.edaibu.easywalking.activity.login;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
@@ -13,6 +14,7 @@ import android.widget.TextView;
 import net.edaibu.easywalking.R;
 import net.edaibu.easywalking.activity.BaseActivity;
 import net.edaibu.easywalking.activity.MainActivity;
+import net.edaibu.easywalking.activity.webview.WebViewActivity;
 import net.edaibu.easywalking.application.MyApplication;
 import net.edaibu.easywalking.bean.BaseBean;
 import net.edaibu.easywalking.http.HandlerConstant;
@@ -123,9 +125,9 @@ public class LoginActivity extends BaseActivity implements View.OnClickListener 
                 break;
             //服务协议
             case R.id.tv_login_agreement:
-//                Intent intent = new Intent(getApplicationContext(), WebViewActivity.class);
-//                intent.putExtra("type", 5);
-//                startActivity(intent);
+                Intent intent = new Intent(mContext, WebViewActivity.class);
+                intent.putExtra("type", 1);
+                startActivity(intent);
                 break;
             //登陆
             case R.id.tv_login_submit:

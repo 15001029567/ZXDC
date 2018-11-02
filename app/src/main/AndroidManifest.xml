@@ -57,6 +57,7 @@
 
         <activity android:name=".activity.start.WellcomeActivity"  android:screenOrientation="portrait" />
         <activity android:name=".activity.MainActivity"  android:screenOrientation="portrait" />
+        <activity android:name=".activity.webview.WebViewActivity"  android:screenOrientation="portrait" />
 
 
         <!-- 配置腾讯bugly-->

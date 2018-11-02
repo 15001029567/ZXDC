@@ -58,11 +58,11 @@ public class BleService extends Service {
     /**
      * 发送接到的数据的KEY
      */
-    public final static String ACTION_EXTRA_DATA = "net.edaibu.adminapp.EXTRA_DATA";
+    public final static String ACTION_EXTRA_DATA = "net.edaibu.adminapp.ACTION_EXTRA_DATA";
     /**
      * 通道建立成功
      */
-    public final static String ACTION_ENABLE_NOTIFICATION_SUCCES = "net.edaibu.adminapp.enablenotificationsucces";
+    public final static String ACTION_ENABLE_NOTIFICATION_SUCCES = "net.edaibu.adminapp.ACTION_ENABLE_NOTIFICATION_SUCCES";
     /**
      * 没有发现指定蓝牙
      */
@@ -252,27 +252,8 @@ public class BleService extends Service {
             broadcastUpdate(ACTION_ENABLE_NOTIFICATION_SUCCES);
         } catch (Exception e) {
             //建立通道失败，发送没有找到蓝牙广播
-            broadcastUpdate(ACTION_NO_DISCOVERY_BLE);
+            broadcastUpdate(ACTION_GATT_DISCONNECTED);
         }
-    }
-
-    /**
-     * 断开BluetoothGatt连接
-     */
-    public void disconnect() {
-        if (mBluetoothAdapter == null || mBluetoothGatt == null) {
-            return;
-        }
-        mBluetoothGatt.disconnect();
-    }
-
-    public void close() {
-        if (mBluetoothGatt == null) {
-            return;
-        }
-        mBluetoothGatt.close();
-        mBluetoothGatt = null;
-        LogUtils.e("gatt释放了");
     }
 
 
@@ -504,5 +485,25 @@ public class BleService extends Service {
             }
         }
         return false;
+    }
+
+
+    /**
+     * 断开BluetoothGatt连接
+     */
+    public void disconnect() {
+        if (mBluetoothAdapter == null || mBluetoothGatt == null) {
+            return;
+        }
+        mBluetoothGatt.disconnect();
+    }
+
+    public void close() {
+        if (mBluetoothGatt == null) {
+            return;
+        }
+        mBluetoothGatt.close();
+        mBluetoothGatt = null;
+        LogUtils.e("gatt释放了");
     }
 }
