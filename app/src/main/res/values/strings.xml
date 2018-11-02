@@ -28,4 +28,6 @@
     <string name="second">秒</string>
     <string name="http_error">网络繁忙，请稍后再试</string>
     <string name="press_one_more_time_to_exit_app">再按一次退出智享单车</string>
+    <string name="can_not_find_bluttooth_please_close_bike_and_connect_custom_service">扫描不到蓝牙，请您靠近车辆重新尝试，如无法解决，请联系客服!</string>
+    <string name="known">知道了</string>
 </resources>

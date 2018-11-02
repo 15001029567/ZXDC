@@ -64,9 +64,9 @@ public class BleService extends Service {
      */
     public final static String ACTION_ENABLE_NOTIFICATION_SUCCES = "net.edaibu.adminapp.ACTION_ENABLE_NOTIFICATION_SUCCES";
     /**
-     * 没有发现指定蓝牙
+     * 扫描不到指定蓝牙设备
      */
-    public final static String ACTION_NO_DISCOVERY_BLE = "net.edaibu.adminapp.ACTION_NO_DISCOVERY_BLE";
+    public final static String ACTION_NO_SCAN_BLE_DEVICE = "net.edaibu.adminapp.ACTION_NO_SCAN_BLE_DEVICE";
     /**
      * 数据交互超时
      */
@@ -428,7 +428,7 @@ public class BleService extends Service {
                 //关闭扫描计时器
                 stopStartTime();
                 //发送没有扫到蓝牙的广播
-                broadcastUpdate(ACTION_NO_DISCOVERY_BLE);
+                broadcastUpdate(ACTION_NO_SCAN_BLE_DEVICE);
             }
         });
         startUtil.start();

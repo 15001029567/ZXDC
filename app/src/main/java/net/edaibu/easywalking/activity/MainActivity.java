@@ -1,9 +1,11 @@
 package net.edaibu.easywalking.activity;
 
 import android.bluetooth.BluetoothAdapter;
+import android.content.BroadcastReceiver;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.ServiceConnection;
 import android.os.Bundle;
 import android.os.IBinder;
@@ -17,13 +19,19 @@ import net.edaibu.easywalking.fragment.MapFragment;
 import net.edaibu.easywalking.service.BleService;
 import net.edaibu.easywalking.utils.ActivitysLifecycle;
 import net.edaibu.easywalking.utils.bletooth.SendBleAgreement;
+import net.edaibu.easywalking.view.DialogView;
 
+/**
+ * 首页
+ */
 public class MainActivity extends BaseActivity{
 
     //蓝牙服务对象
     public BleService mService = null;
     //蓝牙适配器
     public BluetoothAdapter mBtAdapter = null;
+    //自定义dialog
+    public DialogView dialogView;
     //地图的fragment
     private MapFragment mapFragment=new MapFragment();
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -31,6 +39,8 @@ public class MainActivity extends BaseActivity{
         setContentView(R.layout.activity_main);
         //初始化蓝牙服务
         initBleService();
+        //注册广播
+        registerBoradcastReceiver();
         showFragment(mapFragment, true, R.id.fragment_map);
     }
 
@@ -54,6 +64,29 @@ public class MainActivity extends BaseActivity{
         }
     };
 
+
+    /**
+     * 注册广播
+     */
+    private void registerBoradcastReceiver(){
+        IntentFilter myIntentFilter = new IntentFilter();
+        myIntentFilter.addAction(BleService.ACTION_NO_SCAN_BLE_DEVICE);//扫描不到指定蓝牙设备
+        registerReceiver(mBroadcastReceiver, myIntentFilter);
+    }
+
+    private BroadcastReceiver mBroadcastReceiver = new BroadcastReceiver() {
+        public void onReceive(Context context, Intent intent) {
+            switch (intent.getAction()){
+                //扫描不到指定蓝牙设备
+                case BleService.ACTION_NO_SCAN_BLE_DEVICE:
+                      dialogView = new DialogView(dialogView, mContext, getString(R.string.can_not_find_bluttooth_please_close_bike_and_connect_custom_service), getString(R.string.known), null, null, null);
+                      dialogView.show();
+                      break;
+                  default:
+                      break;
+            }
+        }
+    };
 
     /**
      * 开启fragment

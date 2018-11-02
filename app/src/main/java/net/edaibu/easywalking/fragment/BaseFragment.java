@@ -52,7 +52,7 @@ public class BaseFragment extends Fragment {
      * @param message
      */
     public void showMsg(String message) {
-        Toast toast=Toast.makeText(getActivity(), message, Toast.LENGTH_LONG);
+        Toast toast=Toast.makeText(mActivity, message, Toast.LENGTH_LONG);
         toast.show();
     }
 
@@ -65,7 +65,7 @@ public class BaseFragment extends Fragment {
         if (progressDialog != null && progressDialog.isShowing()) {
             return;
         }
-        progressDialog = new ProgressDialog(getActivity());
+        progressDialog = new ProgressDialog(mActivity);
         progressDialog.setMessage(msg);
         progressDialog.setIndeterminate(true);
         progressDialog.setCancelable(isClose);

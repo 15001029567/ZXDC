@@ -11,6 +11,7 @@ import java.util.concurrent.Executors;
  */
 public class SendBleAgreement {
 
+    //单列对象
     private static SendBleAgreement sendBleAgreement = new SendBleAgreement();
     //线程池
     private ExecutorService fixedThreadPool_ble = Executors.newSingleThreadExecutor();
@@ -41,6 +42,18 @@ public class SendBleAgreement {
             //获取开锁命令
             case BleStatus.BLE_OPEN_LOCK_ING:
                   bleByte=AesUtils.encrypt(BleAgreement.openLock(""));
+                  break;
+            //获取关锁命令
+            case BleStatus.BLE_CLOSE_LOCK_ING:
+                  bleByte=AesUtils.encrypt(BleAgreement.closeLock(""));
+                  break;
+            //获取闪动或响铃命令
+            case BleStatus.BLE_FLASH_ING:
+                  bleByte=AesUtils.encrypt(BleAgreement.findLock("",0x00));
+                  break;
+            //获取结算锁车命令
+            case BleStatus.BLE_PAY_CLOSE_LOCK_ING:
+                  bleByte=AesUtils.encrypt(BleAgreement.balanceCar(""));
                   break;
               default:
                   break;
