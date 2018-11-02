@@ -58,6 +58,46 @@
         <activity android:name=".activity.start.WellcomeActivity"  android:screenOrientation="portrait" />
         <activity android:name=".activity.MainActivity"  android:screenOrientation="portrait" />
 
+
+        <!-- 配置腾讯bugly-->
+        <meta-data
+            android:name="BUGLY_APPID"
+            android:value="52c6ece492" />
+
+        <!-- 百度地图的appkey -->
+        <meta-data
+            android:name="com.baidu.lbsapi.API_KEY"
+            android:value="LOUkVQaqbEWddabETjUE9nNWz5huq9R5" />
+
+        <!-- 百度地图服务 -->
+        <service
+            android:name="com.baidu.location.f"
+            android:enabled="true"
+            android:process=":remote">
+            <intent-filter>
+                <action android:name="com.baidu.location.service_v2.2" />
+            </intent-filter>
+        </service>
+
+        <!-- 支付宝 -->
+        <activity
+            android:name="com.alipay.sdk.app.H5PayActivity"
+            android:configChanges="orientation|keyboardHidden|navigation"
+            android:exported="false"
+            android:screenOrientation="behind"
+            android:windowSoftInputMode="adjustResize|stateHidden" />
+
+        <!-- 微信 -->
+        <activity
+            android:name=".wxapi.WXPayEntryActivity"
+            android:exported="true"
+            android:launchMode="singleTop" />
+
+        <!-- 发布渠道追踪 -->
+        <meta-data
+            android:name="SENSORS_ANALYTICS_UTM_SOURCE"
+            android:value="${CHANNEL_VALUE}" />
+
     </application>
 
 </manifest>

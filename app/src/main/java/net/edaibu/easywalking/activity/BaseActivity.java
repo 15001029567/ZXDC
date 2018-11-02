@@ -56,8 +56,12 @@ public class BaseActivity extends FragmentActivity {
     }
 
 
-    public void showProgress(String msg) {
-        //如果已经存在并且在显示中就不处理
+    /**
+     * loding弹框
+     * @param msg
+     * @param isClose
+     */
+    public void showProgress(String msg,boolean isClose) {
         if (progressDialog != null && progressDialog.isShowing()) {
             progressDialog.setMessage(msg);
             return;
@@ -65,7 +69,7 @@ public class BaseActivity extends FragmentActivity {
         progressDialog = new ProgressDialog(this);
         progressDialog.setMessage(msg);
         progressDialog.setIndeterminate(true);
-        progressDialog.setCancelable(true);
+        progressDialog.setCancelable(isClose);
         progressDialog.show();
     }
 

@@ -99,7 +99,7 @@ public class ScanActivity extends BaseActivity implements SurfaceHolder.Callback
                 if(strs!=null){
                     String type=strs[3];
                     if(type.equals("g")){
-                        showProgress("数据查询中");
+                        showProgress("数据查询中",true);
                     }else{
 
                     }

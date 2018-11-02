@@ -52,6 +52,40 @@ android {
 
         }
     }
+
+
+    productFlavors {
+        ying_yong_bao {
+            manifestPlaceholders = [CHANNEL_VALUE: "ying_yong_bao"]
+        }
+        hua_wei {
+            manifestPlaceholders = [CHANNEL_VALUE: "hua_wei"]
+        }
+        bai_du {
+            manifestPlaceholders = [CHANNEL_VALUE: "bai_du"]
+        }
+        mei_zu {
+            manifestPlaceholders = [CHANNEL_VALUE: "mei_zu"]
+        }
+        vivo {
+            manifestPlaceholders = [CHANNEL_VALUE: "vivo"]
+        }
+        oppo {
+            manifestPlaceholders = [CHANNEL_VALUE: "oppo"]
+        }
+        Android {
+            manifestPlaceholders = [CHANNEL_VALUE: "Android"]
+        }
+        xiao_mi {
+            manifestPlaceholders = [CHANNEL_VALUE: "xiao_mi"]
+        }
+        sou_gou {
+            manifestPlaceholders = [CHANNEL_VALUE: "sou_gou"]
+        }
+        sanliuling {
+            manifestPlaceholders = [CHANNEL_VALUE: "360"]
+        }
+    }
 }
 
 dependencies {

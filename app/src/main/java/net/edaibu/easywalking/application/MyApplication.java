@@ -2,6 +2,8 @@ package net.edaibu.easywalking.application;
 
 import android.app.Application;
 
+import com.baidu.mapapi.CoordType;
+import com.baidu.mapapi.SDKInitializer;
 import com.google.gson.Gson;
 import com.tencent.bugly.crashreport.CrashReport;
 
@@ -21,6 +23,9 @@ public class MyApplication extends Application {
 
         //初始化bugly异常捕获
         initBugly();
+
+        //初始化百度地图
+        initMap();
     }
 
 
@@ -36,5 +41,14 @@ public class MyApplication extends Application {
         }catch (Exception e){
 
         }
+    }
+
+
+    /**
+     * 初始化百度地图
+     */
+    private void initMap(){
+        SDKInitializer.initialize(getApplicationContext());
+        SDKInitializer.setCoordType(CoordType.GCJ02);
     }
 }

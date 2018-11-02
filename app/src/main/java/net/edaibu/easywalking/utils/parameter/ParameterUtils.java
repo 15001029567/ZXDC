@@ -3,6 +3,7 @@ package net.edaibu.easywalking.utils.parameter;
 import android.content.Context;
 import android.text.TextUtils;
 import net.edaibu.easywalking.application.MyApplication;
+import net.edaibu.easywalking.utils.NetUtils;
 import net.edaibu.easywalking.utils.SPUtil;
 import net.edaibu.easywalking.utils.Util;
 import java.util.ArrayList;
@@ -32,7 +33,7 @@ public class ParameterUtils {
         //app版本号
         int app_version = Util.getVersionCode(mContext);
         //网络类型
-        String network_type = Util.getNetTypeName(mContext);
+        String network_type = NetUtils.getNetworkState(mContext);
         if (map == null) {
             map = new HashMap<>();
         }

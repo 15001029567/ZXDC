@@ -31,7 +31,7 @@ public class DialogView extends Dialog implements View.OnClickListener {
 
     public DialogView(DialogView dialogView, Context mContext, CharSequence  content, String confirm, String cancle, View.OnClickListener listenerYes, View.OnClickListener listenerNo){
         super(mContext);
-        if(null!=dialogView){
+        if(null!=dialogView && dialogView.isShowing()){
             dialogView.dismiss();
         }
         this.content=content;
