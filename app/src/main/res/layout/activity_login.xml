@@ -1,0 +1,137 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@android:color/white"
+    android:orientation="vertical">
+
+    <TextView
+        android:id="@+id/tv_login_cancel"
+        android:layout_width="13dp"
+        android:layout_height="13dp"
+        android:layout_marginLeft="20dp"
+        android:layout_marginTop="21dp"
+        android:background="@mipmap/img_login_cancel"
+        android:padding="20dp" />
+
+    <ImageView
+        android:id="@+id/img_logo"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
+        android:layout_marginTop="43dp"
+        android:src="@mipmap/img_login_logo" />
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="60dp"
+        android:layout_marginLeft="20dp"
+        android:layout_marginRight="20dp"
+        android:layout_marginTop="40dp">
+
+        <EditText
+            android:id="@+id/et_login_phone"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_alignParentBottom="true"
+            android:layout_alignParentStart="true"
+            android:layout_marginBottom="10dp"
+            android:background="@null"
+            android:gravity="bottom"
+            android:hint="@string/hint_phone"
+            android:inputType="phone"
+            android:maxLength="11"
+            android:textColor="@color/main_color"
+            android:textColorHint="@color/color_BBBBBB"
+            android:textSize="14sp" />
+
+        <TextView
+            android:id="@+id/tv_phone_number_line"
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:layout_alignParentBottom="true"
+            android:background="@color/color_dddddd" />
+
+    </RelativeLayout>
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="60dp"
+        android:layout_marginLeft="20dp"
+        android:layout_marginRight="20dp">
+
+        <EditText
+            android:id="@+id/et_login_code"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_alignParentStart="true"
+            android:layout_alignParentTop="true"
+            android:layout_marginBottom="10dp"
+            android:background="@null"
+            android:gravity="bottom"
+            android:hint="@string/code"
+            android:inputType="number"
+            android:maxLength="4"
+            android:textColor="@color/main_color"
+            android:textColorHint="@color/color_BBBBBB"
+            android:textSize="14sp" />
+
+        <net.edaibu.easywalking.view.ClickTextView
+            android:id="@+id/tv_login_sendCode"
+            android:layout_width="121dp"
+            android:layout_height="46dp"
+            android:layout_alignParentRight="true"
+            android:layout_marginTop="6dp"
+            android:background="@drawable/code_normal"
+            android:gravity="center"
+            android:text="@string/get_code"
+            android:textColor="@android:color/white" />
+
+        <TextView
+            android:id="@+id/tv_msg_code_line"
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:layout_alignParentBottom="true"
+            android:background="@color/color_dddddd" />
+
+    </RelativeLayout>
+
+    <RelativeLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="20dp"
+        android:layout_marginTop="15dp"
+        android:gravity="center">
+
+        <TextView
+            android:id="@+id/tv_login_service"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/login_is_reply_agree"
+            android:textColor="@color/color_aaaaaa"
+            android:textSize="12sp" />
+
+        <TextView
+            android:id="@+id/tv_login_agreement"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="2dp"
+            android:layout_toRightOf="@+id/tv_login_service"
+            android:text="@string/service_agreement"
+            android:textColor="@color/color_2298F2"
+            android:textSize="12sp" />
+
+    </RelativeLayout>
+
+        <net.edaibu.easywalking.view.ClickTextView
+            android:id="@+id/tv_login_submit"
+            android:layout_width="match_parent"
+            android:layout_height="45dp"
+            android:background="@drawable/bg_login"
+            android:layout_margin="20dp"
+            android:gravity="center"
+            android:text="@string/login"
+            android:textColor="@android:color/white"
+            android:textSize="18sp" />
+
+</LinearLayout>

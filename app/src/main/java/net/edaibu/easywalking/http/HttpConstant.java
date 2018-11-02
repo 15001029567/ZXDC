@@ -10,4 +10,10 @@ public class HttpConstant {
 
     //查询最新的access_token
     public static final String GET_ACCESS_TOKEN = "auth/login";
+
+    //获取验证码
+    public static final String GET_CODE = "sms/send";
+
+    //登陆
+    public static final String LOGIN = "sms/login";
 }

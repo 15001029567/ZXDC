@@ -12,6 +12,7 @@
     <color name="colorPrimaryDark">#303F9F</color>
     <color name="colorAccent">#FF4081</color>
     <color name="color_333333">#333333</color>
+    <color name="color_dddddd">#DDDDDD</color>
 
     <!-- 按钮状态属性 -->
     <color name="button_pressed">#eeeeee</color>
