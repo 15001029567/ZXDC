@@ -17,6 +17,7 @@ import net.edaibu.easywalking.service.BleService;
 import net.edaibu.easywalking.utils.ActivitysLifecycle;
 import net.edaibu.easywalking.utils.LogUtils;
 import net.edaibu.easywalking.utils.SPUtil;
+import net.edaibu.easywalking.utils.WakeLockUtil;
 import net.edaibu.easywalking.utils.bletooth.BleStatus;
 import net.edaibu.easywalking.utils.bletooth.ParseBleDataTask;
 import net.edaibu.easywalking.utils.bletooth.SendBleAgreement;
@@ -46,6 +47,8 @@ public class MainActivity extends BaseActivity implements MainPersenter{
         initBleService();
         //注册广播
         registerBoradcastReceiver();
+        //保持CPU唤醒
+        WakeLockUtil.getInstance().acquireWakeLock(mContext);
         mainPersenter.showFragment(mapFragment, true, R.id.fragment_map);
     }
 
@@ -63,7 +66,6 @@ public class MainActivity extends BaseActivity implements MainPersenter{
     private void initBleService() {
         mainPersenter.initBleService();
     }
-
 
 
     /**

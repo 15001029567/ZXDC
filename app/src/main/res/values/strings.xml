@@ -39,4 +39,6 @@
     <string name="open_light">手电筒</string>
     <string name="please_enter_full_bike_number">请输入完整的车辆编号！</string>
     <string name="please_enter_bike_bumber">请输入车辆编号！</string>
+    <string name="downloading">新版本下载中...</string>
+    <string name="version_update">版本更新</string>
 </resources>

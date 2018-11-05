@@ -4,12 +4,15 @@ import android.os.Handler;
 
 import net.edaibu.easywalking.bean.BaseBean;
 import net.edaibu.easywalking.bean.BikeInfo;
+import net.edaibu.easywalking.bean.DownLoad;
 import net.edaibu.easywalking.bean.Fanceing;
 import net.edaibu.easywalking.bean.UserInfo;
+import net.edaibu.easywalking.bean.Version;
 import net.edaibu.easywalking.http.base.BaseRequst;
 import net.edaibu.easywalking.http.base.Http;
 import net.edaibu.easywalking.utils.LogUtils;
 
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -146,6 +149,47 @@ public class HttpMethod extends BaseRequst {
 
             public void onFailure(Call<BikeInfo> call, Throwable t) {
                 sendMessage(handler, HandlerConstant.REQUST_ERROR, null);
+            }
+        });
+    }
+
+
+
+    /**
+     * 查询最新版本
+     * @param handler
+     */
+    public static void getNewVersion(final Handler handler) {
+        Map<String, String> map = new HashMap<>();
+        Http.getRetrofit().create(HttpApi.class).getNewVersion(map).enqueue(new Callback<Version>() {
+            public void onResponse(Call<Version> call, Response<Version> response) {
+                try {
+                    sendMessage(handler, HandlerConstant.GET_VERSION_SUCCESS, response.body());
+                }catch (Exception e){
+                    e.printStackTrace();
+                    sendMessage(handler, HandlerConstant.GET_DATA_ERROR, null);
+                }
+            }
+            public void onFailure(Call<Version> call, Throwable t) {
+                sendMessage(handler, HandlerConstant.REQUST_ERROR, null);
+            }
+        });
+    }
+
+
+    /**
+     * 文件下载
+     * @param handler
+     */
+    public static void download(final DownLoad downLoad, final Handler handler) {
+        Http.dowload(downLoad.getDownPath(), downLoad.getSavePath(),handler, new okhttp3.Callback() {
+            public void onFailure(okhttp3.Call call, IOException e) {
+                sendMessage(handler, HandlerConstant.REQUST_ERROR, null);
+            }
+            public void onResponse(okhttp3.Call call, okhttp3.Response response) throws IOException {
+                if(response.isSuccessful()){
+                    sendMessage(handler, HandlerConstant.DOWNLOAD_SUCCESS, downLoad);
+                }
             }
         });
     }

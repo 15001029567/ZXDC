@@ -22,4 +22,7 @@ public class HttpConstant {
 
     //查询附近500米内车辆
     public static final String FIND_CARLIST = "bike/location/list/gcj";
+
+    //查询最新版本
+    public static final String FIND_VERSION = "version/update";
 }

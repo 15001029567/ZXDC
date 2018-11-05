@@ -4,6 +4,8 @@ package net.edaibu.easywalking.http.base;
 import android.os.Handler;
 import android.os.Message;
 import android.text.TextUtils;
+
+import net.edaibu.easywalking.http.HandlerConstant;
 import net.edaibu.easywalking.http.HttpConstant;
 import java.io.File;
 import java.io.FileOutputStream;
@@ -113,12 +115,10 @@ public class Http {
         Request request = new Request.Builder().url(dowloadUrl).build();
         Call call = new OkHttpClient.Builder().readTimeout(60 * 5, TimeUnit.SECONDS).build().newCall(request);
         call.enqueue(new Callback() {
-            @Override
             public void onFailure(Call call, IOException e) {
                 callback.onFailure(call, e);
             }
 
-            @Override
             public void onResponse(Call call, Response response) throws IOException {
                 if (!response.isSuccessful()) {
                     if (callback != null) {
@@ -140,7 +140,7 @@ public class Http {
                     if (null != mHandler) {
                         format.setMinimumFractionDigits(0);// 设置小数位
                         Message msg = new Message();
-//                        msg.what = HandlerConstant.DOWNLOAD_PRORESS;
+                        msg.what = HandlerConstant.DOWNLOAD_PRORESS;
                         msg.obj = format.format((float) l / (float) length);
                         mHandler.sendMessage(msg);
                     }

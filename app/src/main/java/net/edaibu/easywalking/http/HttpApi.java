@@ -4,6 +4,7 @@ import net.edaibu.easywalking.bean.BaseBean;
 import net.edaibu.easywalking.bean.BikeInfo;
 import net.edaibu.easywalking.bean.Fanceing;
 import net.edaibu.easywalking.bean.UserInfo;
+import net.edaibu.easywalking.bean.Version;
 
 import java.util.Map;
 
@@ -64,4 +65,14 @@ public interface HttpApi {
     @FormUrlEncoded
     @POST(HttpConstant.FIND_CARLIST)
     Call<BikeInfo> getLocationBike(@FieldMap Map<String, String> map);
+
+
+    /**
+     * 查询最新版本
+     * @param map
+     * @return
+     */
+    @FormUrlEncoded
+    @POST(HttpConstant.FIND_VERSION)
+    Call<Version> getNewVersion(@FieldMap Map<String, String> map);
 }

@@ -9,4 +9,7 @@ public class HandlerConstant {
     public static final int LOGIN_SUCCESS=10005;
     public static final int FIND_FENCING_SUCCESS=10006;
     public static final int GET_LOCATION_BIKE_SUCCESS=10007;
+    public static final int GET_VERSION_SUCCESS=10008;
+    public static final int DOWNLOAD_SUCCESS=10009;
+    public static final int DOWNLOAD_PRORESS=10010;
 }
