@@ -15,7 +15,7 @@
  */
 
 package net.edaibu.easywalking.activity.scan;
-
+import android.annotation.TargetApi;
 import android.content.res.AssetFileDescriptor;
 import android.graphics.Bitmap;
 import android.media.AudioManager;
@@ -23,29 +23,39 @@ import android.media.MediaPlayer;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
-import android.os.Message;
 import android.os.Vibrator;
+import android.text.Editable;
 import android.text.TextUtils;
+import android.text.TextWatcher;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.widget.EditText;
+import android.widget.LinearLayout;
+import android.widget.TextView;
 import com.google.zxing.BarcodeFormat;
 import com.google.zxing.Result;
 import net.edaibu.easywalking.R;
 import net.edaibu.easywalking.activity.BaseActivity;
-import net.edaibu.easywalking.utils.scan.SystemBarTintManager;
 import net.edaibu.easywalking.utils.scan.cameras.CameraManager;
 import net.edaibu.easywalking.utils.scan.decoding.InactivityTimer;
 import net.edaibu.easywalking.utils.scan.decoding.ScanActivityHandler;
 import net.edaibu.easywalking.utils.scan.view.ViewfinderView;
+import net.edaibu.easywalking.view.DialogView;
 import java.io.IOException;
 import java.util.Vector;
+
 /**
  * 扫描二维码
  */
 public class ScanActivity extends BaseActivity implements SurfaceHolder.Callback, OnClickListener {
 
+    private EditText et;
+    private LinearLayout linAs, linSetCode;
+    private String bikeCode;
+    //编码存储
+    private char[] arr;
     private ScanActivityHandler handler;// 消息中心
     private ViewfinderView viewfinderView;// 绘制扫描区域
     private boolean hasSurface;// 控制调用相机属性
@@ -56,15 +66,13 @@ public class ScanActivity extends BaseActivity implements SurfaceHolder.Callback
     private boolean playBeep;// 声音布尔
     private static final float BEEP_VOLUME = 0.10f;// 声音大小
     private boolean vibrate;// 振动布尔
+    // 闪光灯
+    private boolean isTorchOn = true;
+    private DialogView dialogView;
+    private Handler mHandler=new Handler();
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_zxing_scan);
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) { //系统版本大于19
-            setTranslucentStatus(true);
-        }
-        SystemBarTintManager tintManager = new SystemBarTintManager(this);
-        tintManager.setStatusBarTintEnabled(true);
-        tintManager.setStatusBarTintResource(R.color.main_color);
         CameraManager.init(this);
         inactivityTimer = new InactivityTimer(this);
         initView();
@@ -75,7 +83,79 @@ public class ScanActivity extends BaseActivity implements SurfaceHolder.Callback
      */
     private void initView() {
         viewfinderView = (ViewfinderView) findViewById(R.id.viewfinder_view);
+        LinearLayout linCode = (LinearLayout) findViewById(R.id.lin_aqs_code);
+        linAs = (LinearLayout) findViewById(R.id.lin_as);
+        linSetCode = (LinearLayout) findViewById(R.id.lin_setcode);
+        final TextView tv1 = (TextView) findViewById(R.id.t1);
+        final TextView tv2 = (TextView) findViewById(R.id.t2);
+        final TextView tv3 = (TextView) findViewById(R.id.t3);
+        final TextView tv4 = (TextView) findViewById(R.id.t4);
+        final TextView tv5 = (TextView) findViewById(R.id.t5);
+        final TextView tv6 = (TextView) findViewById(R.id.t6);
+        final TextView tv7 = (TextView) findViewById(R.id.t7);
+        et = (EditText) findViewById(R.id.editHide);
         findViewById(R.id.lin_back).setOnClickListener(this);
+        findViewById(R.id.lin_code_back).setOnClickListener(this);
+        findViewById(R.id.btn_as_submit).setOnClickListener(this);
+        findViewById(R.id.lin_aqs_light).setOnClickListener(this);
+        linCode.setOnClickListener(this);
+        //输入车辆编号
+        et.addTextChangedListener(new TextWatcher() {
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+
+            }
+
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+
+            }
+
+            @TargetApi(Build.VERSION_CODES.JELLY_BEAN)
+            public void afterTextChanged(Editable s) {
+                arr = s.toString().toCharArray();
+                tv1.setText(null);
+                tv2.setText(null);
+                tv3.setText(null);
+                tv4.setText(null);
+                tv5.setText(null);
+                tv6.setText(null);
+                tv7.setText(null);
+                if (TextUtils.isEmpty(s.toString())) {
+                    tv1.setBackground(getResources().getDrawable(R.drawable.scan_share));
+                }
+                for (int i = 0; i < arr.length; i++) {
+                    if (i == 0) {
+                        tv1.setText(String.valueOf(arr[0]));
+                        tv1.setBackgroundColor(getResources().getColor(R.color.main_color));
+                        tv2.setBackground(getResources().getDrawable(R.drawable.scan_share));
+                    } else if (i == 1) {
+                        tv2.setText(String.valueOf(arr[1]));
+                        tv2.setBackgroundColor(getResources().getColor(R.color.main_color));
+                        tv3.setBackground(getResources().getDrawable(R.drawable.scan_share));
+                    } else if (i == 2) {
+                        tv3.setText(String.valueOf(arr[2]));
+                        tv3.setBackgroundColor(getResources().getColor(R.color.main_color));
+                        tv4.setBackground(getResources().getDrawable(R.drawable.scan_share));
+                    } else if (i == 3) {
+                        tv4.setText(String.valueOf(arr[3]));
+                        tv4.setBackgroundColor(getResources().getColor(R.color.main_color));
+                        tv5.setBackground(getResources().getDrawable(R.drawable.scan_share));
+                    } else if (i == 4) {
+                        tv5.setText(String.valueOf(arr[4]));
+                        tv5.setBackgroundColor(getResources().getColor(R.color.main_color));
+                        tv6.setBackground(getResources().getDrawable(R.drawable.scan_share));
+                    } else if (i == 5) {
+                        tv6.setText(String.valueOf(arr[5]));
+                        tv6.setBackgroundColor(getResources().getColor(R.color.main_color));
+                        tv7.setBackground(getResources().getDrawable(R.drawable.scan_share));
+                    } else if (i == 6) {
+                        tv7.setText(String.valueOf(arr[6]));
+                        tv7.setBackgroundColor(getResources().getColor(R.color.main_color));
+                        //隐藏键盘
+                        lockKey(et);
+                    }
+                }
+            }
+        });
     }
 
     /**
@@ -89,21 +169,16 @@ public class ScanActivity extends BaseActivity implements SurfaceHolder.Callback
         playBeepSoundAndVibrate();
         resumeScan();
         if (null == result) {
+            showMsg(getString(R.string.scan_failed_try_again));
             return;
         }
         String resultString = result.getText();
         if (!TextUtils.isEmpty(resultString)) {
             resultString = resultString.replace(" ", "");
-            if (resultString.indexOf("q.th2w") != -1) {
-                String[] strs=resultString.split("/");
-                if(strs!=null){
-                    String type=strs[3];
-                    if(type.equals("g")){
-                        showProgress("数据查询中",true);
-                    }else{
+            if (resultString.indexOf("zxbike") != -1) {
+                bikeCode = resultString.substring(resultString.length() - 7, resultString.length());
 
-                    }
-                }
+
             } else {
                 showMsg(getString(R.string.please_scan_right_qr_code));
             }
@@ -111,13 +186,6 @@ public class ScanActivity extends BaseActivity implements SurfaceHolder.Callback
             showMsg(getString(R.string.scan_failed_try_again));
         }
     }
-
-
-   private Handler mHandler=new Handler(new Handler.Callback() {
-       public boolean handleMessage(Message msg) {
-           return false;
-       }
-   });
 
     /**
      * 重复扫描
@@ -135,6 +203,44 @@ public class ScanActivity extends BaseActivity implements SurfaceHolder.Callback
 
     public void onClick(View v) {
         switch (v.getId()) {
+            //开关灯
+            case R.id.lin_aqs_light:
+                openLight(true);
+                break;
+            //输入车辆编号
+            case R.id.lin_aqs_code:
+                linSetCode.setVisibility(View.VISIBLE);
+                linAs.setVisibility(View.GONE);
+                //自动打开软键盘
+                et.setFocusable(true);
+                et.setFocusableInTouchMode(true);
+                et.requestFocus();
+                openKey(et);
+                break;
+            //设置编码返回
+            case R.id.lin_code_back:
+                linSetCode.setVisibility(View.GONE);
+                linAs.setVisibility(View.VISIBLE);
+                //隐藏键盘
+                lockKey(et);
+                break;
+            //设置编码后提交
+            case R.id.btn_as_submit:
+                if (null != arr) {
+                    if (arr.length < 7) {
+                        showMsg(getString(R.string.please_enter_full_bike_number));
+                    } else {
+                        StringBuffer sb = new StringBuffer();
+                        for (int i = 0; i < arr.length; i++) {
+                            sb.append(arr[i]);
+                        }
+                        bikeCode = sb.toString();
+
+                    }
+                } else {
+                    showMsg(getString(R.string.please_enter_bike_bumber));
+                }
+                break;
             case R.id.lin_back:
                 finish();
                 break;
@@ -142,6 +248,23 @@ public class ScanActivity extends BaseActivity implements SurfaceHolder.Callback
                 break;
         }
     }
+
+
+    /**
+     * 开关灯设置
+     *
+     * @param b
+     */
+    private void openLight(boolean b) {
+        if (isTorchOn) {//开灯
+            isTorchOn = false;
+            CameraManager.start();
+        } else {//关灯
+            isTorchOn = true;
+            CameraManager.stop();
+        }
+    }
+
 
 
     /**
@@ -265,6 +388,7 @@ public class ScanActivity extends BaseActivity implements SurfaceHolder.Callback
     }
 
 
+
     @Override
     protected void onPause() {
         // 停止相机 关闭闪光灯
@@ -281,7 +405,6 @@ public class ScanActivity extends BaseActivity implements SurfaceHolder.Callback
         clearTask();
         // 停止相机扫描刷新timer
         inactivityTimer.shutdown();
-        removeHandler(mHandler);
         super.onDestroy();
     }
 }

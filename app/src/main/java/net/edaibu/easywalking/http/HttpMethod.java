@@ -3,6 +3,7 @@ package net.edaibu.easywalking.http;
 import android.os.Handler;
 
 import net.edaibu.easywalking.bean.BaseBean;
+import net.edaibu.easywalking.bean.BikeInfo;
 import net.edaibu.easywalking.bean.Fanceing;
 import net.edaibu.easywalking.bean.UserInfo;
 import net.edaibu.easywalking.http.base.BaseRequst;
@@ -120,4 +121,33 @@ public class HttpMethod extends BaseRequst {
             }
         });
     }
+
+
+
+    /**
+     * 查询周围500米的车辆 使用百度坐标
+     * @param lat
+     * @param lon
+     * @param handler
+     */
+    public static void getLocationBike(String lat,String lon,final Handler handler) {
+        Map<String, String> map = new HashMap<>();
+        map.put("lat",lat);
+        map.put("lon",lon);
+        Http.getRetrofit().create(HttpApi.class).getLocationBike(map).enqueue(new Callback<BikeInfo>() {
+            public void onResponse(Call<BikeInfo> call, Response<BikeInfo> response) {
+                try {
+                    sendMessage(handler, HandlerConstant.GET_LOCATION_BIKE_SUCCESS, response.body());
+                }catch (Exception e){
+                    e.printStackTrace();
+                    sendMessage(handler, HandlerConstant.GET_DATA_ERROR, null);
+                }
+            }
+
+            public void onFailure(Call<BikeInfo> call, Throwable t) {
+                sendMessage(handler, HandlerConstant.REQUST_ERROR, null);
+            }
+        });
+    }
+
 }

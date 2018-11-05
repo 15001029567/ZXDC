@@ -103,36 +103,6 @@ public class FileUtils {
     }
 
 
-    /**
-     * 删除广告图片
-     */
-    public static void deleteAbvert() {
-        try {
-            File file = new File(abvertPath);
-            if (file == null || !file.exists()) {
-                return;
-            }
-            for (File f : file.listFiles()) {
-                f.delete();
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-
-
-    public static long getFileSizes(File f) throws Exception {
-        long s = 0;
-        if (f.exists()) {
-            FileInputStream fis = null;
-            fis = new FileInputStream(f);
-            s = fis.available();
-        } else {
-            f.createNewFile();
-        }
-        return s;
-    }
-
 
     /**
      * 将图片的长和宽缩小味原来的1/2

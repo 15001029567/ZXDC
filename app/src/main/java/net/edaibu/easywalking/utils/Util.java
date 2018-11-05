@@ -1,11 +1,17 @@
 package net.edaibu.easywalking.utils;
 
 import android.content.Context;
+import android.content.Intent;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.telephony.TelephonyManager;
+import android.text.TextUtils;
 import android.view.WindowManager;
+
+import net.edaibu.easywalking.activity.login.LoginActivity;
+import net.edaibu.easywalking.application.MyApplication;
+
 import java.text.DecimalFormat;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -138,5 +144,19 @@ public class Util extends ClassLoader {
         }
     }
 
+
+    /**
+     * 判断是否登陆
+     *
+     * @return
+     */
+    public boolean isLogin(Context mContext) {
+        if (TextUtils.isEmpty(MyApplication.spUtil.getString(SPUtil.ACCESS_TOKEN))) {
+            Intent intent = new Intent(mContext, LoginActivity.class);
+            mContext.startActivity(intent);
+            return false;
+        }
+        return true;
+    }
 
 }

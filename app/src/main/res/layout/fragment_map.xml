@@ -9,4 +9,23 @@
         android:layout_height="match_parent">
     </com.baidu.mapapi.map.MapView>
 
+    <ImageView
+        android:id="@+id/img_location"
+        android:layout_width="50dp"
+        android:layout_height="50dp"
+        android:src="@mipmap/icon_location"
+        android:layout_alignParentBottom="true"
+        android:layout_marginLeft="20dp"
+        android:layout_marginBottom="30dp"/>
+
+    <ImageView
+        android:id="@+id/img_service"
+        android:layout_width="50dp"
+        android:layout_height="50dp"
+        android:src="@mipmap/custom_service"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentRight="true"
+        android:layout_marginRight="20dp"
+        android:layout_marginBottom="30dp"/>
+
 </RelativeLayout>

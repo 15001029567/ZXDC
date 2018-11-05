@@ -32,4 +32,11 @@
     <string name="known">知道了</string>
     <string name="Receive_data_timeout_please_try_again">接收数据超时，请重试！</string>
     <string name="Data_loading">数据加载中</string>
+    <string name="entry_car_code">请输入正确的7位车牌号</string>
+    <string name="scan_code">扫码</string>
+    <string name="Aim_the_qr_code_on_the_car">对准车上的二维码</string>
+    <string name="eit_bikecode">输入单车编号</string>
+    <string name="open_light">手电筒</string>
+    <string name="please_enter_full_bike_number">请输入完整的车辆编号！</string>
+    <string name="please_enter_bike_bumber">请输入车辆编号！</string>
 </resources>

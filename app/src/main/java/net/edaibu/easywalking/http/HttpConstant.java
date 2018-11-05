@@ -19,4 +19,7 @@ public class HttpConstant {
 
     //查询电子围栏
     public static final String FIND_FENCING = "forbid/fence/query/gcj";
+
+    //查询附近500米内车辆
+    public static final String FIND_CARLIST = "bike/location/list/gcj";
 }

@@ -1,6 +1,7 @@
 package net.edaibu.easywalking.http;
 
 import net.edaibu.easywalking.bean.BaseBean;
+import net.edaibu.easywalking.bean.BikeInfo;
 import net.edaibu.easywalking.bean.Fanceing;
 import net.edaibu.easywalking.bean.UserInfo;
 
@@ -52,4 +53,15 @@ public interface HttpApi {
     @FormUrlEncoded
     @POST(HttpConstant.FIND_FENCING)
     Call<Fanceing> findFencing(@FieldMap Map<String, String> map);
+
+
+
+    /**
+     * 查询附近500米内车辆
+     * @param map
+     * @return
+     */
+    @FormUrlEncoded
+    @POST(HttpConstant.FIND_CARLIST)
+    Call<BikeInfo> getLocationBike(@FieldMap Map<String, String> map);
 }
