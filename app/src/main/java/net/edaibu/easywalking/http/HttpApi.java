@@ -1,6 +1,7 @@
 package net.edaibu.easywalking.http;
 
 import net.edaibu.easywalking.bean.BaseBean;
+import net.edaibu.easywalking.bean.Fanceing;
 import net.edaibu.easywalking.bean.UserInfo;
 
 import java.util.Map;
@@ -41,4 +42,14 @@ public interface HttpApi {
     @FormUrlEncoded
     @POST(HttpConstant.LOGIN)
     Call<ResponseBody> login(@FieldMap Map<String, String> map);
+
+
+    /**
+     * 查询电子围栏，禁停区，禁行区
+     * @param map
+     * @return
+     */
+    @FormUrlEncoded
+    @POST(HttpConstant.FIND_FENCING)
+    Call<Fanceing> findFencing(@FieldMap Map<String, String> map);
 }

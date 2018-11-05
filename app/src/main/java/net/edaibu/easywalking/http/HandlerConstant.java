@@ -7,4 +7,5 @@ public class HandlerConstant {
     public static final int GET_ACCESS_TOKEN_SUCCESS=10003;
     public static final int GET_SMS_CODE_SUCCESS=10004;
     public static final int LOGIN_SUCCESS=10005;
+    public static final int FIND_FENCING_SUCCESS=10006;
 }

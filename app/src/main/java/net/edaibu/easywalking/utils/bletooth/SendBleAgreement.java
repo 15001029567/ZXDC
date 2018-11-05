@@ -1,8 +1,12 @@
 package net.edaibu.easywalking.utils.bletooth;
 
+import android.app.Activity;
+import android.bluetooth.BluetoothAdapter;
 import android.content.Intent;
 import net.edaibu.easywalking.service.BleService;
 import net.edaibu.easywalking.utils.LogUtils;
+
+import java.lang.ref.SoftReference;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -15,16 +19,19 @@ public class SendBleAgreement {
     private static SendBleAgreement sendBleAgreement = new SendBleAgreement();
     //线程池
     private ExecutorService fixedThreadPool_ble = Executors.newSingleThreadExecutor();
-    //蓝牙服务类对象
-    private BleService mService;
+    //蓝牙服务对象
+    public BleService bleService = null;
+    //蓝牙适配器
+    public BluetoothAdapter bluetoothAdapter = null;
     private android.os.Handler mHandler = new android.os.Handler();
 
     public static SendBleAgreement getInstance() {
         return sendBleAgreement;
     }
 
-    public void init(BleService mService) {
-        this.mService = mService;
+    public void init(BleService bleService,BluetoothAdapter bluetoothAdapter) {
+        this.bleService = bleService;
+        this.bluetoothAdapter=bluetoothAdapter;
     }
 
     /**
@@ -83,20 +90,38 @@ public class SendBleAgreement {
             public void run() {
                 mHandler.postDelayed(new Runnable() {
                     public void run() {
-                        boolean b = mService.writeRXCharacteristic(bleByte, isTimeOut);
+                        boolean b = bleService.writeRXCharacteristic(bleByte, isTimeOut);
                         //如果发送失败，就重发一次
                         if (!b) {
-                            b = mService.writeRXCharacteristic(bleByte, isTimeOut);
+                            b = bleService.writeRXCharacteristic(bleByte, isTimeOut);
                             if (!b) {
                                 LogUtils.e("发送数据第二次失败");
-                                mService.stopTimeOut();
-                                Intent intent = new Intent(mService.ACTION_INTERACTION_TIMEOUT);
-                                mService.sendBroadcast(intent);
+                                bleService.stopTimeOut();
+                                Intent intent = new Intent(bleService.ACTION_INTERACTION_TIMEOUT);
+                                bleService.sendBroadcast(intent);
                             }
                         }
                     }
                 },200);
             }
         });
+    }
+
+
+    /***
+     * 判断蓝牙是否开启
+     *
+     * @return true 已开启 false 关闭
+     */
+    public boolean isEnabled(Activity activity) {
+        //软饮用，防止内存泄漏
+        SoftReference<Activity> activitySoftReference = new SoftReference<>(activity);
+        // 确保蓝牙在设备上可以开启
+        if (bluetoothAdapter == null || !bluetoothAdapter.isEnabled()) {
+            Intent enableBtIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
+            activitySoftReference.get().startActivity(enableBtIntent);
+            return false;
+        }
+        return true;
     }
 }

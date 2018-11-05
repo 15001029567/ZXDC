@@ -3,6 +3,7 @@ package net.edaibu.easywalking.http;
 import android.os.Handler;
 
 import net.edaibu.easywalking.bean.BaseBean;
+import net.edaibu.easywalking.bean.Fanceing;
 import net.edaibu.easywalking.bean.UserInfo;
 import net.edaibu.easywalking.http.base.BaseRequst;
 import net.edaibu.easywalking.http.base.Http;
@@ -88,6 +89,32 @@ public class HttpMethod extends BaseRequst {
                 }
             }
             public void onFailure(Call<ResponseBody> call, Throwable t) {
+                LogUtils.e("查询数据报错："+t.getMessage());
+                sendMessage(handler, HandlerConstant.REQUST_ERROR, null);
+            }
+        });
+    }
+
+
+    /**
+     * 查询电子围栏
+     * @param bikeCode
+     * @param handler
+     */
+    public static void findFencing(String bikeCode,final Handler handler) {
+        Map<String, String> map = new HashMap<>();
+        map.put("bikeCode",bikeCode);
+        Http.getRetrofit().create(HttpApi.class).findFencing(map).enqueue(new Callback<Fanceing>() {
+            public void onResponse(Call<Fanceing> call, Response<Fanceing> response) {
+                try {
+                    sendMessage(handler, HandlerConstant.FIND_FENCING_SUCCESS, response.body());
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    sendMessage(handler, HandlerConstant.GET_DATA_ERROR, null);
+                }
+            }
+
+            public void onFailure(Call<Fanceing> call, Throwable t) {
                 LogUtils.e("查询数据报错："+t.getMessage());
                 sendMessage(handler, HandlerConstant.REQUST_ERROR, null);
             }

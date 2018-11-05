@@ -8,9 +8,15 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import com.baidu.mapapi.map.BaiduMap;
+import com.baidu.mapapi.map.BitmapDescriptor;
+import com.baidu.mapapi.map.BitmapDescriptorFactory;
 import com.baidu.mapapi.map.MapStatusUpdateFactory;
 import com.baidu.mapapi.map.MapView;
 import com.baidu.mapapi.map.MyLocationData;
+import com.baidu.mapapi.map.OverlayOptions;
+import com.baidu.mapapi.map.PolygonOptions;
+import com.baidu.mapapi.map.PolylineOptions;
+import com.baidu.mapapi.map.Stroke;
 import com.baidu.mapapi.model.LatLng;
 import com.baidu.mapapi.search.core.SearchResult;
 import com.baidu.mapapi.search.geocode.GeoCodeResult;
@@ -19,16 +25,22 @@ import com.baidu.mapapi.search.geocode.OnGetGeoCoderResultListener;
 import com.baidu.mapapi.search.geocode.ReverseGeoCodeOption;
 import com.baidu.mapapi.search.geocode.ReverseGeoCodeResult;
 import net.edaibu.easywalking.R;
+import net.edaibu.easywalking.bean.Fanceing;
 import net.edaibu.easywalking.http.HandlerConstant;
+import net.edaibu.easywalking.persenter.MapPersenter;
+import net.edaibu.easywalking.persenter.MapPersenterImpl;
 import net.edaibu.easywalking.utils.NetUtils;
 import net.edaibu.easywalking.utils.map.GetLocation;
 import net.edaibu.easywalking.utils.map.MyOrientationListener;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * 首页地图fragment
  */
-public class MapFragment extends BaseFragment implements OnGetGeoCoderResultListener {
+public class MapFragment extends BaseFragment implements MapPersenter, OnGetGeoCoderResultListener {
 
+    private MapPersenterImpl mapPersenter;
     private MapView mMapView;
     public BaiduMap mBaiduMap;
     //是否是第一次定位
@@ -38,8 +50,12 @@ public class MapFragment extends BaseFragment implements OnGetGeoCoderResultList
     private LatLng finishLng, finishLng2;
     //地图传感器
     private MyOrientationListener myOrientationListener;
+    //地图上的marker图标
+    private BitmapDescriptor bitmap;
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        //初始化MVP接口
+        initPersenter();
     }
 
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
@@ -52,6 +68,14 @@ public class MapFragment extends BaseFragment implements OnGetGeoCoderResultList
         //开始定位
         startLocation();
         return view;
+    }
+
+
+    /**
+     * 初始化MVP接口
+     */
+    private void initPersenter(){
+        mapPersenter=new MapPersenterImpl(mActivity,MapFragment.this);
     }
 
 
@@ -132,6 +156,88 @@ public class MapFragment extends BaseFragment implements OnGetGeoCoderResultList
 
 
     /**
+     * 绘制电子围栏
+     */
+    private void setFencing(Fanceing fanceing) {
+        for (int i = 0; i < fanceing.getData().getBigFence().size(); i++) {
+            //电子围栏经纬度集合
+            List<LatLng> fencingList = new ArrayList<>();
+            for (int j = 0; j < fanceing.getData().getBigFence().get(i).size(); j++) {
+                fencingList.add(new LatLng(fanceing.getData().getBigFence().get(i).get(j).get(1), fanceing.getData().getBigFence().get(i).get(j).get(0)));
+            }
+            //画电子围栏
+            bitmap = BitmapDescriptorFactory.fromResource(R.mipmap.icon_road_red_arrow);
+            List<BitmapDescriptor> textureList = new ArrayList<>();
+            textureList.add(bitmap);
+            List<Integer> textureIndexs = new ArrayList<>();
+            textureIndexs.add(0);
+            PolylineOptions ooPolyline11 = new PolylineOptions().width(15).points(fencingList).dottedLine(true).customTextureList(textureList).textureIndex(textureIndexs).zIndex(2);
+            mBaiduMap.addOverlay(ooPolyline11);
+        }
+    }
+
+
+    /**
+     * 绘制禁停区域
+     */
+    private void banStopCar(Fanceing fanceing) {
+        for (int i = 0; i < fanceing.getData().getForbidArea().size(); i++) {
+            List<LatLng> list = new ArrayList<>();
+            for (int j = 0; j < fanceing.getData().getForbidArea().get(i).size(); j++) {
+                list.add(new LatLng(fanceing.getData().getForbidArea().get(i).get(j).get(1), fanceing.getData().getForbidArea().get(i).get(j).get(0)));
+            }
+            OverlayOptions ooPolygon = new PolygonOptions().points(list).stroke(new Stroke(7, 0xAAF9DA14)).fillColor(0x8AF0EEE1);
+            mBaiduMap.addOverlay(ooPolygon);
+        }
+    }
+
+
+    /**
+     * 绘制禁行区域
+     */
+    private void banWalkCar(Fanceing fanceing) {
+        for (int i = 0; i < fanceing.getData().getSuperblock().size(); i++) {
+            List<LatLng> list = new ArrayList<>();
+            for (int j = 0; j < fanceing.getData().getSuperblock().get(i).size(); j++) {
+                list.add(new LatLng(fanceing.getData().getSuperblock().get(i).get(j).get(1), fanceing.getData().getSuperblock().get(i).get(j).get(0)));
+            }
+            OverlayOptions ooPolygon = new PolygonOptions().points(list).stroke(new Stroke(7, 0xAAEE4D4C)).fillColor(0x8AEED4D5);
+            mBaiduMap.addOverlay(ooPolygon);
+        }
+    }
+
+
+    /**
+     * 展示电子围栏，禁停区等
+     * @param fanceing
+     */
+    public void showFencing(Fanceing fanceing) {
+        setFencing(fanceing);
+        banStopCar(fanceing);
+        banWalkCar(fanceing);
+    }
+
+    /**
+     * 展示加载滚动条
+     */
+    public void showLoding(String msg) {
+        showProgress(msg,true);
+    }
+
+    /**
+     * 关闭加载滚动条
+     */
+    public void closeLoding() {
+       clearTask();
+    }
+
+    @Override
+    public void showToast(String msg) {
+        showMsg(msg);
+    }
+
+
+    /**
      * 定位
      */
     public void startLocation() {
@@ -180,4 +286,5 @@ public class MapFragment extends BaseFragment implements OnGetGeoCoderResultList
         //删除handler中的消息
         removeHandler(mHandler);
     }
+
 }

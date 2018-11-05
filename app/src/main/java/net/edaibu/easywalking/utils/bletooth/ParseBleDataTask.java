@@ -3,8 +3,6 @@ package net.edaibu.easywalking.utils.bletooth;
 import android.content.Context;
 
 import net.edaibu.easywalking.R;
-import net.edaibu.easywalking.service.BleService;
-
 import java.io.InputStream;
 
 /**
@@ -18,9 +16,6 @@ public class ParseBleDataTask {
      */
     public static int parseData(Context mContext,final byte[] data){
         int result=-1;
-        if(null==data){
-            return result;
-        }
         //获取功能码和结果码
         final int funcationCode = ByteUtil.byteToInt(data[2]);
         final int resultCode = ByteUtil.byteToInt(data[4]);

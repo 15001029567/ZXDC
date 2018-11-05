@@ -310,9 +310,9 @@ public class BleService extends Service {
     /**
      * 发送广播（携带接受到的值）
      **/
-    private void broadcastUpdate(final String action,final BluetoothGattCharacteristic characteristic) {
+    private void broadcastUpdate(final String action,final byte[] txValue) {
         final Intent intent = new Intent(action);
-        intent.putExtra(ACTION_EXTRA_DATA, characteristic.getValue());
+        intent.putExtra(ACTION_EXTRA_DATA, txValue);
         getApplication().sendBroadcast(intent);
     }
 
@@ -330,16 +330,11 @@ public class BleService extends Service {
                 //去发现服务
                 handler.postDelayed(new Runnable() {
                     public void run() {
-                        if (null == mBluetoothGatt) {
-                            return;
-                        }
                         mBluetoothGatt.discoverServices();
                     }
                 }, 700);
             } else if (newState == BluetoothProfile.STATE_DISCONNECTED) {
                 LogUtils.e("蓝牙连接断开");
-                //清除缓存
-                refreshDeviceCache();
                 //改为连接失败状态
                 connectionState = STATE_DISCONNECTED;
                 //关闭超时计时器
@@ -348,6 +343,8 @@ public class BleService extends Service {
                 close();
                 //发送蓝牙连接断开的广播
                 broadcastUpdate(ACTION_GATT_DISCONNECTED,status);
+                //清除缓存
+                refreshDeviceCache();
             }
         }
 
@@ -381,7 +378,7 @@ public class BleService extends Service {
             //关闭超时计时器
             stopTimeOut();
             //发送数据广播
-            broadcastUpdate(ACTION_DATA_AVAILABLE, characteristic);
+            broadcastUpdate(ACTION_DATA_AVAILABLE, txValue);
         }
     };
 
