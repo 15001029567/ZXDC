@@ -3,7 +3,7 @@ package net.edaibu.easywalking.bean;
 import java.io.Serializable;
 import java.util.List;
 
-public class BikeInfo extends BaseBean {
+public class BikeList extends BaseBean {
 
     private List<BikeInfoList> data;
 

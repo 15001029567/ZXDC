@@ -149,6 +149,30 @@
  -keepattributes Signature
  -keepattributes Exceptions
 
+ #okhttp混淆
+ -dontwarn com.squareup.okhttp3.**
+ -keep class com.squareup.okhttp3.** { *;}
+ -dontwarn okio.**
+
+# 表示不混淆所有glideModule
+ -keep public class * implements com.bumptech.glide.module.GlideModule
+     -keep public enum com.bumptech.glide.load.resource.bitmap.ImageHeaderParser$** {
+     **[] $VALUES;
+     public *;
+   }
+
+   #bugly
+   -dontwarn com.tencent.bugly.**
+   -keep public class com.tencent.bugly.**{*;}
+
+   #百度地图
+   -keep class com.baidu.** {*;}
+   -keep class mapsdkvi.com.** {*;}
+   -keep class vi.com.gdi.bgl.**{*;}
+   -dontwarn com.baidu.**
+
+
+
 
 
 

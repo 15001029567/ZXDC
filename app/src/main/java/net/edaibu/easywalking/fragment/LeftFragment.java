@@ -20,7 +20,7 @@ public class LeftFragment extends BaseFragment {
 
     View view=null;
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        view = inflater.inflate(R.layout.fragment_map, container, false);
+        view = inflater.inflate(R.layout.fragment_left, container, false);
         return view;
     }
 }

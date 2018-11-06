@@ -1,7 +1,8 @@
 package net.edaibu.easywalking.http;
 
 import net.edaibu.easywalking.bean.BaseBean;
-import net.edaibu.easywalking.bean.BikeInfo;
+import net.edaibu.easywalking.bean.BikeBean;
+import net.edaibu.easywalking.bean.BikeList;
 import net.edaibu.easywalking.bean.Fanceing;
 import net.edaibu.easywalking.bean.UserInfo;
 import net.edaibu.easywalking.bean.Version;
@@ -64,7 +65,7 @@ public interface HttpApi {
      */
     @FormUrlEncoded
     @POST(HttpConstant.FIND_CARLIST)
-    Call<BikeInfo> getLocationBike(@FieldMap Map<String, String> map);
+    Call<BikeList> getLocationBike(@FieldMap Map<String, String> map);
 
 
     /**
@@ -75,4 +76,14 @@ public interface HttpApi {
     @FormUrlEncoded
     @POST(HttpConstant.FIND_VERSION)
     Call<Version> getNewVersion(@FieldMap Map<String, String> map);
+
+
+    /**
+     * 根据编码查询车辆详情
+     * @param map
+     * @return
+     */
+    @FormUrlEncoded
+    @POST(HttpConstant.GETCAR_BYCODE)
+    Call<BikeBean> getBikeByCode(@FieldMap Map<String, String> map);
 }

@@ -5,7 +5,9 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
+import android.os.Handler;
 import android.os.IBinder;
+import android.os.Message;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
@@ -27,6 +29,11 @@ public class MainPersenterImpl {
         this.mainPersenter=mainPersenter;
     }
 
+    private Handler mHandler=new Handler(new Handler.Callback() {
+        public boolean handleMessage(Message msg) {
+            return false;
+        }
+    });
 
     /**
      * 初始化蓝牙服务
@@ -83,6 +90,12 @@ public class MainPersenterImpl {
      */
     public void closeService(){
         activity.unbindService(mServiceConnection);
+    }
+
+
+    public void onDestory(){
+        mHandler.removeCallbacksAndMessages(null);
+        mainPersenter=null;
     }
 
 }

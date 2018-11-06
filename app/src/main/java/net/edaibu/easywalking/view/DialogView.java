@@ -29,28 +29,6 @@ public class DialogView extends Dialog implements View.OnClickListener {
         this.listener_no=listenerNo;
     }
 
-    public DialogView(DialogView dialogView, Context mContext, CharSequence  content, String confirm, String cancle, View.OnClickListener listenerYes, View.OnClickListener listenerNo){
-        super(mContext);
-        if(null!=dialogView && dialogView.isShowing()){
-            dialogView.dismiss();
-        }
-        this.content=content;
-        this.confirm=confirm;
-        this.cancle=cancle;
-        this.listener_yes=listenerYes;
-        this.listener_no=listenerNo;
-    }
-
-
-    public DialogView(Context mContext, CharSequence  content, String confirm, View.OnClickListener listenerYes){
-        super(mContext);
-        this.content=content;
-        this.confirm=confirm;
-        this.listener_yes=listenerYes;
-    }
-
-
-
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         requestWindowFeature(Window.FEATURE_NO_TITLE);

@@ -18,15 +18,14 @@ public class MyApplication extends Application {
     public static SPUtil spUtil;
     public void onCreate() {
         super.onCreate();
+        SDKInitializer.initialize(getApplicationContext());
+        SDKInitializer.setCoordType(CoordType.GCJ02);
         application = this;
         gson = new Gson();
         spUtil = SPUtil.getInstance(this);
 
         //初始化bugly异常捕获
         initBugly();
-
-        //初始化百度地图
-        initMap();
 
         //管理Activity
         registerActivityLifecycleCallbacks(ActivitysLifecycle.getInstance());
@@ -41,18 +40,9 @@ public class MyApplication extends Application {
             CrashReport.UserStrategy strategy = new CrashReport.UserStrategy(getApplicationContext());
             strategy.setAppChannel(Util.getChannel(this));  //设置渠道
             strategy.setAppVersion(Util.getVersionCode(this)+"");      //App的版本
-            CrashReport.initCrashReport(this, "52c6ece492", false, strategy);
+            CrashReport.initCrashReport(this, "773cf12d7d", false, strategy);
         }catch (Exception e){
 
         }
-    }
-
-
-    /**
-     * 初始化百度地图
-     */
-    private void initMap(){
-        SDKInitializer.initialize(getApplicationContext());
-        SDKInitializer.setCoordType(CoordType.GCJ02);
     }
 }

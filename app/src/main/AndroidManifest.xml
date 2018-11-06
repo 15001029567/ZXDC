@@ -56,6 +56,7 @@
         </activity>
 
         <activity android:name=".activity.start.WellcomeActivity"  android:screenOrientation="portrait" />
+        <activity android:name=".activity.login.LoginActivity"  android:screenOrientation="portrait" />
         <activity android:name=".activity.MainActivity"  android:screenOrientation="portrait" android:launchMode="singleTask" />
         <activity android:name=".activity.webview.WebViewActivity"  android:screenOrientation="portrait" />
         <activity android:name=".activity.scan.ScanActivity"  android:screenOrientation="portrait" />
@@ -69,7 +70,7 @@
         <!-- 配置腾讯bugly-->
         <meta-data
             android:name="BUGLY_APPID"
-            android:value="52c6ece492" />
+            android:value="773cf12d7d" />
 
         <!-- 百度地图的appkey -->
         <meta-data

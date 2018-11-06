@@ -1,5 +1,6 @@
 package net.edaibu.easywalking.utils;
 
+import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.ApplicationInfo;
@@ -21,6 +22,46 @@ import java.util.regex.PatternSyntaxException;
  * @author Administrator
  */
 public class Util extends ClassLoader {
+
+    static double DEF_PI = 3.14159265359; // PI
+    static double DEF_2PI = 6.28318530712; // 2*PI
+    static double DEF_PI180 = 0.01745329252; // PI/180.0
+    static double DEF_R = 6370693.5; // radius of earth
+
+    /**
+     * 计算两对经纬度的距离
+     *
+     * @param lon1
+     * @param lat1
+     * @param lon2
+     * @param lat2
+     * @return
+     */
+    public static double GetShortDistance(double lon1, double lat1, double lon2, double lat2) {
+        double ew1, ns1, ew2, ns2;
+        double dx, dy, dew;
+        double distance;
+        // 角度转换为弧度
+        ew1 = lon1 * DEF_PI180;
+        ns1 = lat1 * DEF_PI180;
+        ew2 = lon2 * DEF_PI180;
+        ns2 = lat2 * DEF_PI180;
+        // 经度差
+        dew = ew1 - ew2;
+        // 若跨东经和西经180 度，进行调整
+        if (dew > DEF_PI)
+            dew = DEF_2PI - dew;
+        else if (dew < -DEF_PI)
+            dew = DEF_2PI + dew;
+        dx = DEF_R * Math.cos(ns1) * dew; // 东西方向长度(在纬度圈上的投影长度)
+        dy = DEF_R * (ns1 - ns2); // 南北方向长度(在经度圈上的投影长度)
+        // 勾股定理求斜边长
+        distance = Math.sqrt(dx * dx + dy * dy);
+        System.out.println(distance);
+        return distance;
+    }
+
+
     /**
      * 判断是否输入表情符号
      * @param string
@@ -150,10 +191,10 @@ public class Util extends ClassLoader {
      *
      * @return
      */
-    public boolean isLogin(Context mContext) {
+    public static boolean isLogin(Activity activity) {
         if (TextUtils.isEmpty(MyApplication.spUtil.getString(SPUtil.ACCESS_TOKEN))) {
-            Intent intent = new Intent(mContext, LoginActivity.class);
-            mContext.startActivity(intent);
+            Intent intent = new Intent(activity, LoginActivity.class);
+            activity.startActivity(intent);
             return false;
         }
         return true;

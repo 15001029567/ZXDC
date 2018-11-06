@@ -1,17 +1,22 @@
 package net.edaibu.easywalking.fragment;
 
 import android.os.Bundle;
-import android.os.Handler;
-import android.os.Message;
 import android.support.annotation.Nullable;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
+
+import com.baidu.mapapi.CoordType;
+import com.baidu.mapapi.SDKInitializer;
 import com.baidu.mapapi.map.BaiduMap;
 import com.baidu.mapapi.map.BitmapDescriptor;
 import com.baidu.mapapi.map.BitmapDescriptorFactory;
+import com.baidu.mapapi.map.MapPoi;
+import com.baidu.mapapi.map.MapStatus;
 import com.baidu.mapapi.map.MapStatusUpdateFactory;
 import com.baidu.mapapi.map.MapView;
+import com.baidu.mapapi.map.Marker;
 import com.baidu.mapapi.map.MarkerOptions;
 import com.baidu.mapapi.map.OverlayOptions;
 import com.baidu.mapapi.map.PolygonOptions;
@@ -24,36 +29,45 @@ import com.baidu.mapapi.search.geocode.GeoCoder;
 import com.baidu.mapapi.search.geocode.OnGetGeoCoderResultListener;
 import com.baidu.mapapi.search.geocode.ReverseGeoCodeOption;
 import com.baidu.mapapi.search.geocode.ReverseGeoCodeResult;
+import com.baidu.mapapi.search.route.PlanNode;
+import com.baidu.mapapi.search.route.RoutePlanSearch;
+import com.baidu.mapapi.search.route.WalkingRoutePlanOption;
 import net.edaibu.easywalking.R;
-import net.edaibu.easywalking.bean.BikeInfo;
+import net.edaibu.easywalking.activity.scan.ScanActivity;
+import net.edaibu.easywalking.application.MyApplication;
+import net.edaibu.easywalking.bean.BikeList;
 import net.edaibu.easywalking.bean.Fanceing;
-import net.edaibu.easywalking.http.HandlerConstant;
 import net.edaibu.easywalking.persenter.MapPersenter;
 import net.edaibu.easywalking.persenter.MapPersenterImpl;
-import net.edaibu.easywalking.utils.NetUtils;
-import net.edaibu.easywalking.utils.map.GetLocation;
+import net.edaibu.easywalking.utils.Util;
+import net.edaibu.easywalking.utils.map.GetRoutePlan;
 import java.util.ArrayList;
 import java.util.List;
 /**
  * 首页地图fragment
  */
-public class MapFragment extends BaseFragment implements MapPersenter, OnGetGeoCoderResultListener,View.OnClickListener {
+public class MapFragment extends BaseFragment implements MapPersenter, OnGetGeoCoderResultListener,View.OnClickListener,BaiduMap.OnMarkerClickListener,BaiduMap.OnMapClickListener {
 
     private MapPersenterImpl mapPersenter;
     private MapView mMapView;
     public BaiduMap mBaiduMap;
-    //是否是第一次定位
-    private boolean isFis = true;
+    //中心图标
+    private ImageView imgCenter;
     private GeoCoder mSearch = null;
     //中心点坐标
-    private LatLng finishLng, finishLng2;
+    private LatLng latLng;
     //地图上的marker图标
     private BitmapDescriptor bitmap;
+    //路径规划对象
+    private RoutePlanSearch rpSearch = null;
+    //附近车辆集合
+    private List<BikeList.BikeInfoList> bikeList;
     public void onCreate(Bundle savedInstanceState) {
         //初始化MVP接口
         initPersenter();
         //绘制个性化地图
         mapPersenter.setMapCustomFile();
+        MapView.setMapCustomEnable(true);
         super.onCreate(savedInstanceState);
     }
 
@@ -65,10 +79,9 @@ public class MapFragment extends BaseFragment implements MapPersenter, OnGetGeoC
         //初始化传感器
         mapPersenter.initOritationListener(mBaiduMap);
         //开始定位
-        startLocation();
+        mapPersenter.startLocation();
         return view;
     }
-
 
     /**
      * 初始化MVP接口
@@ -77,61 +90,73 @@ public class MapFragment extends BaseFragment implements MapPersenter, OnGetGeoC
         mapPersenter=new MapPersenterImpl(mActivity,MapFragment.this);
     }
 
-
     /**
      * 初始化地图各属性
      */
     private void initView(){
         mMapView = (MapView) view.findViewById(R.id.mapView);
         mBaiduMap = mMapView.getMap();
+        imgCenter=(ImageView)view.findViewById(R.id.img_center);
         //隐藏缩放按钮
         mMapView.showZoomControls(false);
         // 根据经纬度搜索
         mSearch = GeoCoder.newInstance();
         mSearch.setOnGetGeoCodeResultListener(this);
+        //路径规划
+        rpSearch = RoutePlanSearch.newInstance();
+        rpSearch.setOnGetRoutePlanResultListener(new GetRoutePlan(mBaiduMap));
+        //注册地图上覆盖物的点击事件
+        mBaiduMap.setOnMarkerClickListener(this);
+        //注册地图点击事件
+        mBaiduMap.setOnMapClickListener(this);
+        // 注册触摸事件
+        mBaiduMap.setOnMapStatusChangeListener(new Maptouch());
         view.findViewById(R.id.img_location).setOnClickListener(this);
         view.findViewById(R.id.img_service).setOnClickListener(this);
 
     }
 
-
-    private Handler mHandler=new Handler(new Handler.Callback() {
-        public boolean handleMessage(Message msg) {
-            switch (msg.what){
-                //定位成功
-                case HandlerConstant.MAP_LOCATION_SUCCESS:
-                    if (mBaiduMap == null || mBaiduMap.getLocationData() == null) {
-                        clearTask();
-                        break;
-                    }
-                    if (isFis) {
-                        isFis = false;
-                        finishLng2 = finishLng = new LatLng(mBaiduMap.getLocationData().latitude, mBaiduMap.getLocationData().longitude);
-                        //根据经纬度去定位
-                        mSearch.reverseGeoCode(new ReverseGeoCodeOption().location(finishLng));
-                    }
-                    break;
-            }
-            return false;
+    /**
+     * 车辆覆盖物点击事件
+     * @param marker
+     * @return
+     */
+    public boolean onMarkerClick(Marker marker) {
+        if(null==marker){
+            return true;
         }
-    });
+        final int index = marker.getZIndex();
+        final BikeList.BikeInfoList bikeInfoList=bikeList.get(index);
+        setRoutePlan(bikeInfoList);
+        return true;
+    }
 
 
     /**
-     * 根据经纬度定位
-     * @param geoCodeResult
+     * 地图点击事件
+     * @param latLng
+     * @return
      */
-    public void onGetGeoCodeResult(GeoCodeResult geoCodeResult) {
+    public void onMapClick(LatLng latLng) {
+        showBikeMark();
     }
-    public void onGetReverseGeoCodeResult(ReverseGeoCodeResult reverseGeoCodeResult) {
-        clearTask();
-        if (reverseGeoCodeResult == null || reverseGeoCodeResult.error != SearchResult.ERRORNO.NO_ERROR) {
+    public boolean onMapPoiClick(MapPoi mapPoi) {
+        return false;
+    }
+
+
+    /**
+     * 设置路径规划
+     */
+    private void setRoutePlan(BikeList.BikeInfoList bikeInfoList){
+        final LatLng latLng=mapPersenter.getNewLatLng();
+        if(null==latLng){
             return;
         }
-        mBaiduMap.setMapStatus(MapStatusUpdateFactory.newLatLng(reverseGeoCodeResult.getLocation()));
-        mBaiduMap.animateMapStatus(MapStatusUpdateFactory.zoomTo(19f), 500);
-        //获取当前位置的车辆信息
-        mapPersenter.getLocationBike(finishLng.latitude,finishLng.longitude);
+        mapPersenter.clearMap();
+        PlanNode stNode = PlanNode.withLocation(latLng);
+        PlanNode enNode = PlanNode.withLocation(new LatLng(bikeInfoList.getLatitude(), bikeInfoList.getLongitude()));
+        rpSearch.walkingSearch((new WalkingRoutePlanOption()).from(stNode).to(enNode));
     }
 
 
@@ -139,10 +164,19 @@ public class MapFragment extends BaseFragment implements MapPersenter, OnGetGeoC
      * 绘制附近的车辆图标
      * @param list
      */
-    private void setBikeMark(List<BikeInfo.BikeInfoList> list) {
-        for (int i = 0, len = list.size(); i < len; i++) {
+    private void setBikeMark(List<BikeList.BikeInfoList> list) {
+        bikeList=list;
+        showBikeMark();
+    }
+
+    /**
+     * 显示车辆覆盖物信息
+     */
+    private void showBikeMark(){
+        mapPersenter.clearMap();
+        for (int i = 0, len = bikeList.size(); i < len; i++) {
             bitmap = BitmapDescriptorFactory.fromResource(R.mipmap.img_bike);
-            MarkerOptions op = new MarkerOptions().position(new LatLng(list.get(i).getLatitude(), list.get(i).getLongitude())).icon(bitmap).zIndex(i).animateType(MarkerOptions.MarkerAnimateType.grow);
+            MarkerOptions op = new MarkerOptions().position(new LatLng(bikeList.get(i).getLatitude(), bikeList.get(i).getLongitude())).icon(bitmap).zIndex(i).animateType(MarkerOptions.MarkerAnimateType.grow);
             mBaiduMap.addOverlay(op);
         }
     }
@@ -198,6 +232,68 @@ public class MapFragment extends BaseFragment implements MapPersenter, OnGetGeoC
         }
     }
 
+    /**
+     * 地图触摸状态改变监听(地图移动获取坐标)
+     */
+    public class Maptouch implements BaiduMap.OnMapStatusChangeListener {
+        public void onMapStatusChange(MapStatus mapStatus) {
+        }
+        public void onMapStatusChangeFinish(MapStatus mapStatus) {
+            // 计算距离
+            final Double distance = Util.GetShortDistance(latLng.longitude, latLng.latitude, mapStatus.target.longitude, mapStatus.target.latitude);
+            if(distance>300){
+                latLng=mapStatus.target;
+                //查询附近的车辆信息
+                mapPersenter.getLocationBike(latLng.latitude,latLng.longitude);
+            }
+            return;
+        }
+        public void onMapStatusChangeStart(MapStatus arg0) {
+        }
+        public void onMapStatusChangeStart(MapStatus mapStatus, int i) {
+        }
+    }
+
+
+    /**
+     * 根据经纬度定位
+     * @param geoCodeResult
+     */
+    public void onGetGeoCodeResult(GeoCodeResult geoCodeResult) {
+    }
+    public void onGetReverseGeoCodeResult(ReverseGeoCodeResult reverseGeoCodeResult) {
+        clearTask();
+        if (reverseGeoCodeResult == null || reverseGeoCodeResult.error != SearchResult.ERRORNO.NO_ERROR) {
+            return;
+        }
+        mBaiduMap.setMapStatus(MapStatusUpdateFactory.newLatLng(reverseGeoCodeResult.getLocation()));
+        mBaiduMap.animateMapStatus(MapStatusUpdateFactory.zoomTo(19f), 500);
+        //获取当前位置的车辆信息
+        mapPersenter.getLocationBike(reverseGeoCodeResult.getLocation().latitude,reverseGeoCodeResult.getLocation().longitude);
+    }
+
+    @Override
+    public void onClick(View v) {
+        switch (v.getId()){
+            //重新定位
+            case R.id.img_location:
+                 mapPersenter.resumeLocation();
+                 break;
+             default:
+                 break;
+        }
+    }
+
+
+    /**
+     * 定位成功
+     * @param latLng
+     */
+    public void locationSuccess(LatLng latLng) {
+        this.latLng=latLng;
+        //根据经纬度去定位
+        mSearch.reverseGeoCode(new ReverseGeoCodeOption().location(latLng));
+    }
 
     /**
      * 展示电子围栏，禁停区等
@@ -213,7 +309,7 @@ public class MapFragment extends BaseFragment implements MapPersenter, OnGetGeoC
      * 显示附近的车辆信息
      * @param list
      */
-    public void showLocationBike(List<BikeInfo.BikeInfoList> list) {
+    public void showLocationBike(List<BikeList.BikeInfoList> list) {
         setBikeMark(list);
     }
 
@@ -231,37 +327,12 @@ public class MapFragment extends BaseFragment implements MapPersenter, OnGetGeoC
        clearTask();
     }
 
-    @Override
+    /**
+     * Toast提示
+     * @param msg
+     */
     public void showToast(String msg) {
         showMsg(msg);
-    }
-
-
-    /**
-     * 定位
-     */
-    public void startLocation() {
-        if (!isFis) {
-            return;
-        }
-        //判断网络能否使用
-        if (!NetUtils.isNetConnected(mActivity)) {
-            showMsg(getString(R.string.network_can_not_be_accessed_please_check_the_network_connection));
-            return;
-        }
-        showProgress(getString(R.string.locating),true);
-        GetLocation.getInstance().stopLocation();
-        GetLocation.getInstance().startLocation(mActivity, mHandler, mBaiduMap);
-    }
-
-
-    /**
-     * 清空map上遮盖物
-     */
-    public void clearMap() {
-        if (null != mBaiduMap) {
-            mBaiduMap.clear();
-        }
     }
 
 
@@ -293,16 +364,10 @@ public class MapFragment extends BaseFragment implements MapPersenter, OnGetGeoC
     @Override
     public void onDestroy() {
         super.onDestroy();
-        //删除handler中的消息
-        removeHandler(mHandler);
         if(null!=bitmap){
             bitmap.recycle();
             bitmap=null;
         }
-    }
-
-    @Override
-    public void onClick(View v) {
-
+        mapPersenter.onDestory();
     }
 }

@@ -10,6 +10,13 @@
     </com.baidu.mapapi.map.MapView>
 
     <ImageView
+        android:id="@+id/img_center"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:src="@mipmap/center_main"
+        android:layout_centerInParent="true"/>
+
+    <ImageView
         android:id="@+id/img_location"
         android:layout_width="50dp"
         android:layout_height="50dp"

@@ -42,7 +42,7 @@ public class BaseFragment extends Fragment {
      */
     protected void setClass(Class<?> cls) {
         Intent intent = new Intent();
-        intent.setClass(getActivity(), cls);
+        intent.setClass(mActivity, cls);
         startActivity(intent);
     }
 
@@ -52,6 +52,9 @@ public class BaseFragment extends Fragment {
      * @param message
      */
     public void showMsg(String message) {
+        if(null==mActivity){
+            return;
+        }
         Toast toast=Toast.makeText(mActivity, message, Toast.LENGTH_LONG);
         toast.show();
     }
@@ -62,6 +65,9 @@ public class BaseFragment extends Fragment {
      * @param isClose
      */
     public void showProgress(String msg,boolean isClose) {
+        if(null==mActivity){
+            return;
+        }
         if (progressDialog != null && progressDialog.isShowing()) {
             return;
         }
@@ -77,7 +83,7 @@ public class BaseFragment extends Fragment {
      * 取消进度条
      */
     public void clearTask() {
-        if (progressDialog != null&&progressDialog.isShowing())
+        if (progressDialog != null && progressDialog.isShowing())
             progressDialog.dismiss();
     }
 

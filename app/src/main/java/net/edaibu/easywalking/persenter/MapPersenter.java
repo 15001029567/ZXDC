@@ -1,8 +1,9 @@
 package net.edaibu.easywalking.persenter;
 
-import net.edaibu.easywalking.bean.BikeInfo;
+import com.baidu.mapapi.model.LatLng;
+
+import net.edaibu.easywalking.bean.BikeList;
 import net.edaibu.easywalking.bean.Fanceing;
-import net.edaibu.easywalking.service.BleService;
 
 import java.util.List;
 
@@ -10,6 +11,13 @@ import java.util.List;
  * 地图MapFragment 的接口
  */
 public interface MapPersenter extends BasePersenter{
+
+
+    /**
+     * 定位成功
+     * @param latLng
+     */
+    void locationSuccess(LatLng latLng);
 
 
     /**
@@ -23,6 +31,6 @@ public interface MapPersenter extends BasePersenter{
      * 显示附近的车辆信息
      * @param list
      */
-    void showLocationBike(List<BikeInfo.BikeInfoList> list);
+    void showLocationBike(List<BikeList.BikeInfoList> list);
 
 }

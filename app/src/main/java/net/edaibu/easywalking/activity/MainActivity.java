@@ -8,8 +8,12 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.support.annotation.Nullable;
 import android.view.KeyEvent;
+import android.view.View;
+
 import net.edaibu.easywalking.R;
+import net.edaibu.easywalking.activity.scan.ScanActivity;
 import net.edaibu.easywalking.application.MyApplication;
+import net.edaibu.easywalking.bean.BikeBean;
 import net.edaibu.easywalking.fragment.MapFragment;
 import net.edaibu.easywalking.persenter.MainPersenter;
 import net.edaibu.easywalking.persenter.MainPersenterImpl;
@@ -17,6 +21,7 @@ import net.edaibu.easywalking.service.BleService;
 import net.edaibu.easywalking.utils.ActivitysLifecycle;
 import net.edaibu.easywalking.utils.LogUtils;
 import net.edaibu.easywalking.utils.SPUtil;
+import net.edaibu.easywalking.utils.Util;
 import net.edaibu.easywalking.utils.WakeLockUtil;
 import net.edaibu.easywalking.utils.bletooth.BleStatus;
 import net.edaibu.easywalking.utils.bletooth.ParseBleDataTask;
@@ -26,7 +31,7 @@ import net.edaibu.easywalking.view.DialogView;
 /**
  * 首页
  */
-public class MainActivity extends BaseActivity implements MainPersenter{
+public class MainActivity extends BaseActivity implements MainPersenter,View.OnClickListener{
 
     private MainPersenterImpl mainPersenter;
     //蓝牙指令状态
@@ -43,6 +48,8 @@ public class MainActivity extends BaseActivity implements MainPersenter{
         setContentView(R.layout.activity_main);
         //初始化MVP接口
         initPersenter();
+        //初始化控件
+        initView();
         //初始化蓝牙服务
         initBleService();
         //注册广播
@@ -60,11 +67,47 @@ public class MainActivity extends BaseActivity implements MainPersenter{
         mainPersenter=new MainPersenterImpl(MainActivity.this,this);
     }
 
+
+    /**
+     * 初始化控件
+     */
+    private void initView(){
+        findViewById(R.id.img_scan).setOnClickListener(this);
+    }
+
     /**
      * 初始化蓝牙服务
      */
     private void initBleService() {
         mainPersenter.initBleService();
+    }
+
+
+    @Override
+    public void onClick(View v) {
+        switch (v.getId()){
+            case R.id.img_scan:
+                 if(!Util.isLogin(this)){
+                     return;
+                 }
+                 setClass(ScanActivity.class,1);
+                  break;
+        }
+    }
+
+
+    /**
+     * 发送蓝牙指令
+     * @param status：蓝牙指令类型
+     */
+    private void sendBleCmd(int status){
+        this.BLE_STATUS=status;
+        //扫描并连接蓝牙
+        if (bleService.connectionState != bleService.STATE_CONNECTED){
+            bleService.connectScan("");
+            return;
+        }
+        SendBleAgreement.getInstance().sendBleData(status,bikeData.getImei());
     }
 
 
@@ -88,7 +131,7 @@ public class MainActivity extends BaseActivity implements MainPersenter{
                 //扫描不到指定蓝牙设备
                 case BleService.ACTION_NO_SCAN_BLE_DEVICE:
                       clearTask();
-                      dialogView = new DialogView(dialogView, mContext, getString(R.string.can_not_find_bluttooth_please_close_bike_and_connect_custom_service), getString(R.string.known), null, null, null);
+                      dialogView = new DialogView(mContext, getString(R.string.can_not_find_bluttooth_please_close_bike_and_connect_custom_service), getString(R.string.confirm), null, null, null);
                       dialogView.show();
                       break;
                 //蓝牙连接断开
@@ -114,8 +157,9 @@ public class MainActivity extends BaseActivity implements MainPersenter{
                 //蓝牙通信通道成功
                 case BleService.ACTION_ENABLE_NOTIFICATION_SUCCES:
                       LogUtils.e("蓝牙初始化通信通道成功");
+                      isConnect=true;
                       //发送认证命令
-                      SendBleAgreement.getInstance().sendBleData(BleStatus.BLE_CERTIFICATION_ING);
+                      SendBleAgreement.getInstance().sendBleData(BleStatus.BLE_CERTIFICATION_ING,bikeData.getImei());
                       break;
                 //获取到锁的回执数据
                 case BleService.ACTION_DATA_AVAILABLE:
@@ -126,8 +170,6 @@ public class MainActivity extends BaseActivity implements MainPersenter{
                 //接收锁回执数据超时
                 case BleService.ACTION_INTERACTION_TIMEOUT:
                       clearTask();
-                      //断开蓝牙连接
-                      mainPersenter.disconnect();
                       showMsg(getString(R.string.Receive_data_timeout_please_try_again));
                       break;
                   default:
@@ -152,20 +194,20 @@ public class MainActivity extends BaseActivity implements MainPersenter{
     }
 
 
-    /**
-     * 发送蓝牙指令
-     * @param status：蓝牙指令类型
-     */
-    private void sendBleCmd(int status){
-        this.BLE_STATUS=status;
-        //扫描并连接蓝牙
-        if (bleService.connectionState != bleService.STATE_CONNECTED){
-            bleService.connectScan("");
-            return;
+    BikeBean.BikeData bikeData;
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        switch (resultCode){
+            case 1:
+                 bikeData= (BikeBean.BikeData) data.getSerializableExtra("bikeData");
+                 if(null==bikeData){
+                     return;
+                 }
+                 showProgress("开锁中",false);
+                 sendBleCmd(BleStatus.BLE_OPEN_LOCK_ING);
+                 break;
         }
-        SendBleAgreement.getInstance().sendBleData(status);
     }
-
 
     /**
      * 初始化蓝牙
@@ -175,19 +217,26 @@ public class MainActivity extends BaseActivity implements MainPersenter{
         this.bleService=bleService;
     }
 
-    @Override
+    /**
+     * 展示加载滚动条
+     */
     public void showLoding(String msg) {
-
+        showProgress(msg,true);
     }
 
-    @Override
+    /**
+     * 关闭加载滚动条
+     */
     public void closeLoding() {
-
+        clearTask();
     }
 
-    @Override
+    /**
+     * 展示Toast数据
+     * @param msg
+     */
     public void showToast(String msg) {
-
+        showMsg(msg);
     }
 
 
@@ -217,6 +266,7 @@ public class MainActivity extends BaseActivity implements MainPersenter{
         mainPersenter.closeService();
         //关闭广播
         unregisterReceiver(mBroadcastReceiver);
+        mainPersenter.onDestory();
     }
 
     @Override
@@ -224,4 +274,5 @@ public class MainActivity extends BaseActivity implements MainPersenter{
         super.onDestroy();
         releaseResource();
     }
+
 }

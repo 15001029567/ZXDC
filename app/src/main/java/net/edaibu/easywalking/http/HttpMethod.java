@@ -3,7 +3,8 @@ package net.edaibu.easywalking.http;
 import android.os.Handler;
 
 import net.edaibu.easywalking.bean.BaseBean;
-import net.edaibu.easywalking.bean.BikeInfo;
+import net.edaibu.easywalking.bean.BikeBean;
+import net.edaibu.easywalking.bean.BikeList;
 import net.edaibu.easywalking.bean.DownLoad;
 import net.edaibu.easywalking.bean.Fanceing;
 import net.edaibu.easywalking.bean.UserInfo;
@@ -137,8 +138,8 @@ public class HttpMethod extends BaseRequst {
         Map<String, String> map = new HashMap<>();
         map.put("lat",lat);
         map.put("lon",lon);
-        Http.getRetrofit().create(HttpApi.class).getLocationBike(map).enqueue(new Callback<BikeInfo>() {
-            public void onResponse(Call<BikeInfo> call, Response<BikeInfo> response) {
+        Http.getRetrofit().create(HttpApi.class).getLocationBike(map).enqueue(new Callback<BikeList>() {
+            public void onResponse(Call<BikeList> call, Response<BikeList> response) {
                 try {
                     sendMessage(handler, HandlerConstant.GET_LOCATION_BIKE_SUCCESS, response.body());
                 }catch (Exception e){
@@ -147,7 +148,7 @@ public class HttpMethod extends BaseRequst {
                 }
             }
 
-            public void onFailure(Call<BikeInfo> call, Throwable t) {
+            public void onFailure(Call<BikeList> call, Throwable t) {
                 sendMessage(handler, HandlerConstant.REQUST_ERROR, null);
             }
         });
@@ -190,6 +191,30 @@ public class HttpMethod extends BaseRequst {
                 if(response.isSuccessful()){
                     sendMessage(handler, HandlerConstant.DOWNLOAD_SUCCESS, downLoad);
                 }
+            }
+        });
+    }
+
+
+    /**
+     * 根据编码查询车辆详情
+     * @param bikeCode
+     * @param handler
+     */
+    public static void getBikeByCode(String bikeCode,final Handler handler) {
+        Map<String, String> map = new HashMap<>();
+        map.put("bikeCode",bikeCode);
+        Http.getRetrofit().create(HttpApi.class).getBikeByCode(map).enqueue(new Callback<BikeBean>() {
+            public void onResponse(Call<BikeBean> call, Response<BikeBean> response) {
+                try {
+                    sendMessage(handler, HandlerConstant.GET_BIKE_BYCODE_SUCCESS, response.body());
+                }catch (Exception e){
+                    e.printStackTrace();
+                    sendMessage(handler, HandlerConstant.GET_DATA_ERROR, null);
+                }
+            }
+            public void onFailure(Call<BikeBean> call, Throwable t) {
+                sendMessage(handler, HandlerConstant.REQUST_ERROR, null);
             }
         });
     }

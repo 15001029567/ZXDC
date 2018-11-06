@@ -19,8 +19,8 @@ public class SPUtil {
     //是否是第一次打开APP
     public final static String IS_FIRST_OPEN="is_first_open";
     //当前定位的经纬度
-    public final static String LOCATION_LAT="cycle_latitude";
-    public final static String LOCATION_LONG="cycle_longtitude";
+    public final static String LOCATION_LAT="location_lat";
+    public final static String LOCATION_LONG="location_long";
     //登陆的token
     public final static String ACCESS_TOKEN = "access_token";
     public final static String AUTH_TOKEN = "auth_token";

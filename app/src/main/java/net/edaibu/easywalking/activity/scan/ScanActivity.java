@@ -16,6 +16,7 @@
 
 package net.edaibu.easywalking.activity.scan;
 import android.annotation.TargetApi;
+import android.content.Intent;
 import android.content.res.AssetFileDescriptor;
 import android.graphics.Bitmap;
 import android.media.AudioManager;
@@ -38,6 +39,9 @@ import com.google.zxing.BarcodeFormat;
 import com.google.zxing.Result;
 import net.edaibu.easywalking.R;
 import net.edaibu.easywalking.activity.BaseActivity;
+import net.edaibu.easywalking.bean.BikeBean;
+import net.edaibu.easywalking.persenter.ScanPersenter;
+import net.edaibu.easywalking.persenter.ScanPersenterImpl;
 import net.edaibu.easywalking.utils.scan.cameras.CameraManager;
 import net.edaibu.easywalking.utils.scan.decoding.InactivityTimer;
 import net.edaibu.easywalking.utils.scan.decoding.ScanActivityHandler;
@@ -49,11 +53,11 @@ import java.util.Vector;
 /**
  * 扫描二维码
  */
-public class ScanActivity extends BaseActivity implements SurfaceHolder.Callback, OnClickListener {
+public class ScanActivity extends BaseActivity implements SurfaceHolder.Callback, OnClickListener,ScanPersenter {
 
+    private ScanPersenterImpl scanPersenter;
     private EditText et;
     private LinearLayout linAs, linSetCode;
-    private String bikeCode;
     //编码存储
     private char[] arr;
     private ScanActivityHandler handler;// 消息中心
@@ -66,16 +70,23 @@ public class ScanActivity extends BaseActivity implements SurfaceHolder.Callback
     private boolean playBeep;// 声音布尔
     private static final float BEEP_VOLUME = 0.10f;// 声音大小
     private boolean vibrate;// 振动布尔
-    // 闪光灯
-    private boolean isTorchOn = true;
-    private DialogView dialogView;
     private Handler mHandler=new Handler();
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_zxing_scan);
+        //初始化MVP接口
+        initPersenter();
         CameraManager.init(this);
         inactivityTimer = new InactivityTimer(this);
         initView();
+    }
+
+
+    /**
+     * 初始化MVP接口
+     */
+    private void initPersenter(){
+        scanPersenter=new ScanPersenterImpl(ScanActivity.this,this);
     }
 
     /**
@@ -168,23 +179,7 @@ public class ScanActivity extends BaseActivity implements SurfaceHolder.Callback
         inactivityTimer.onActivity();
         playBeepSoundAndVibrate();
         resumeScan();
-        if (null == result) {
-            showMsg(getString(R.string.scan_failed_try_again));
-            return;
-        }
-        String resultString = result.getText();
-        if (!TextUtils.isEmpty(resultString)) {
-            resultString = resultString.replace(" ", "");
-            if (resultString.indexOf("zxbike") != -1) {
-                bikeCode = resultString.substring(resultString.length() - 7, resultString.length());
-
-
-            } else {
-                showMsg(getString(R.string.please_scan_right_qr_code));
-            }
-        } else {
-            showMsg(getString(R.string.scan_failed_try_again));
-        }
+        scanPersenter.scanResult(result);
     }
 
     /**
@@ -205,17 +200,12 @@ public class ScanActivity extends BaseActivity implements SurfaceHolder.Callback
         switch (v.getId()) {
             //开关灯
             case R.id.lin_aqs_light:
-                openLight(true);
+                scanPersenter.openLight(true);
                 break;
             //输入车辆编号
             case R.id.lin_aqs_code:
-                linSetCode.setVisibility(View.VISIBLE);
-                linAs.setVisibility(View.GONE);
-                //自动打开软键盘
-                et.setFocusable(true);
-                et.setFocusableInTouchMode(true);
-                et.requestFocus();
-                openKey(et);
+                 linSetCode.setVisibility(View.VISIBLE);
+                 linAs.setVisibility(View.GONE);
                 break;
             //设置编码返回
             case R.id.lin_code_back:
@@ -226,21 +216,8 @@ public class ScanActivity extends BaseActivity implements SurfaceHolder.Callback
                 break;
             //设置编码后提交
             case R.id.btn_as_submit:
-                if (null != arr) {
-                    if (arr.length < 7) {
-                        showMsg(getString(R.string.please_enter_full_bike_number));
-                    } else {
-                        StringBuffer sb = new StringBuffer();
-                        for (int i = 0; i < arr.length; i++) {
-                            sb.append(arr[i]);
-                        }
-                        bikeCode = sb.toString();
-
-                    }
-                } else {
-                    showMsg(getString(R.string.please_enter_bike_bumber));
-                }
-                break;
+                 scanPersenter.setBikeCode(arr);
+                 break;
             case R.id.lin_back:
                 finish();
                 break;
@@ -251,20 +228,15 @@ public class ScanActivity extends BaseActivity implements SurfaceHolder.Callback
 
 
     /**
-     * 开关灯设置
-     *
-     * @param b
+     * 获得车辆信息
+     * @param bikeData
      */
-    private void openLight(boolean b) {
-        if (isTorchOn) {//开灯
-            isTorchOn = false;
-            CameraManager.start();
-        } else {//关灯
-            isTorchOn = true;
-            CameraManager.stop();
-        }
+    public void getBikeBean(BikeBean.BikeData bikeData) {
+        Intent intent=new Intent();
+        intent.putExtra("bikeData",bikeData);
+        setResult(1,intent);
+        finish();
     }
-
 
 
     /**
@@ -280,10 +252,7 @@ public class ScanActivity extends BaseActivity implements SurfaceHolder.Callback
             handler = new ScanActivityHandler(this, decodeFormats, characterSet);
         }
     }
-
-    @Override
     public void surfaceChanged(SurfaceHolder holder, int format, int width, int height) {
-
     }
 
     @Override
@@ -350,15 +319,34 @@ public class ScanActivity extends BaseActivity implements SurfaceHolder.Callback
             vibrator.vibrate(VIBRATE_DURATION);
         }
     }
-
-    /**
-     * When the beep has finished playing, rewind to queue up another one.
-     */
     private final MediaPlayer.OnCompletionListener beepListener = new MediaPlayer.OnCompletionListener() {
         public void onCompletion(MediaPlayer mediaPlayer) {
             mediaPlayer.seekTo(0);
         }
     };
+
+
+    /**
+     * 展示加载滚动条
+     */
+    public void showLoding(String msg) {
+        showProgress(msg,true);
+    }
+
+    /**
+     * 关闭加载滚动条
+     */
+    public void closeLoding() {
+        clearTask();
+    }
+
+    /**
+     * 展示Toast数据
+     * @param msg
+     */
+    public void showToast(String msg) {
+        showMsg(msg);
+    }
 
 
     @Override
@@ -405,6 +393,8 @@ public class ScanActivity extends BaseActivity implements SurfaceHolder.Callback
         clearTask();
         // 停止相机扫描刷新timer
         inactivityTimer.shutdown();
+        scanPersenter.onDestory();
         super.onDestroy();
     }
+
 }

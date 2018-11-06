@@ -55,6 +55,12 @@ public class BaseActivity extends FragmentActivity {
         startActivity(intent);
     }
 
+    protected void setClass(Class<?> cls,int resultCode) {
+        Intent intent = new Intent();
+        intent.setClass(this, cls);
+        startActivityForResult(intent,resultCode);
+    }
+
 
     /**
      * loding弹框

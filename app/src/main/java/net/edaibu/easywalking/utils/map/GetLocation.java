@@ -81,8 +81,8 @@ public class GetLocation {
                 final Double longtitude = location.getLongitude();
                 final Double latitude = location.getLatitude();
                 //保存当前的经纬度数据
-                MyApplication.spUtil.addString(SPUtil.LOCATION_LAT, latitude + "");
-                MyApplication.spUtil.addString(SPUtil.LOCATION_LONG, longtitude + "");
+                MyApplication.spUtil.addString(SPUtil.LOCATION_LAT,  String.valueOf(latitude));
+                MyApplication.spUtil.addString(SPUtil.LOCATION_LONG,  String.valueOf(longtitude));
             }
             Message message = new Message();
             message.what = HandlerConstant.MAP_LOCATION_SUCCESS;

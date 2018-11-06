@@ -25,4 +25,7 @@ public class HttpConstant {
 
     //查询最新版本
     public static final String FIND_VERSION = "version/update";
+
+    //根据编码查询车辆详情
+    public static final String GETCAR_BYCODE = "user/use/bike";
 }
