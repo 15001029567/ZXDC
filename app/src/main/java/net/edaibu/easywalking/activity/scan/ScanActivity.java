@@ -42,6 +42,7 @@ import net.edaibu.easywalking.activity.BaseActivity;
 import net.edaibu.easywalking.bean.BikeBean;
 import net.edaibu.easywalking.persenter.scan.ScanPersenter;
 import net.edaibu.easywalking.persenter.scan.ScanPersenterImpl;
+import net.edaibu.easywalking.utils.Constant;
 import net.edaibu.easywalking.utils.scan.cameras.CameraManager;
 import net.edaibu.easywalking.utils.scan.decoding.InactivityTimer;
 import net.edaibu.easywalking.utils.scan.decoding.ScanActivityHandler;
@@ -238,7 +239,7 @@ public class ScanActivity extends BaseActivity implements SurfaceHolder.Callback
     public void getBikeBean(BikeBean bikeBean) {
         Intent intent=new Intent();
         intent.putExtra("bikeBean",bikeBean);
-        setResult(1,intent);
+        setResult(Constant.SCAN_BACK,intent);
         finish();
     }
 

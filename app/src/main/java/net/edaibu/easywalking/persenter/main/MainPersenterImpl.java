@@ -12,13 +12,18 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
+import android.text.TextUtils;
 
 import net.edaibu.easywalking.R;
+import net.edaibu.easywalking.application.MyApplication;
 import net.edaibu.easywalking.bean.BikeBean;
+import net.edaibu.easywalking.bean.UserBean;
 import net.edaibu.easywalking.http.HandlerConstant;
 import net.edaibu.easywalking.http.HttpMethod;
 import net.edaibu.easywalking.service.BleService;
 import net.edaibu.easywalking.utils.JsonUtils;
+import net.edaibu.easywalking.utils.LogUtils;
+import net.edaibu.easywalking.utils.SPUtil;
 import net.edaibu.easywalking.utils.bletooth.SendBleAgreement;
 
 /**
@@ -50,6 +55,15 @@ public class MainPersenterImpl {
                      }else{
                          mainPersenter.showToast(bikeBean.getMsg());
                      }
+                      break;
+                //获取用户详情
+                case HandlerConstant.GET_USER_INFO_SUCCESS:
+                      final UserBean userBean= (UserBean) msg.obj;
+                      if(null==userBean){
+                          break;
+                      }
+                      if(userBean.isSussess()){
+                      }
                       break;
                 case HandlerConstant.REQUST_ERROR:
                       mainPersenter.showToast(activity.getString(R.string.http_error));
@@ -113,6 +127,17 @@ public class MainPersenterImpl {
      */
     public void getOrderByScan(String bikeCode){
         HttpMethod.getOrderByScan(bikeCode,mHandler);
+    }
+
+
+    /**
+     * 获取用户详情
+     */
+    public void getUserInfo(){
+        final String auth_token = MyApplication.spUtil.getString(SPUtil.AUTH_TOKEN);
+        if (!TextUtils.isEmpty(auth_token)) {
+            HttpMethod.getUserInfo(auth_token,mHandler);
+        }
     }
 
 

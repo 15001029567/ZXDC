@@ -47,4 +47,9 @@
     <string name="qiche_distance">距离(米)</string>
     <string name="play_ka">消耗(大卡)</string>
     <string name="using_bike">正在用车</string>
+    <string name="opening_lock">开锁中</string>
+    <string name="closing_lock">关锁中</string>
+    <string name="open_lock_failed">开锁失败</string>
+    <string name="mad_fire_wheel">疯火轮</string>
+    <string name="mad_fire_wheel_template">疯火轮模板</string>
 </resources>

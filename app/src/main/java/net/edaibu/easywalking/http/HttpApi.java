@@ -2,8 +2,9 @@ package net.edaibu.easywalking.http;
 
 import net.edaibu.easywalking.bean.BaseBean;
 import net.edaibu.easywalking.bean.BikeList;
+import net.edaibu.easywalking.bean.DiyBean;
 import net.edaibu.easywalking.bean.Fanceing;
-import net.edaibu.easywalking.bean.UserInfo;
+import net.edaibu.easywalking.bean.UserBean;
 import net.edaibu.easywalking.bean.Version;
 
 import java.util.Map;
@@ -23,7 +24,17 @@ public interface HttpApi {
      */
     @FormUrlEncoded
     @POST(HttpConstant.GET_ACCESS_TOKEN)
-    Call<UserInfo> getAccessToken(@FieldMap Map<String, String> map);
+    Call<UserBean> getAccessToken(@FieldMap Map<String, String> map);
+
+
+    /**
+     * 查询用户详情
+     * @param map
+     * @return
+     */
+    @FormUrlEncoded
+    @POST(HttpConstant.GET_USERINFO)
+    Call<UserBean> getUserInfo(@FieldMap Map<String, String> map);
 
 
     /**
@@ -95,4 +106,24 @@ public interface HttpApi {
     @FormUrlEncoded
     @POST(HttpConstant.SCAN_OPLOCK)
     Call<ResponseBody> getOrderByScan(@FieldMap Map<String, String> map);
+
+
+    /**
+     * 查询DIY数据
+     * @param map
+     * @return
+     */
+    @FormUrlEncoded
+    @POST(HttpConstant.FIND_DIY)
+    Call<DiyBean> getDiyList(@FieldMap Map<String, String> map);
+
+
+    /**
+     * 设置DIY旋轮
+     * @param map
+     * @return
+     */
+    @FormUrlEncoded
+    @POST(HttpConstant.SET_DAZZLE)
+    Call<BaseBean> setDiy(@FieldMap Map<String, String> map);
 }

@@ -12,7 +12,7 @@ import net.edaibu.easywalking.R;
 import net.edaibu.easywalking.activity.BaseActivity;
 import net.edaibu.easywalking.activity.MainActivity;
 import net.edaibu.easywalking.application.MyApplication;
-import net.edaibu.easywalking.bean.UserInfo;
+import net.edaibu.easywalking.bean.UserBean;
 import net.edaibu.easywalking.http.HandlerConstant;
 import net.edaibu.easywalking.http.HttpMethod;
 import net.edaibu.easywalking.utils.SPUtil;
@@ -27,6 +27,8 @@ public class WellcomeActivity extends BaseActivity {
         super.onCreate(savedInstanceState);
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);//设置全屏
         setContentView(R.layout.activity_wellcome);
+        //查询最新的access_token
+        getAccess_token();
         initView();
         initAnim();
     }
@@ -64,13 +66,13 @@ public class WellcomeActivity extends BaseActivity {
             switch (msg.what){
                 //最新的token回执
                 case HandlerConstant.GET_ACCESS_TOKEN_SUCCESS:
-                      UserInfo userInfo = (UserInfo) msg.obj;
-                      if (null == userInfo) {
-                         break;
+                      UserBean userBean = (UserBean) msg.obj;
+                      if (null == userBean) {
+                          break;
                       }
-                      if (userInfo.isSussess()) {
-                         MyApplication.spUtil.addString(SPUtil.ACCESS_TOKEN, userInfo.getData().getAccess_token());
-                         MyApplication.spUtil.addString(SPUtil.AUTH_TOKEN, userInfo.getData().getAuth_token());
+                      if (userBean.isSussess()) {
+                         MyApplication.spUtil.addString(SPUtil.ACCESS_TOKEN, userBean.getData().getAccess_token());
+                         MyApplication.spUtil.addString(SPUtil.AUTH_TOKEN, userBean.getData().getAuth_token());
                       }
                       break;
                 case HandlerConstant.REQUST_ERROR:

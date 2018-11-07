@@ -60,6 +60,7 @@
         <activity android:name=".activity.MainActivity"  android:screenOrientation="portrait" android:launchMode="singleTask" />
         <activity android:name=".activity.webview.WebViewActivity"  android:screenOrientation="portrait" />
         <activity android:name=".activity.scan.ScanActivity"  android:screenOrientation="portrait" />
+        <activity android:name=".activity.diy.DiyActivity"  android:screenOrientation="portrait" />
 
 
         <!-- 蓝牙服务-->

@@ -8,7 +8,10 @@ import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.telephony.TelephonyManager;
 import android.text.TextUtils;
+import android.view.View;
+import android.view.ViewGroup;
 import android.view.WindowManager;
+import android.widget.RelativeLayout;
 
 import net.edaibu.easywalking.activity.login.LoginActivity;
 import net.edaibu.easywalking.application.MyApplication;
@@ -183,6 +186,33 @@ public class Util extends ClassLoader {
         }else{
             return height;
         }
+    }
+
+
+    /**
+     *获取状态栏高度
+     * @param context
+     * @return
+     */
+    public static int getStatusBarHeight(Context context) {
+        int result = 0;
+        int resourceId = context.getResources().getIdentifier("status_bar_height", "dimen", "android");
+        if (resourceId > 0) {
+            result = context.getResources().getDimensionPixelSize(resourceId);
+        }
+        return result;
+    }
+
+
+    /*
+     * 设置控件所在的位置YY，并且不改变宽高，
+     * XY为绝对位置
+     */
+    public static void setLayout(View view, int x, int y) {
+        ViewGroup.MarginLayoutParams margin=new ViewGroup.MarginLayoutParams(view.getLayoutParams());
+        margin.setMargins(x,y, x+margin.width, y+margin.height);
+        RelativeLayout.LayoutParams layoutParams = new RelativeLayout.LayoutParams(margin);
+        view.setLayoutParams(layoutParams);
     }
 
 

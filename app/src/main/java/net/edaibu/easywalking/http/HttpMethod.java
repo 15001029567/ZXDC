@@ -4,9 +4,10 @@ import android.os.Handler;
 
 import net.edaibu.easywalking.bean.BaseBean;
 import net.edaibu.easywalking.bean.BikeList;
+import net.edaibu.easywalking.bean.DiyBean;
 import net.edaibu.easywalking.bean.DownLoad;
 import net.edaibu.easywalking.bean.Fanceing;
-import net.edaibu.easywalking.bean.UserInfo;
+import net.edaibu.easywalking.bean.UserBean;
 import net.edaibu.easywalking.bean.Version;
 import net.edaibu.easywalking.http.base.BaseRequst;
 import net.edaibu.easywalking.http.base.Http;
@@ -29,8 +30,8 @@ public class HttpMethod extends BaseRequst {
     public static void getAccessToken(String auth_token, final Handler handler) {
         Map<String, String> map = new HashMap<>();
         map.put("auth_token", auth_token);
-        Http.getRetrofit().create(HttpApi.class).getAccessToken(map).enqueue(new Callback<UserInfo>() {
-            public void onResponse(Call<UserInfo> call, Response<UserInfo> response) {
+        Http.getRetrofit().create(HttpApi.class).getAccessToken(map).enqueue(new Callback<UserBean>() {
+            public void onResponse(Call<UserBean> call, Response<UserBean> response) {
                 try {
                     sendMessage(handler, HandlerConstant.GET_ACCESS_TOKEN_SUCCESS, response.body());
                 }catch (Exception e){
@@ -38,7 +39,32 @@ public class HttpMethod extends BaseRequst {
                     sendMessage(handler, HandlerConstant.GET_DATA_ERROR, null);
                 }
             }
-            public void onFailure(Call<UserInfo> call, Throwable t) {
+            public void onFailure(Call<UserBean> call, Throwable t) {
+                LogUtils.e("查询数据报错："+t.getMessage());
+                sendMessage(handler, HandlerConstant.REQUST_ERROR, null);
+            }
+        });
+    }
+
+
+    /**
+     * 查询用户详情
+     * @param auth_token
+     * @param handler
+     */
+    public static void getUserInfo(String auth_token, final Handler handler) {
+        Map<String, String> map = new HashMap<>();
+        map.put("auth_token", auth_token);
+        Http.getRetrofit().create(HttpApi.class).getUserInfo(map).enqueue(new Callback<UserBean>() {
+            public void onResponse(Call<UserBean> call, Response<UserBean> response) {
+                try {
+                    sendMessage(handler, HandlerConstant.GET_USER_INFO_SUCCESS, response.body());
+                }catch (Exception e){
+                    e.printStackTrace();
+                    sendMessage(handler, HandlerConstant.GET_DATA_ERROR, null);
+                }
+            }
+            public void onFailure(Call<UserBean> call, Throwable t) {
                 LogUtils.e("查询数据报错："+t.getMessage());
                 sendMessage(handler, HandlerConstant.REQUST_ERROR, null);
             }
@@ -239,6 +265,58 @@ public class HttpMethod extends BaseRequst {
             }
             public void onFailure(Call<ResponseBody> call, Throwable t) {
                 LogUtils.e("查询数据报错："+t.getMessage());
+                sendMessage(handler, HandlerConstant.REQUST_ERROR, null);
+            }
+        });
+    }
+
+
+    /**
+     * 查询DIY数据
+     * @param handler
+     */
+    public static void getDiyList(final Handler handler) {
+        Map<String, String> map = new HashMap<>();
+        Http.getRetrofit().create(HttpApi.class).getDiyList(map).enqueue(new Callback<DiyBean>() {
+            public void onResponse(Call<DiyBean> call, Response<DiyBean> response) {
+                try {
+                    sendMessage(handler, HandlerConstant.GET_DIY_LIST_SUCCESS, response.body());
+                }catch (Exception e){
+                    e.printStackTrace();
+                    sendMessage(handler, HandlerConstant.GET_DATA_ERROR, null);
+                }
+            }
+            public void onFailure(Call<DiyBean> call, Throwable t) {
+                LogUtils.e("查询数据报错："+t.getMessage());
+                sendMessage(handler, HandlerConstant.REQUST_ERROR, null);
+            }
+        });
+    }
+
+
+    /**
+     * 设置DIY旋轮
+     * @param userTemplateId
+     * @param templateId
+     * @param bikeWheelNum
+     * @param handler
+     */
+    public static void setDiy(String userTemplateId,String templateId,int bikeWheelNum,final Handler handler) {
+        Map<String, String> map = new HashMap<>();
+        map.put("userTemplateId",userTemplateId);
+        map.put("templateId",templateId);
+        map.put("bikeWheelNum",bikeWheelNum+"");
+        Http.getRetrofit().create(HttpApi.class).setDiy(map).enqueue(new Callback<BaseBean>() {
+            public void onResponse(Call<BaseBean> call, Response<BaseBean> response) {
+                try {
+                    sendMessage(handler, HandlerConstant.SET_DIY_SUCCESS, response.body());
+                }catch (Exception e){
+                    e.printStackTrace();
+                    sendMessage(handler, HandlerConstant.REQUST_ERROR, null);
+                }
+            }
+
+            public void onFailure(Call<BaseBean> call, Throwable t) {
                 sendMessage(handler, HandlerConstant.REQUST_ERROR, null);
             }
         });

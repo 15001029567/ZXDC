@@ -20,8 +20,10 @@ import net.edaibu.easywalking.persenter.main.MainPersenter;
 import net.edaibu.easywalking.persenter.main.MainPersenterImpl;
 import net.edaibu.easywalking.service.BleService;
 import net.edaibu.easywalking.utils.ActivitysLifecycle;
+import net.edaibu.easywalking.utils.Constant;
 import net.edaibu.easywalking.utils.LogUtils;
 import net.edaibu.easywalking.utils.SPUtil;
+import net.edaibu.easywalking.utils.StatusBarUtils;
 import net.edaibu.easywalking.utils.Util;
 import net.edaibu.easywalking.utils.WakeLockUtil;
 import net.edaibu.easywalking.utils.bletooth.BleStatus;
@@ -50,11 +52,10 @@ public class MainActivity extends BaseActivity implements MainPersenter,View.OnC
     private Handler mHandler=new Handler();
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        StatusBarUtils.transparencyBar(this);
         setContentView(R.layout.activity_main);
         //初始化MVP接口
         initPersenter();
-        //打开地图fragment
-        mainPersenter.showFragment(mapFragment, true, R.id.fragment_map);
         //初始化控件
         initView();
         //初始化蓝牙服务
@@ -70,6 +71,8 @@ public class MainActivity extends BaseActivity implements MainPersenter,View.OnC
      */
     private void initPersenter(){
         mainPersenter=new MainPersenterImpl(MainActivity.this,this);
+        //打开地图fragment
+        mainPersenter.showFragment(mapFragment, true, R.id.fragment_map);
     }
 
     /**
@@ -97,7 +100,7 @@ public class MainActivity extends BaseActivity implements MainPersenter,View.OnC
                   if(!Util.isLogin(this)){
                      return;
                   }
-                  setClass(ScanActivity.class,1);
+                  setClass(ScanActivity.class, Constant.SCAN_BACK);
                   break;
         }
     }
@@ -214,12 +217,12 @@ public class MainActivity extends BaseActivity implements MainPersenter,View.OnC
         super.onActivityResult(requestCode, resultCode, data);
         switch (resultCode){
             //扫码回执
-            case 1:
+            case Constant.SCAN_BACK:
                  bikeBean= (BikeBean) data.getSerializableExtra("bikeBean");
                  if(null==bikeBean){
                      return;
                  }
-                 showProgress("开锁中",false);
+                 showProgress(getString(R.string.opening_lock),false);
                  sendBleCmd(BleStatus.BLE_OPEN_LOCK_ING);
                  break;
              default:
@@ -272,6 +275,14 @@ public class MainActivity extends BaseActivity implements MainPersenter,View.OnC
     @Override
     protected void onSaveInstanceState(Bundle outState) {
 //        super.onSaveInstanceState(outState);
+    }
+
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        //查询用户详情
+        mainPersenter.getUserInfo();
     }
 
     // 按两次退出

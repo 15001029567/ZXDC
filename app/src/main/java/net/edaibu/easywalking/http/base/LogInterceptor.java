@@ -3,7 +3,7 @@ package net.edaibu.easywalking.http.base;
 
 import android.text.TextUtils;
 import net.edaibu.easywalking.application.MyApplication;
-import net.edaibu.easywalking.bean.UserInfo;
+import net.edaibu.easywalking.bean.UserBean;
 import net.edaibu.easywalking.http.HttpApi;
 import net.edaibu.easywalking.utils.LogUtils;
 import net.edaibu.easywalking.utils.SPUtil;
@@ -40,7 +40,7 @@ public class LogInterceptor implements Interceptor {
         //如果ACCESS_TOKEN失效，自动重新获取一次
         final int code = getCode(body);
         if (code == ACCESS_TOKEN_TIME_OUT_CODE) {
-            UserInfo userBean = getAccessToken();
+            UserBean userBean = getAccessToken();
             if (userBean != null && userBean.isSussess()) {
                 MyApplication.spUtil.addString(SPUtil.ACCESS_TOKEN, userBean.getData().getAccess_token());
                 MyApplication.spUtil.addString(SPUtil.AUTH_TOKEN, userBean.getData().getAuth_token());
@@ -56,8 +56,8 @@ public class LogInterceptor implements Interceptor {
     /**
      * 获取AccessToken
      */
-    public UserInfo getAccessToken() throws IOException {
-        UserInfo userBean = null;
+    public UserBean getAccessToken() throws IOException {
+        UserBean userBean = null;
         String auth_token = MyApplication.spUtil.getString(SPUtil.AUTH_TOKEN);
         if (!TextUtils.isEmpty(auth_token)) {
             Map<String, String> map = new HashMap<>();

@@ -30,6 +30,7 @@ import com.baidu.mapapi.search.route.PlanNode;
 import com.baidu.mapapi.search.route.RoutePlanSearch;
 import com.baidu.mapapi.search.route.WalkingRoutePlanOption;
 import net.edaibu.easywalking.R;
+import net.edaibu.easywalking.activity.diy.DiyActivity;
 import net.edaibu.easywalking.bean.BikeList;
 import net.edaibu.easywalking.bean.Fanceing;
 import net.edaibu.easywalking.persenter.map.MapPersenter;
@@ -274,7 +275,8 @@ public class MapFragment extends BaseFragment implements MapPersenter, OnGetGeoC
         switch (v.getId()){
             //重新定位
             case R.id.img_location:
-                 mapPersenter.resumeLocation();
+//                 mapPersenter.resumeLocation();
+                 setClass(DiyActivity.class);
                  break;
              default:
                  break;

@@ -1,10 +1,12 @@
 package net.edaibu.easywalking.bean;
 
+import java.io.Serializable;
+
 /**
  * Created by lyn on 2017/5/11.
  */
 
-public class UserInfo extends BaseBean{
+public class UserBean extends BaseBean{
     private DataBean data;
 
     public DataBean getData() {
@@ -15,7 +17,7 @@ public class UserInfo extends BaseBean{
         this.data = data;
     }
 
-    public static class DataBean {
+    public static class DataBean implements Serializable{
         private String id;
         private int type;
         private String channel;

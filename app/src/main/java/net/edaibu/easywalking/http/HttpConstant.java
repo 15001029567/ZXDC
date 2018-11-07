@@ -31,4 +31,13 @@ public class HttpConstant {
 
     //扫码开锁后生成骑行单接口
     public static final String SCAN_OPLOCK = "user/cycling/bybike";
+
+    //查询炫轮模板
+    public static final String FIND_DIY="user/wheel/template";
+
+    //设置炫轮
+    public static final String SET_DAZZLE="user/update/wheel/template";
+
+    //查询用户详情
+    public static final String GET_USERINFO = "user/info";
 }

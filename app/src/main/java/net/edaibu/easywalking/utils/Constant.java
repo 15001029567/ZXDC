@@ -16,4 +16,7 @@ public class Constant {
      * 4：车辆预约成功
      */
     public static int  PLAY_STATUS=0;
+
+    //扫码返回
+    public static final int SCAN_BACK=0x001;
 }

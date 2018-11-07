@@ -1,0 +1,174 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:android_custom="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/lin_ad"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@mipmap/dazzle_bg">
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@mipmap/dazzle_black">
+
+        <RelativeLayout
+            android:id="@+id/rel_head"
+            android:layout_width="match_parent"
+            android:layout_height="50dp">
+
+            <LinearLayout
+                android:id="@+id/lin_back"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:layout_marginLeft="10dp"
+                android:gravity="center"
+                android:orientation="horizontal"
+                android:paddingRight="30dp">
+
+
+            </LinearLayout>
+
+            <TextView
+                android:id="@+id/tv_head"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:layout_centerInParent="true"
+                android:gravity="center"
+                android:text="@string/mad_fire_wheel"
+                android:textColor="@android:color/white"
+                android:textSize="17sp" />
+
+            <RelativeLayout
+                android:id="@+id/rel_ad_help"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:layout_alignParentRight="true"
+                android:layout_marginRight="10dp"
+                android:paddingLeft="5dp"
+                android:paddingRight="5dp">
+
+                <ImageView
+                    android:layout_width="20dp"
+                    android:layout_height="4dp"
+                    android:layout_centerVertical="true"
+                    android:src="@mipmap/xuanlun_more" />
+
+            </RelativeLayout>
+
+        </RelativeLayout>
+
+
+        <ImageView
+            android:id="@+id/img_ad"
+            android:layout_width="249dp"
+            android:layout_height="152dp"
+            android:layout_below="@id/rel_head"
+            android:layout_marginLeft="29dp"
+            android:layout_marginTop="10dp"
+            android:src="@mipmap/dazzle_car" />
+
+        <RelativeLayout
+            android:layout_width="130dp"
+            android:layout_height="131dp"
+            android:layout_marginLeft="31dp"
+            android:layout_marginTop="153dp"
+            android:background="@mipmap/dazzle_lun">
+
+            <net.edaibu.easywalking.view.CircleImageView
+                android:id="@+id/img_left"
+                android:layout_width="96dp"
+                android:layout_height="96dp"
+                android:layout_centerInParent="true" />
+
+            <net.edaibu.easywalking.view.RoundProgressBar
+                android:id="@+id/roundProgressBar_left"
+                android:layout_width="96dp"
+                android:layout_height="96dp"
+                android:layout_centerInParent="true"
+                android:visibility="gone"
+                android_custom:roundProgressColor="@color/color_8Affffff"
+                android_custom:style="FILL" />
+
+        </RelativeLayout>
+
+        <RelativeLayout
+            android:layout_width="130dp"
+            android:layout_height="131dp"
+            android:layout_marginLeft="201dp"
+            android:layout_marginTop="153dp"
+            android:background="@mipmap/dazzle_lun">
+
+            <net.edaibu.easywalking.view.CircleImageView
+                android:id="@+id/img_right"
+                android:layout_width="96dp"
+                android:layout_height="96dp"
+                android:layout_centerInParent="true" />
+
+            <net.edaibu.easywalking.view.RoundProgressBar
+                android:id="@+id/roundProgressBar_right"
+                android:layout_width="96dp"
+                android:layout_height="96dp"
+                android:layout_centerInParent="true"
+                android:visibility="gone"
+                android_custom:roundProgressColor="@color/color_8Affffff"
+                android_custom:style="FILL" />
+
+        </RelativeLayout>
+
+        <RelativeLayout
+            android:id="@+id/rel_ad"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="345dp"
+            android:paddingLeft="20dp"
+            android:paddingRight="20dp">
+
+            <ImageView
+                android:id="@+id/img_left_btn"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerVertical="true"
+                android:padding="10dp"
+                android:src="@mipmap/left_btn_nor" />
+
+            <ImageView
+                android:id="@+id/img_right_btn"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentRight="true"
+                android:layout_centerVertical="true"
+                android:padding="10dp"
+                android:src="@mipmap/right_btn_nor" />
+
+            <TextView
+                android:layout_width="121dp"
+                android:layout_height="wrap_content"
+                android:layout_centerInParent="true"
+                android:layout_centerVertical="true"
+                android:background="@drawable/diy_bg"
+                android:gravity="center"
+                android:paddingBottom="9dp"
+                android:paddingLeft="5dp"
+                android:paddingRight="5dp"
+                android:paddingTop="9dp"
+                android:text="@string/mad_fire_wheel_template"
+                android:textColor="@android:color/white"
+                android:textSize="16sp" />
+
+        </RelativeLayout>
+
+        <android.support.v4.view.ViewPager
+            android:id="@+id/viewPager"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="415dp" />
+
+        <net.edaibu.easywalking.view.CircleImageView
+            android:id="@+id/img_dazzle"
+            android:layout_width="75dp"
+            android:layout_height="75dp"
+            android:layout_below="@id/viewPager" />
+
+    </RelativeLayout>
+
+</RelativeLayout>
