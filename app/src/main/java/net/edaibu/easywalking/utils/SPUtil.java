@@ -24,6 +24,8 @@ public class SPUtil {
     //登陆的token
     public final static String ACCESS_TOKEN = "access_token";
     public final static String AUTH_TOKEN = "auth_token";
+    //保存要发送的蓝牙命令类型
+    public final static String SEND_BLE_STATUS="send_ble_status";
     //蓝牙的mac地址
     public final static String DEVICE_MAC="device_mac";
 

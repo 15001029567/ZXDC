@@ -1,16 +1,17 @@
-package net.edaibu.easywalking.persenter;
+package net.edaibu.easywalking.persenter.map;
 
 import com.baidu.mapapi.model.LatLng;
 
 import net.edaibu.easywalking.bean.BikeList;
 import net.edaibu.easywalking.bean.Fanceing;
+import net.edaibu.easywalking.persenter.BasePersenter;
 
 import java.util.List;
 
 /**
  * 地图MapFragment 的接口
  */
-public interface MapPersenter extends BasePersenter{
+public interface MapPersenter extends BasePersenter {
 
 
     /**

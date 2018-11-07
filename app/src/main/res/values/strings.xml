@@ -43,4 +43,8 @@
     <string name="bluetooth_disconnected_please_try_again">蓝牙连接断开！</string>
     <string name="please_install_the_WeChat_client_first">请先安装微信客户端！</string>
     <string name="loading">加载中</string>
+    <string name="qiche_time">时间(分)</string>
+    <string name="qiche_distance">距离(米)</string>
+    <string name="play_ka">消耗(大卡)</string>
+    <string name="using_bike">正在用车</string>
 </resources>

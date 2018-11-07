@@ -13,4 +13,5 @@ public class HandlerConstant {
     public static final int DOWNLOAD_SUCCESS=10009;
     public static final int DOWNLOAD_PRORESS=10010;
     public static final int GET_BIKE_BYCODE_SUCCESS=10011;
+    public static final int GET_ORDER_BY_SCAN_SUCCESS=10012;
 }

@@ -3,6 +3,9 @@ package net.edaibu.easywalking.bean;
 import java.io.Serializable;
 import java.util.List;
 
+/**
+ * 查询附近车辆的类对象
+ */
 public class BikeList extends BaseBean {
 
     private List<BikeInfoList> data;

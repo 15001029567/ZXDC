@@ -1,7 +1,6 @@
 package net.edaibu.easywalking.http;
 
 import net.edaibu.easywalking.bean.BaseBean;
-import net.edaibu.easywalking.bean.BikeBean;
 import net.edaibu.easywalking.bean.BikeList;
 import net.edaibu.easywalking.bean.Fanceing;
 import net.edaibu.easywalking.bean.UserInfo;
@@ -85,5 +84,15 @@ public interface HttpApi {
      */
     @FormUrlEncoded
     @POST(HttpConstant.GETCAR_BYCODE)
-    Call<BikeBean> getBikeByCode(@FieldMap Map<String, String> map);
+    Call<ResponseBody> getBikeByCode(@FieldMap Map<String, String> map);
+
+
+    /**
+     * 扫码开锁后生成骑行单接口
+     * @param map
+     * @return
+     */
+    @FormUrlEncoded
+    @POST(HttpConstant.SCAN_OPLOCK)
+    Call<ResponseBody> getOrderByScan(@FieldMap Map<String, String> map);
 }

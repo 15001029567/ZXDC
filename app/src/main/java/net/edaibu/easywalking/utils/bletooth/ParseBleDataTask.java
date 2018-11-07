@@ -31,6 +31,17 @@ public class ParseBleDataTask {
             case 128:
                   result=getKEY(mContext,data);
                   break;
+            //开锁回执
+            case 140:
+                  switch (resultCode){
+                      case 83:
+                           result=BleStatus.BLE_OPEN_LOCK_SUCCESS;
+                           break;
+                      case 70:
+                           result=BleStatus.BLE_OPEN_LOCK_FAILURE;
+                           break;
+                  }
+                  break;
             default:
                 break;
         }

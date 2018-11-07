@@ -28,4 +28,7 @@ public class HttpConstant {
 
     //根据编码查询车辆详情
     public static final String GETCAR_BYCODE = "user/use/bike";
+
+    //扫码开锁后生成骑行单接口
+    public static final String SCAN_OPLOCK = "user/cycling/bybike";
 }

@@ -14,9 +14,10 @@ import net.edaibu.easywalking.R;
 import net.edaibu.easywalking.activity.scan.ScanActivity;
 import net.edaibu.easywalking.application.MyApplication;
 import net.edaibu.easywalking.bean.BikeBean;
+import net.edaibu.easywalking.fragment.CyclingFragment;
 import net.edaibu.easywalking.fragment.MapFragment;
-import net.edaibu.easywalking.persenter.MainPersenter;
-import net.edaibu.easywalking.persenter.MainPersenterImpl;
+import net.edaibu.easywalking.persenter.main.MainPersenter;
+import net.edaibu.easywalking.persenter.main.MainPersenterImpl;
 import net.edaibu.easywalking.service.BleService;
 import net.edaibu.easywalking.utils.ActivitysLifecycle;
 import net.edaibu.easywalking.utils.LogUtils;
@@ -42,12 +43,18 @@ public class MainActivity extends BaseActivity implements MainPersenter,View.OnC
     public DialogView dialogView;
     //地图的fragment
     private MapFragment mapFragment=new MapFragment();
+    //骑行界面的fragment
+    private CyclingFragment cyclingFragment=new CyclingFragment();
+    //车辆对象
+    private BikeBean bikeBean;
     private Handler mHandler=new Handler();
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         //初始化MVP接口
         initPersenter();
+        //打开地图fragment
+        mainPersenter.showFragment(mapFragment, true, R.id.fragment_map);
         //初始化控件
         initView();
         //初始化蓝牙服务
@@ -56,9 +63,7 @@ public class MainActivity extends BaseActivity implements MainPersenter,View.OnC
         registerBoradcastReceiver();
         //保持CPU唤醒
         WakeLockUtil.getInstance().acquireWakeLock(mContext);
-        mainPersenter.showFragment(mapFragment, true, R.id.fragment_map);
     }
-
 
     /**
      * 初始化MVP接口
@@ -66,7 +71,6 @@ public class MainActivity extends BaseActivity implements MainPersenter,View.OnC
     private void initPersenter(){
         mainPersenter=new MainPersenterImpl(MainActivity.this,this);
     }
-
 
     /**
      * 初始化控件
@@ -83,14 +87,17 @@ public class MainActivity extends BaseActivity implements MainPersenter,View.OnC
     }
 
 
-    @Override
+    /**
+     * 按钮点击事件
+     * @param v
+     */
     public void onClick(View v) {
         switch (v.getId()){
             case R.id.img_scan:
-                 if(!Util.isLogin(this)){
+                  if(!Util.isLogin(this)){
                      return;
-                 }
-                 setClass(ScanActivity.class,1);
+                  }
+                  setClass(ScanActivity.class,1);
                   break;
         }
     }
@@ -104,10 +111,12 @@ public class MainActivity extends BaseActivity implements MainPersenter,View.OnC
         this.BLE_STATUS=status;
         //扫描并连接蓝牙
         if (bleService.connectionState != bleService.STATE_CONNECTED){
-            bleService.connectScan("");
+            //保存要发送的蓝牙命令类型
+            MyApplication.spUtil.addInt(SPUtil.SEND_BLE_STATUS,status);
+            bleService.connectScan(bikeBean.getBikeNumber());
             return;
         }
-        SendBleAgreement.getInstance().sendBleData(status,bikeData.getImei());
+        SendBleAgreement.getInstance().sendBleData(status,bikeBean.getImei());
     }
 
 
@@ -138,28 +147,24 @@ public class MainActivity extends BaseActivity implements MainPersenter,View.OnC
                 case BleService.ACTION_GATT_DISCONNECTED:
                       final int status=intent.getIntExtra("status",0);
                       //重连一次蓝牙
-                      if (status!=0) {
-                          if(isConnect) {
-                              LogUtils.e("重新连接一次蓝牙!");
-                              isConnect=false;
-                              mHandler.postDelayed(new Runnable() {
-                                public void run() {
-                                    bleService.connect(MyApplication.spUtil.getString(SPUtil.DEVICE_MAC));
-                                 }
-                             },500);
-                             return;
-                         }else{
-                            isConnect=true;
-                         }
+                      if (status!=0 && isConnect) {
+                           LogUtils.e("重新连接一次蓝牙!");
+                           isConnect=false;
+                           mHandler.postDelayed(new Runnable() {
+                              public void run() {
+                                  bleService.connect(MyApplication.spUtil.getString(SPUtil.DEVICE_MAC));
+                              }
+                           },500);
+                           return;
                       }
+                      isConnect=true;
                       clearTask();
                       break;
                 //蓝牙通信通道成功
                 case BleService.ACTION_ENABLE_NOTIFICATION_SUCCES:
                       LogUtils.e("蓝牙初始化通信通道成功");
-                      isConnect=true;
                       //发送认证命令
-                      SendBleAgreement.getInstance().sendBleData(BleStatus.BLE_CERTIFICATION_ING,bikeData.getImei());
+                      sendBleCmd(BleStatus.BLE_CERTIFICATION_ING);
                       break;
                 //获取到锁的回执数据
                 case BleService.ACTION_DATA_AVAILABLE:
@@ -172,7 +177,7 @@ public class MainActivity extends BaseActivity implements MainPersenter,View.OnC
                       clearTask();
                       showMsg(getString(R.string.Receive_data_timeout_please_try_again));
                       break;
-                  default:
+                default:
                       break;
             }
         }
@@ -183,10 +188,21 @@ public class MainActivity extends BaseActivity implements MainPersenter,View.OnC
      * 根据锁回执的数据进行处理
      */
     private void lockResult(int resultCode){
+        BLE_STATUS=resultCode;
         switch (resultCode){
             //认证成功后
             case BleStatus.BLE_CERTIFICATION_SUCCESS:
-                  sendBleCmd(BLE_STATUS);
+                  final int SEND_BLE_STATUS=MyApplication.spUtil.getInteger(SPUtil.SEND_BLE_STATUS);
+                  if(SEND_BLE_STATUS!=0){
+                      sendBleCmd(SEND_BLE_STATUS);
+                      MyApplication.spUtil.removeMessage(SPUtil.SEND_BLE_STATUS);
+                  }
+                  break;
+             //开锁成功
+            case BleStatus.BLE_OPEN_LOCK_SUCCESS:
+                  clearTask();
+                  //获取骑行单
+                  mainPersenter.getOrderByScan(bikeBean.getBikeCode());
                   break;
             default:
                   break;
@@ -194,17 +210,19 @@ public class MainActivity extends BaseActivity implements MainPersenter,View.OnC
     }
 
 
-    BikeBean.BikeData bikeData;
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         switch (resultCode){
+            //扫码回执
             case 1:
-                 bikeData= (BikeBean.BikeData) data.getSerializableExtra("bikeData");
-                 if(null==bikeData){
+                 bikeBean= (BikeBean) data.getSerializableExtra("bikeBean");
+                 if(null==bikeBean){
                      return;
                  }
                  showProgress("开锁中",false);
                  sendBleCmd(BleStatus.BLE_OPEN_LOCK_ING);
+                 break;
+             default:
                  break;
         }
     }
@@ -215,6 +233,17 @@ public class MainActivity extends BaseActivity implements MainPersenter,View.OnC
      */
     public void initBleService(BleService bleService) {
         this.bleService=bleService;
+    }
+
+    /**
+     * 扫码开锁后获取骑行单
+     * @param bikeBean
+     */
+    public void getOrderByScan(BikeBean bikeBean) {
+        cyclingFragment.setBikeBean(bikeBean);
+        mainPersenter.showFragment(cyclingFragment, true, R.id.fragment_map);
+        //查询电子围栏
+        mapFragment.findFencing(bikeBean.getBikeCode());
     }
 
     /**
@@ -240,6 +269,11 @@ public class MainActivity extends BaseActivity implements MainPersenter,View.OnC
     }
 
 
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+//        super.onSaveInstanceState(outState);
+    }
+
     // 按两次退出
     protected long exitTime = 0;
     public boolean onKeyDown(int keyCode, KeyEvent event) {
@@ -262,8 +296,6 @@ public class MainActivity extends BaseActivity implements MainPersenter,View.OnC
     private void releaseResource(){
         //断开蓝牙
         mainPersenter.disconnect();
-        //关闭服务
-        mainPersenter.closeService();
         //关闭广播
         unregisterReceiver(mBroadcastReceiver);
         mainPersenter.onDestory();

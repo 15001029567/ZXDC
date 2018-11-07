@@ -40,13 +40,13 @@ import com.google.zxing.Result;
 import net.edaibu.easywalking.R;
 import net.edaibu.easywalking.activity.BaseActivity;
 import net.edaibu.easywalking.bean.BikeBean;
-import net.edaibu.easywalking.persenter.ScanPersenter;
-import net.edaibu.easywalking.persenter.ScanPersenterImpl;
+import net.edaibu.easywalking.persenter.scan.ScanPersenter;
+import net.edaibu.easywalking.persenter.scan.ScanPersenterImpl;
 import net.edaibu.easywalking.utils.scan.cameras.CameraManager;
 import net.edaibu.easywalking.utils.scan.decoding.InactivityTimer;
 import net.edaibu.easywalking.utils.scan.decoding.ScanActivityHandler;
 import net.edaibu.easywalking.utils.scan.view.ViewfinderView;
-import net.edaibu.easywalking.view.DialogView;
+
 import java.io.IOException;
 import java.util.Vector;
 
@@ -80,7 +80,6 @@ public class ScanActivity extends BaseActivity implements SurfaceHolder.Callback
         inactivityTimer = new InactivityTimer(this);
         initView();
     }
-
 
     /**
      * 初始化MVP接口
@@ -206,6 +205,11 @@ public class ScanActivity extends BaseActivity implements SurfaceHolder.Callback
             case R.id.lin_aqs_code:
                  linSetCode.setVisibility(View.VISIBLE);
                  linAs.setVisibility(View.GONE);
+                 //自动打开软键盘
+                 et.setFocusable(true);
+                 et.setFocusableInTouchMode(true);
+                 et.requestFocus();
+                 openKey(et);
                 break;
             //设置编码返回
             case R.id.lin_code_back:
@@ -229,11 +233,11 @@ public class ScanActivity extends BaseActivity implements SurfaceHolder.Callback
 
     /**
      * 获得车辆信息
-     * @param bikeData
+     * @param bikeBean
      */
-    public void getBikeBean(BikeBean.BikeData bikeData) {
+    public void getBikeBean(BikeBean bikeBean) {
         Intent intent=new Intent();
-        intent.putExtra("bikeData",bikeData);
+        intent.putExtra("bikeBean",bikeBean);
         setResult(1,intent);
         finish();
     }

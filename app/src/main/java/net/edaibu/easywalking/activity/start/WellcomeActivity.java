@@ -37,7 +37,7 @@ public class WellcomeActivity extends BaseActivity {
 
     private void initAnim() {
         myAnimation_Alpha = new AlphaAnimation(0.1f, 1.0f);
-        myAnimation_Alpha.setDuration(2000);
+        myAnimation_Alpha.setDuration(2500);
         myAnimation_Alpha.setAnimationListener(new Animation.AnimationListener() {
 
             @Override

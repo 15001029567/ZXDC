@@ -1,18 +1,16 @@
-package net.edaibu.easywalking.persenter;
+package net.edaibu.easywalking.persenter.scan;
 
 import android.app.Activity;
 import android.os.Handler;
 import android.os.Message;
 import android.text.TextUtils;
-
 import com.google.zxing.Result;
-
 import net.edaibu.easywalking.R;
 import net.edaibu.easywalking.bean.BikeBean;
 import net.edaibu.easywalking.http.HandlerConstant;
 import net.edaibu.easywalking.http.HttpMethod;
+import net.edaibu.easywalking.utils.JsonUtils;
 import net.edaibu.easywalking.utils.scan.cameras.CameraManager;
-
 /**
  * 扫码的MVP接口类
  */
@@ -35,12 +33,12 @@ public class ScanPersenterImpl {
             switch (msg.what){
                 //查询车辆信息回执
                 case HandlerConstant.GET_BIKE_BYCODE_SUCCESS:
-                      BikeBean bikeBean= (BikeBean) msg.obj;
+                      final BikeBean bikeBean=JsonUtils.getBikeBean(msg.obj.toString());
                       if(null==bikeBean){
                           break;
                       }
                       if(bikeBean.isSussess()){
-                          scanPersenter.getBikeBean(bikeBean.getData());
+                          scanPersenter.getBikeBean(bikeBean);
                       }else{
                           scanPersenter.showToast(bikeBean.getMsg());
                       }

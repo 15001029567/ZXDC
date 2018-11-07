@@ -49,7 +49,7 @@ public class SendBleAgreement {
                   break;
             //获取开锁命令
             case BleStatus.BLE_OPEN_LOCK_ING:
-                  bleByte=AesUtils.encrypt(BleAgreement.openLock(imei));
+                  bleByte=AesUtils.encrypt(BleAgreement.rentLock(imei));
                   isTimeOut=true;
                   break;
             //获取关锁命令

@@ -133,8 +133,8 @@ public class BleService extends Service {
         mBluetoothAdapter.stopLeScan(mLeScanCallback);
         //开始扫描蓝牙
         mBluetoothAdapter.startLeScan(mLeScanCallback);
-        //开始扫描蓝牙
-        startUtil();
+        //开启扫描计时器
+        startScanTimeOut();
     }
 
 
@@ -143,7 +143,7 @@ public class BleService extends Service {
         public void onLeScan(final BluetoothDevice device, int rssi, byte[] scanRecord) {
             if (bleName.equals(device.getName())) {
                 //关闭扫描计时器
-                stopStartTime();
+                stopScanTimeOut();
                 //停止扫描
                 stopScan(mLeScanCallback);
                 //保存mac地址
@@ -212,6 +212,7 @@ public class BleService extends Service {
     public boolean connect(final String address) {
         connectionState = STATE_CONNECTING;
         if (mBluetoothAdapter == null || TextUtils.isEmpty(address)) {
+            connectionState = STATE_DISCONNECTED;
             return false;
         }
         bleDevice = mBluetoothAdapter.getRemoteDevice(address);
@@ -285,37 +286,6 @@ public class BleService extends Service {
         }
         return false;
     }
-
-
-    /**
-     * 发送广播
-     **/
-    private void broadcastUpdate(String action) {
-        Intent intent = new Intent(action);
-        getApplication().sendBroadcast(intent);
-    }
-
-
-    /**
-     * 发送蓝牙连接断开的广播
-     * @param action
-     * @param status:断开的状态
-     */
-    private void broadcastUpdate(String action,int status) {
-        Intent intent = new Intent(action);
-        intent.putExtra("status",status);
-        getApplication().sendBroadcast(intent);
-    }
-
-    /**
-     * 发送广播（携带接受到的值）
-     **/
-    private void broadcastUpdate(final String action,final byte[] txValue) {
-        final Intent intent = new Intent(action);
-        intent.putExtra(ACTION_EXTRA_DATA, txValue);
-        getApplication().sendBroadcast(intent);
-    }
-
 
 
     /**
@@ -411,14 +381,14 @@ public class BleService extends Service {
     /**
      * 扫描15秒钟
      */
-    private void startUtil() {
-        stopStartTime();
+    private void startScanTimeOut() {
+        stopScanTimeOut();
         startUtil = new TimerUtil(scanTime, new TimerUtil.TimerCallBack() {
             public void onFulfill() {
                 //停止扫描
                 stopScan(mLeScanCallback);
                 //关闭扫描计时器
-                stopStartTime();
+                stopScanTimeOut();
                 //发送没有扫到蓝牙的广播
                 broadcastUpdate(ACTION_NO_SCAN_BLE_DEVICE);
             }
@@ -429,7 +399,7 @@ public class BleService extends Service {
     /**
      * 关闭扫描蓝牙计时器
      */
-    private void stopStartTime() {
+    private void stopScanTimeOut() {
         if (null != startUtil) {
             startUtil.stop();
         }
@@ -457,6 +427,36 @@ public class BleService extends Service {
         if (null!=timerUtil) {
             timerUtil.stop();
         }
+    }
+
+
+    /**
+     * 发送广播
+     **/
+    private void broadcastUpdate(String action) {
+        Intent intent = new Intent(action);
+        getApplication().sendBroadcast(intent);
+    }
+
+
+    /**
+     * 发送蓝牙连接断开的广播
+     * @param action
+     * @param status:断开的状态
+     */
+    private void broadcastUpdate(String action,int status) {
+        Intent intent = new Intent(action);
+        intent.putExtra("status",status);
+        getApplication().sendBroadcast(intent);
+    }
+
+    /**
+     * 发送广播（携带接受到的值）
+     **/
+    private void broadcastUpdate(final String action,final byte[] txValue) {
+        final Intent intent = new Intent(action);
+        intent.putExtra(ACTION_EXTRA_DATA, txValue);
+        getApplication().sendBroadcast(intent);
     }
 
 

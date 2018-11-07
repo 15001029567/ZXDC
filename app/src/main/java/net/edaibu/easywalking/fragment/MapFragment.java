@@ -6,9 +6,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
-
-import com.baidu.mapapi.CoordType;
-import com.baidu.mapapi.SDKInitializer;
 import com.baidu.mapapi.map.BaiduMap;
 import com.baidu.mapapi.map.BitmapDescriptor;
 import com.baidu.mapapi.map.BitmapDescriptorFactory;
@@ -33,12 +30,10 @@ import com.baidu.mapapi.search.route.PlanNode;
 import com.baidu.mapapi.search.route.RoutePlanSearch;
 import com.baidu.mapapi.search.route.WalkingRoutePlanOption;
 import net.edaibu.easywalking.R;
-import net.edaibu.easywalking.activity.scan.ScanActivity;
-import net.edaibu.easywalking.application.MyApplication;
 import net.edaibu.easywalking.bean.BikeList;
 import net.edaibu.easywalking.bean.Fanceing;
-import net.edaibu.easywalking.persenter.MapPersenter;
-import net.edaibu.easywalking.persenter.MapPersenterImpl;
+import net.edaibu.easywalking.persenter.map.MapPersenter;
+import net.edaibu.easywalking.persenter.map.MapPersenterImpl;
 import net.edaibu.easywalking.utils.Util;
 import net.edaibu.easywalking.utils.map.GetRoutePlan;
 import java.util.ArrayList;
@@ -80,6 +75,8 @@ public class MapFragment extends BaseFragment implements MapPersenter, OnGetGeoC
         mapPersenter.initOritationListener(mBaiduMap);
         //开始定位
         mapPersenter.startLocation();
+        //注册广播
+        mapPersenter.register();
         return view;
     }
 
@@ -333,6 +330,15 @@ public class MapFragment extends BaseFragment implements MapPersenter, OnGetGeoC
      */
     public void showToast(String msg) {
         showMsg(msg);
+    }
+
+
+    /**
+     * 查询电子围栏等
+     * @param bikeCode
+     */
+    public void findFencing(String bikeCode){
+        mapPersenter.findFencing(bikeCode);
     }
 
 

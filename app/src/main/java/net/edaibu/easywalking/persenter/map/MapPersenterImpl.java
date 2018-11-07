@@ -1,6 +1,11 @@
-package net.edaibu.easywalking.persenter;
+package net.edaibu.easywalking.persenter.map;
 
 import android.app.Activity;
+import android.content.BroadcastReceiver;
+import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
+import android.net.ConnectivityManager;
 import android.os.Handler;
 import android.os.Message;
 import android.text.TextUtils;
@@ -17,6 +22,7 @@ import net.edaibu.easywalking.http.HandlerConstant;
 import net.edaibu.easywalking.http.HttpMethod;
 import net.edaibu.easywalking.utils.NetUtils;
 import net.edaibu.easywalking.utils.SPUtil;
+import net.edaibu.easywalking.utils.Util;
 import net.edaibu.easywalking.utils.map.GetLocation;
 import net.edaibu.easywalking.utils.map.MyOrientationListener;
 import java.io.File;
@@ -112,6 +118,7 @@ public class MapPersenterImpl {
      * @param bikeCode
      */
     public void findFencing(String bikeCode){
+        clearMap();
         HttpMethod.findFencing(bikeCode,mHandler);
     }
 
@@ -157,6 +164,28 @@ public class MapPersenterImpl {
         final double lon = Double.parseDouble(strLon);
         return new LatLng(lat,lon);
     }
+
+
+
+    /**
+     * 注册广播
+     */
+    public void register() {
+        IntentFilter myIntentFilter = new IntentFilter();
+        myIntentFilter.addAction(ConnectivityManager.CONNECTIVITY_ACTION);//监听网络
+        // 注册广播监听
+        activity.registerReceiver(mBroadcastReceiver, myIntentFilter);
+    }
+
+    private BroadcastReceiver mBroadcastReceiver = new BroadcastReceiver() {
+        public void onReceive(Context context, Intent intent) {
+            String action = intent.getAction();
+            if (action.equals(ConnectivityManager.CONNECTIVITY_ACTION)) {
+                startLocation();
+            }
+        }
+    };
+
 
     /**
      * 清空map上遮盖物
@@ -240,6 +269,9 @@ public class MapPersenterImpl {
     }
 
     public void onDestory(){
+        //关闭广播
+        activity.unregisterReceiver(mBroadcastReceiver);
+        //释放Handler
         mHandler.removeCallbacksAndMessages(null);
         mapPersenter=null;
     }

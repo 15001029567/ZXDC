@@ -3,7 +3,6 @@ package net.edaibu.easywalking.http;
 import android.os.Handler;
 
 import net.edaibu.easywalking.bean.BaseBean;
-import net.edaibu.easywalking.bean.BikeBean;
 import net.edaibu.easywalking.bean.BikeList;
 import net.edaibu.easywalking.bean.DownLoad;
 import net.edaibu.easywalking.bean.Fanceing;
@@ -204,16 +203,42 @@ public class HttpMethod extends BaseRequst {
     public static void getBikeByCode(String bikeCode,final Handler handler) {
         Map<String, String> map = new HashMap<>();
         map.put("bikeCode",bikeCode);
-        Http.getRetrofit().create(HttpApi.class).getBikeByCode(map).enqueue(new Callback<BikeBean>() {
-            public void onResponse(Call<BikeBean> call, Response<BikeBean> response) {
+        Http.getRetrofit().create(HttpApi.class).getBikeByCode(map).enqueue(new Callback<ResponseBody>() {
+            public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
                 try {
-                    sendMessage(handler, HandlerConstant.GET_BIKE_BYCODE_SUCCESS, response.body());
+                    sendMessage(handler, HandlerConstant.GET_BIKE_BYCODE_SUCCESS, response.body().string());
                 }catch (Exception e){
                     e.printStackTrace();
                     sendMessage(handler, HandlerConstant.GET_DATA_ERROR, null);
                 }
             }
-            public void onFailure(Call<BikeBean> call, Throwable t) {
+            public void onFailure(Call<ResponseBody> call, Throwable t) {
+                LogUtils.e("查询数据报错："+t.getMessage());
+                sendMessage(handler, HandlerConstant.REQUST_ERROR, null);
+            }
+        });
+    }
+
+
+    /**
+     * 扫码开锁后生成骑行单接口
+     * @param bikeCode
+     * @param handler
+     */
+    public static void getOrderByScan(String bikeCode,final Handler handler) {
+        Map<String, String> map = new HashMap<>();
+        map.put("bikeCode",bikeCode);
+        Http.getRetrofit().create(HttpApi.class).getOrderByScan(map).enqueue(new Callback<ResponseBody>() {
+            public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
+                try {
+                    sendMessage(handler, HandlerConstant.GET_ORDER_BY_SCAN_SUCCESS, response.body().string());
+                }catch (Exception e){
+                    e.printStackTrace();
+                    sendMessage(handler, HandlerConstant.GET_DATA_ERROR, null);
+                }
+            }
+            public void onFailure(Call<ResponseBody> call, Throwable t) {
+                LogUtils.e("查询数据报错："+t.getMessage());
                 sendMessage(handler, HandlerConstant.REQUST_ERROR, null);
             }
         });
