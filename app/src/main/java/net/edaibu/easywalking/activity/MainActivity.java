@@ -282,7 +282,7 @@ public class MainActivity extends BaseActivity implements MainPersenter,View.OnC
         //关闭预约界面
         mainPersenter.showFragment(bespokeFragment);
         //显示出附近的车辆
-        mapFragment.setBikeMark(mapFragment.bikeList);
+        mapFragment.showBikeMark();
     }
 
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {

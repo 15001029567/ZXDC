@@ -58,7 +58,7 @@ public class MapFragment extends BaseFragment implements MapPersenter, OnGetGeoC
     //路径规划对象
     private RoutePlanSearch rpSearch = null;
     //附近车辆集合
-    public List<BikeList.BikeInfoList> bikeList=new ArrayList<>();
+    private List<BikeList.BikeInfoList> bikeList=new ArrayList<>();
     private MainPersenter mainPersenter;
     public void onCreate(Bundle savedInstanceState) {
         //初始化MVP接口
@@ -164,13 +164,21 @@ public class MapFragment extends BaseFragment implements MapPersenter, OnGetGeoC
      * 绘制附近的车辆图标
      * @param list
      */
-    public void setBikeMark(List<BikeList.BikeInfoList> list) {
+    private void setBikeMark(List<BikeList.BikeInfoList> list) {
         bikeList=list;
+        showBikeMark();
+    }
+
+
+    /**
+     * 显示附近的车辆图标
+     */
+    public void showBikeMark(){
         mapPersenter.clearMap();
         for (int i = 0, len = bikeList.size(); i < len; i++) {
-              bitmap = BitmapDescriptorFactory.fromResource(R.mipmap.img_bike);
-              MarkerOptions op = new MarkerOptions().position(new LatLng(bikeList.get(i).getLatitude(), bikeList.get(i).getLongitude())).icon(bitmap).zIndex(i).animateType(MarkerOptions.MarkerAnimateType.grow);
-              mBaiduMap.addOverlay(op);
+            bitmap = BitmapDescriptorFactory.fromResource(R.mipmap.img_bike);
+            MarkerOptions op = new MarkerOptions().position(new LatLng(bikeList.get(i).getLatitude(), bikeList.get(i).getLongitude())).icon(bitmap).zIndex(i).animateType(MarkerOptions.MarkerAnimateType.grow);
+            mBaiduMap.addOverlay(op);
         }
     }
 
