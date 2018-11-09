@@ -1,5 +1,7 @@
 package net.edaibu.easywalking.utils.map;
 
+import android.content.Intent;
+
 import com.baidu.mapapi.map.BaiduMap;
 import com.baidu.mapapi.map.BitmapDescriptor;
 import com.baidu.mapapi.map.BitmapDescriptorFactory;
@@ -23,7 +25,6 @@ import net.edaibu.easywalking.R;
 import net.edaibu.easywalking.application.MyApplication;
 import java.util.ArrayList;
 import java.util.List;
-
 /**
  * 路径规划
  * Created by Administrator on 2017/3/27 0027.
@@ -34,13 +35,15 @@ public class GetRoutePlan implements OnGetRoutePlanResultListener {
     private BaiduMap mBaiduMap;
     private BitmapDescriptor bitmap,bitmap2;
 
+    //路径规划成功广播
+    public final static String ACTION_GETROUTE_SUCCES = "net.edaibu.adminapp.ACTION_GETROUTE_SUCCES";
+
     //路径规划对象
     private Overlay overlay1;
 
     public GetRoutePlan(BaiduMap baiduMap){
         this.mBaiduMap=baiduMap;
     }
-    @Override
     public void onGetWalkingRouteResult(WalkingRouteResult result) {
         if (result == null || result.error != SearchResult.ERRORNO.NO_ERROR) {
 
@@ -76,6 +79,14 @@ public class GetRoutePlan implements OnGetRoutePlanResultListener {
             MapStatusUpdate mMapStatusUpdate = MapStatusUpdateFactory.newMapStatus(mMapStatus);
             mBaiduMap.setMapStatus(mMapStatusUpdate);
             mBaiduMap.animateMapStatus(MapStatusUpdateFactory.zoomTo(19.0f),1000);
+            new android.os.Handler().postDelayed(new Runnable() {
+                public void run() {
+                    Intent intent=new Intent(ACTION_GETROUTE_SUCCES);
+                    intent.putExtra("distance",w.getDistance());
+                    intent.putExtra("time",w.getDuration());
+                    MyApplication.application.sendBroadcast(intent);
+                }
+            },1000);
         }
     }
 

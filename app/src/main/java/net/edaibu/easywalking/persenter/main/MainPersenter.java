@@ -41,4 +41,9 @@ public interface MainPersenter extends BasePersenter {
      * @param bikeBean
      */
     void getRandomBespokeBike(BikeBean bikeBean);
+
+    /**
+     * 关闭预约fragment界面
+     */
+    void closeBespokeUI();
 }

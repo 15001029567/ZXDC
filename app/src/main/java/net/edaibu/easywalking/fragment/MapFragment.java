@@ -35,6 +35,7 @@ import net.edaibu.easywalking.bean.Fanceing;
 import net.edaibu.easywalking.persenter.main.MainPersenter;
 import net.edaibu.easywalking.persenter.map.MapPersenter;
 import net.edaibu.easywalking.persenter.map.MapPersenterImpl;
+import net.edaibu.easywalking.utils.LogUtils;
 import net.edaibu.easywalking.utils.Util;
 import net.edaibu.easywalking.utils.map.GetRoutePlan;
 import java.util.ArrayList;
@@ -58,7 +59,7 @@ public class MapFragment extends BaseFragment implements MapPersenter, OnGetGeoC
     private RoutePlanSearch rpSearch = null;
     //附近车辆集合
     private List<BikeList.BikeInfoList> bikeList;
-    private MainPersenter mainCallBack;
+    private MainPersenter mainPersenter;
     public void onCreate(Bundle savedInstanceState) {
         //初始化MVP接口
         initPersenter();
@@ -264,7 +265,7 @@ public class MapFragment extends BaseFragment implements MapPersenter, OnGetGeoC
         //获取当前位置的车辆信息
         mapPersenter.getLocationBike(reverseGeoCodeResult.getLocation().latitude,reverseGeoCodeResult.getLocation().longitude);
         //去查询订单信息
-        mainCallBack.getOrderInfo();
+        mainPersenter.getOrderInfo();
     }
 
     @Override
@@ -339,9 +340,18 @@ public class MapFragment extends BaseFragment implements MapPersenter, OnGetGeoC
         mapPersenter.findFencing(bikeCode);
     }
 
+    /**
+     * 清空map上遮盖物
+     */
+    public void clearMap() {
+        if (null != mBaiduMap) {
+            mBaiduMap.clear();
+        }
+    }
 
-    public void setMainCallBack(MainPersenter mainCallBack){
-        this.mainCallBack=mainCallBack;
+
+    public void setMainCallBack(MainPersenter mainPersenter){
+        this.mainPersenter=mainPersenter;
     }
 
     @Override

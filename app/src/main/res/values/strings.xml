@@ -52,4 +52,15 @@
     <string name="open_lock_failed">开锁失败</string>
     <string name="mad_fire_wheel">疯火轮</string>
     <string name="mad_fire_wheel_template">疯火轮模板</string>
+    <string name="vehicle_number">车辆编号</string>
+    <string name="meter">米</string>
+    <string name="distance_me">距离我</string>
+    <string name="walk_in">步行到达</string>
+    <string name="confirmation_reservation">确认预约</string>
+    <string name="cancel_bespoke">取消预约</string>
+    <string name="cannot_find_this_address">无法查询到该地址</string>
+    <string name="minute_clock">分钟</string>
+    <string name="free_money">免费倒计时</string>
+    <string name="charging">计费</string>
+    <string name="primary">元</string>
 </resources>

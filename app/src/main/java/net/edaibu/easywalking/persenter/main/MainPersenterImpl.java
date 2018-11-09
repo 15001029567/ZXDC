@@ -66,7 +66,7 @@ public class MainPersenterImpl{
                           break;
                       }
                       if(bikeBean.isSussess()){
-                          mainPersenter.getOrderByScan(bikeBean);
+                          mainPersenter.getRandomBespokeBike(bikeBean);
                       }else{
                           mainPersenter.showToast(bikeBean.getMsg());
                       }
@@ -171,22 +171,30 @@ public class MainPersenterImpl{
 
 
     /**
+     * 开启地图fragment
+     * @param fg
+     */
+    public void showMapFragment(final Fragment fg) {
+        FragmentManager fragmentManager = activity.getSupportFragmentManager();
+        FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+        fragmentTransaction.add(R.id.fragment_map, fg);
+        fragmentTransaction.commitAllowingStateLoss();
+    }
+
+
+    /**
      * 开启fragment
      * @param fg
      */
-    public void showFragment(final Fragment fg, final boolean b, final int containerViewId) {
+    public void showFragment(final Fragment fg) {
         FragmentManager fragmentManager = activity.getSupportFragmentManager();
         FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
-        if (b) {
-            if (!fg.isAdded()) {
-                fragmentTransaction.setCustomAnimations(R.anim.fragment_in_bottom,0);
-                fragmentTransaction.add(containerViewId, fg);
-            }
-        } else {
-            if (fg.isAdded()) {
-                fragmentTransaction.setCustomAnimations(R.anim.fragment_out_bottom,0);
-                fragmentTransaction.remove(fg);
-            }
+        if(fg.isAdded()){
+            fragmentTransaction.setCustomAnimations(R.anim.fragment_out_bottom,0);
+            fragmentTransaction.remove(fg);
+        }else{
+            fragmentTransaction.setCustomAnimations(R.anim.fragment_in_bottom,0);
+            fragmentTransaction.add(R.id.fragment_content, fg);
         }
         fragmentTransaction.commitAllowingStateLoss();
     }

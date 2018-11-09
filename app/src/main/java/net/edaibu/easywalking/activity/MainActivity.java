@@ -5,12 +5,10 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Bundle;
-import android.os.Handler;
 import android.support.annotation.Nullable;
 import android.text.TextUtils;
 import android.view.KeyEvent;
 import android.view.View;
-
 import net.edaibu.easywalking.R;
 import net.edaibu.easywalking.activity.scan.ScanActivity;
 import net.edaibu.easywalking.application.MyApplication;
@@ -52,8 +50,7 @@ public class MainActivity extends BaseActivity implements MainPersenter,View.OnC
     //预约界面的fragment
     private BespokeFragment bespokeFragment=new BespokeFragment();
     //车辆对象
-    private BikeBean bikeBean;
-    private Handler mHandler=new Handler();
+    private static BikeBean bikeBean;
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         StatusBarUtils.transparencyBar(this);
@@ -76,7 +73,7 @@ public class MainActivity extends BaseActivity implements MainPersenter,View.OnC
     private void initPersenter(){
         mainPersenter=new MainPersenterImpl(MainActivity.this,this);
         //打开地图fragment
-        mainPersenter.showFragment(mapFragment, true, R.id.fragment_map);
+        mainPersenter.showMapFragment(mapFragment);
         mapFragment.setMainCallBack(this);
     }
 
@@ -85,6 +82,7 @@ public class MainActivity extends BaseActivity implements MainPersenter,View.OnC
      */
     private void initView(){
         findViewById(R.id.img_scan).setOnClickListener(this);
+        findViewById(R.id.img_bespoke).setOnClickListener(this);
     }
 
     /**
@@ -99,13 +97,29 @@ public class MainActivity extends BaseActivity implements MainPersenter,View.OnC
      * 按钮点击事件
      * @param v
      */
+    boolean b=true;
     public void onClick(View v) {
         switch (v.getId()){
+            //扫码用车
             case R.id.img_scan:
-                  if(!Util.isLogin(this)){
+//                  if(!Util.isLogin(this)){
+//                     return;
+//                  }
+//                  setClass(ScanActivity.class, Constant.SCAN_BACK);
+                  if(b){
+                      b=false;
+                      mainPersenter.showFragment(bespokeFragment);
+                  }else{
+                      b=true;
+                      mainPersenter.showFragment(bespokeFragment);
+                  }
+                  break;
+            //随机预约
+            case R.id.img_bespoke:
+                 if(!Util.isLogin(this)){
                      return;
                   }
-                  setClass(ScanActivity.class, Constant.SCAN_BACK);
+                  mainPersenter.getRandomBespoke();
                   break;
         }
     }
@@ -214,7 +228,7 @@ public class MainActivity extends BaseActivity implements MainPersenter,View.OnC
      */
     public void getOrderByScan(BikeBean bikeBean) {
         cyclingFragment.setBikeBean(bikeBean);
-        mainPersenter.showFragment(cyclingFragment, true, R.id.fragment_map);
+        mainPersenter.showFragment(cyclingFragment);
         //查询电子围栏
         mapFragment.findFencing(bikeBean.getBikeCode());
     }
@@ -235,7 +249,7 @@ public class MainActivity extends BaseActivity implements MainPersenter,View.OnC
     public void showOrderInfo(BikeBean bikeBean) {
         //有预约单
         if(TextUtils.isEmpty(bikeBean.getCyclingId())){
-
+            getRandomBespokeBike(bikeBean);
         }
         //有骑行单
         else{
@@ -249,8 +263,24 @@ public class MainActivity extends BaseActivity implements MainPersenter,View.OnC
      * @param bikeBean
      */
     public void getRandomBespokeBike(BikeBean bikeBean) {
-        bespokeFragment.setBikeBean(bikeBean);
-        mainPersenter.showFragment(bespokeFragment, true, R.id.fragment_map);
+        bespokeFragment.setBikeBean(bikeBean,this);
+        if(bespokeFragment.isAdded()){
+            bespokeFragment.showData();
+            return;
+        }
+        //打开预约的界面
+        mainPersenter.showFragment(bespokeFragment);
+        //设置路径规划
+        mapFragment.setRoutePlan(bikeBean.getLatitude(),bikeBean.getLongitude());
+    }
+
+
+    /**
+     * 关闭预约fragment界面
+     */
+    public void closeBespokeUI(){
+        mainPersenter.showFragment(bespokeFragment);
+        mapFragment.clearMap();
     }
 
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
