@@ -25,7 +25,7 @@ public class MyApplication extends Application {
         spUtil = SPUtil.getInstance(this);
 
         //初始化bugly异常捕获
-        initBugly();
+//        initBugly();
 
         //管理Activity
         registerActivityLifecycleCallbacks(ActivitysLifecycle.getInstance());

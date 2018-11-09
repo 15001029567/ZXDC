@@ -471,7 +471,7 @@ public class DiyActivity extends BaseActivity implements View.OnClickListener,Vi
         stopTimer1();
         progressLeft=100;
         roundProgressBarLeft.setVisibility(View.VISIBLE);
-        timerUtil=new TimerUtil(100000, 400, new TimerUtil.TimerCallBack() {
+        timerUtil=new TimerUtil(0, 400, new TimerUtil.TimerCallBack() {
             public void onFulfill() {
                 if(progressLeft>0){
                     progressLeft-=5;
@@ -489,7 +489,7 @@ public class DiyActivity extends BaseActivity implements View.OnClickListener,Vi
         stopTimer2();
         progressRight=100;
         roundProgressBarRight.setVisibility(View.VISIBLE);
-        timerUtil2=new TimerUtil(100000, 400, new TimerUtil.TimerCallBack() {
+        timerUtil2=new TimerUtil(0, 400, new TimerUtil.TimerCallBack() {
             public void onFulfill() {
                 if(progressRight>0){
                     progressRight-=5;

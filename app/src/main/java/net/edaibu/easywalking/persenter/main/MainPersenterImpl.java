@@ -29,7 +29,7 @@ import net.edaibu.easywalking.utils.bletooth.SendBleAgreement;
 /**
  * 首页MainActivity 的接口
  */
-public class MainPersenterImpl {
+public class MainPersenterImpl{
 
     private FragmentActivity activity;
     private MainPersenter mainPersenter;
@@ -42,11 +42,14 @@ public class MainPersenterImpl {
 
     private Handler mHandler=new Handler(new Handler.Callback() {
         public boolean handleMessage(Message msg) {
-            mainPersenter.closeLoding();
+            if(msg.what!=HandlerConstant.GET_USER_INFO_SUCCESS){
+                mainPersenter.closeLoding();
+            }
+            BikeBean bikeBean=null;
             switch (msg.what){
                 //扫码开锁后生成骑行单
                 case HandlerConstant.GET_ORDER_BY_SCAN_SUCCESS:
-                     final BikeBean bikeBean= JsonUtils.getBikeBean(msg.obj.toString());
+                     bikeBean= JsonUtils.getBikeBean(msg.obj.toString());
                      if(null==bikeBean){
                          break;
                      }
@@ -55,6 +58,30 @@ public class MainPersenterImpl {
                      }else{
                          mainPersenter.showToast(bikeBean.getMsg());
                      }
+                      break;
+                //随机预约时，先查询车辆信息
+                case HandlerConstant.RANDOM_BESPOKE_SUCCESS:
+                      bikeBean= JsonUtils.getBikeBean(msg.obj.toString());
+                      if(null==bikeBean){
+                          break;
+                      }
+                      if(bikeBean.isSussess()){
+                          mainPersenter.getOrderByScan(bikeBean);
+                      }else{
+                          mainPersenter.showToast(bikeBean.getMsg());
+                      }
+                      break;
+                 //获取订单信息
+                case HandlerConstant.GET_ORDER_INFO_SUCCESS:
+                      bikeBean= JsonUtils.getBikeBean(msg.obj.toString());
+                      if(null==bikeBean){
+                         break;
+                      }
+                      if(bikeBean.isSussess()){
+                         mainPersenter.showOrderInfo(bikeBean);
+                      }else{
+                         mainPersenter.showToast(bikeBean.getMsg());
+                      }
                       break;
                 //获取用户详情
                 case HandlerConstant.GET_USER_INFO_SUCCESS:
@@ -100,6 +127,50 @@ public class MainPersenterImpl {
 
 
     /**
+     * 扫码开锁后生成骑行单接口
+     * @param bikeCode
+     */
+    public void getOrderByScan(String bikeCode){
+        HttpMethod.getOrderByScan(bikeCode,mHandler);
+    }
+
+
+    /**
+     * 随机预约时，先查询车辆信息
+     */
+    public void getRandomBespoke(){
+        mainPersenter.showLoding(activity.getString(R.string.loading));
+        HttpMethod.getBikeByRandom(mHandler);
+    }
+
+
+    /**
+     * 查询订单信息
+     */
+    public void getOrderInfo(){
+        final String auth_token = MyApplication.spUtil.getString(SPUtil.AUTH_TOKEN);
+        if (!TextUtils.isEmpty(auth_token)) {
+            mHandler.postDelayed(new Runnable() {
+                public void run() {
+                    HttpMethod.getOrderInfo(mHandler);
+                }
+            },1500);
+        }
+    }
+
+
+    /**
+     * 获取用户详情
+     */
+    public void getUserInfo(){
+        final String auth_token = MyApplication.spUtil.getString(SPUtil.AUTH_TOKEN);
+        if (!TextUtils.isEmpty(auth_token)) {
+            HttpMethod.getUserInfo(auth_token,mHandler);
+        }
+    }
+
+
+    /**
      * 开启fragment
      * @param fg
      */
@@ -119,27 +190,6 @@ public class MainPersenterImpl {
         }
         fragmentTransaction.commitAllowingStateLoss();
     }
-
-
-    /**
-     * 扫码开锁后生成骑行单接口
-     * @param bikeCode
-     */
-    public void getOrderByScan(String bikeCode){
-        HttpMethod.getOrderByScan(bikeCode,mHandler);
-    }
-
-
-    /**
-     * 获取用户详情
-     */
-    public void getUserInfo(){
-        final String auth_token = MyApplication.spUtil.getString(SPUtil.AUTH_TOKEN);
-        if (!TextUtils.isEmpty(auth_token)) {
-            HttpMethod.getUserInfo(auth_token,mHandler);
-        }
-    }
-
 
     /**
      * 断开蓝牙连接

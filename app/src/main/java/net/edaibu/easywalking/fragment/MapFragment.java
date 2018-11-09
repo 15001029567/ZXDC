@@ -30,9 +30,9 @@ import com.baidu.mapapi.search.route.PlanNode;
 import com.baidu.mapapi.search.route.RoutePlanSearch;
 import com.baidu.mapapi.search.route.WalkingRoutePlanOption;
 import net.edaibu.easywalking.R;
-import net.edaibu.easywalking.activity.diy.DiyActivity;
 import net.edaibu.easywalking.bean.BikeList;
 import net.edaibu.easywalking.bean.Fanceing;
+import net.edaibu.easywalking.persenter.main.MainPersenter;
 import net.edaibu.easywalking.persenter.map.MapPersenter;
 import net.edaibu.easywalking.persenter.map.MapPersenterImpl;
 import net.edaibu.easywalking.utils.Util;
@@ -58,6 +58,7 @@ public class MapFragment extends BaseFragment implements MapPersenter, OnGetGeoC
     private RoutePlanSearch rpSearch = null;
     //附近车辆集合
     private List<BikeList.BikeInfoList> bikeList;
+    private MainPersenter mainCallBack;
     public void onCreate(Bundle savedInstanceState) {
         //初始化MVP接口
         initPersenter();
@@ -125,7 +126,7 @@ public class MapFragment extends BaseFragment implements MapPersenter, OnGetGeoC
         }
         final int index = marker.getZIndex();
         final BikeList.BikeInfoList bikeInfoList=bikeList.get(index);
-        setRoutePlan(bikeInfoList);
+        setRoutePlan(bikeInfoList.getLatitude(),bikeInfoList.getLongitude());
         return true;
     }
 
@@ -136,7 +137,7 @@ public class MapFragment extends BaseFragment implements MapPersenter, OnGetGeoC
      * @return
      */
     public void onMapClick(LatLng latLng) {
-        showBikeMark();
+        setBikeMark(bikeList);
     }
     public boolean onMapPoiClick(MapPoi mapPoi) {
         return false;
@@ -146,14 +147,14 @@ public class MapFragment extends BaseFragment implements MapPersenter, OnGetGeoC
     /**
      * 设置路径规划
      */
-    private void setRoutePlan(BikeList.BikeInfoList bikeInfoList){
+    public void setRoutePlan(double latitude,double longitude){
         final LatLng latLng=mapPersenter.getNewLatLng();
         if(null==latLng){
             return;
         }
         mapPersenter.clearMap();
         PlanNode stNode = PlanNode.withLocation(latLng);
-        PlanNode enNode = PlanNode.withLocation(new LatLng(bikeInfoList.getLatitude(), bikeInfoList.getLongitude()));
+        PlanNode enNode = PlanNode.withLocation(new LatLng(latitude, longitude));
         rpSearch.walkingSearch((new WalkingRoutePlanOption()).from(stNode).to(enNode));
     }
 
@@ -164,13 +165,6 @@ public class MapFragment extends BaseFragment implements MapPersenter, OnGetGeoC
      */
     private void setBikeMark(List<BikeList.BikeInfoList> list) {
         bikeList=list;
-        showBikeMark();
-    }
-
-    /**
-     * 显示车辆覆盖物信息
-     */
-    private void showBikeMark(){
         mapPersenter.clearMap();
         for (int i = 0, len = bikeList.size(); i < len; i++) {
             bitmap = BitmapDescriptorFactory.fromResource(R.mipmap.img_bike);
@@ -178,6 +172,7 @@ public class MapFragment extends BaseFragment implements MapPersenter, OnGetGeoC
             mBaiduMap.addOverlay(op);
         }
     }
+
 
     /**
      * 绘制电子围栏
@@ -268,6 +263,8 @@ public class MapFragment extends BaseFragment implements MapPersenter, OnGetGeoC
         mBaiduMap.animateMapStatus(MapStatusUpdateFactory.zoomTo(19f), 500);
         //获取当前位置的车辆信息
         mapPersenter.getLocationBike(reverseGeoCodeResult.getLocation().latitude,reverseGeoCodeResult.getLocation().longitude);
+        //去查询订单信息
+        mainCallBack.getOrderInfo();
     }
 
     @Override
@@ -275,8 +272,7 @@ public class MapFragment extends BaseFragment implements MapPersenter, OnGetGeoC
         switch (v.getId()){
             //重新定位
             case R.id.img_location:
-//                 mapPersenter.resumeLocation();
-                 setClass(DiyActivity.class);
+                 mapPersenter.resumeLocation();
                  break;
              default:
                  break;
@@ -343,6 +339,10 @@ public class MapFragment extends BaseFragment implements MapPersenter, OnGetGeoC
         mapPersenter.findFencing(bikeCode);
     }
 
+
+    public void setMainCallBack(MainPersenter mainCallBack){
+        this.mainCallBack=mainCallBack;
+    }
 
     @Override
     public void onStart() {

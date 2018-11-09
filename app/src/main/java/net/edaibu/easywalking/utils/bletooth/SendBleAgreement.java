@@ -59,7 +59,7 @@ public class SendBleAgreement {
                   break;
             //获取闪动或响铃命令
             case BleStatus.BLE_FLASH_ING:
-                  bleByte=AesUtils.encrypt(BleAgreement.findLock(imei,0x00));
+                  bleByte=AesUtils.encrypt(BleAgreement.findLock(imei));
                   isTimeOut=true;
                   break;
             //获取结算锁车命令

@@ -3,10 +3,10 @@ package net.edaibu.easywalking.http;
 public class HttpConstant {
 
     // 正式IP
-//    public static final String IP = "http://ui.zxbike.net/";
+    public static final String IP = "http://ui.zxbike.net/";
 
     //测试IP
-     public static final String IP = "http://ui.zxbike.top/";
+//     public static final String IP = "http://ui.zxbike.top/";
 
     //查询最新的access_token
     public static final String GET_ACCESS_TOKEN = "auth/login";
@@ -40,4 +40,10 @@ public class HttpConstant {
 
     //查询用户详情
     public static final String GET_USERINFO = "user/info";
+
+    //查询有没有预约单
+    public static final String GET_ORDER_INFO = "user/inprogress/info/gcj";
+
+    //随机预约时，先查询车辆信息
+    public static final String RANDOM_BESPOKE="user/reserve/byrandom/hint";
 }

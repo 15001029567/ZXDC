@@ -83,6 +83,8 @@ public class BleService extends Service {
     public static final int STATE_CONNECTING = 1;
     //连接成功
     public static final int STATE_CONNECTED = 2;
+    //是否重新连接蓝牙
+    private boolean isConnect = true;
     //蓝牙名称
     private String bleName;
     //timeOut：发送命令超时         scanTime:扫描蓝牙超时
@@ -105,7 +107,7 @@ public class BleService extends Service {
 
     @Override
     public boolean onUnbind(Intent intent) {
-        close();
+        closeGatt();
         return super.onUnbind(intent);
     }
 
@@ -125,6 +127,7 @@ public class BleService extends Service {
      * @param bleName 蓝牙名
      */
     public void connectScan(String bleName) {
+        isConnect=true;
         if (mBluetoothAdapter == null || TextUtils.isEmpty(bleName)) {
             return;
         }
@@ -309,12 +312,17 @@ public class BleService extends Service {
                 connectionState = STATE_DISCONNECTED;
                 //关闭超时计时器
                 stopTimeOut();
-                //释放蓝牙GATT
-                close();
-                //发送蓝牙连接断开的广播
-                broadcastUpdate(ACTION_GATT_DISCONNECTED,status);
                 //清除缓存
                 refreshDeviceCache();
+                //释放蓝牙GATT
+                closeGatt();
+                if(status==0){
+                    //发送蓝牙连接断开的广播
+                    broadcastUpdate(ACTION_GATT_DISCONNECTED,status);
+                }else{
+                    //重新连接蓝牙
+                    resumeConnect(status);
+                }
             }
         }
 
@@ -344,13 +352,33 @@ public class BleService extends Service {
             if (ByteUtil.byteToInt(txValue[2]) != 128) {
                 txValue = AesUtils.decrypt(txValue);
             }
-            LogUtils.e("接收数据：" + ByteStringHexUtil.bytesToHexString(txValue)+"______________"+"解密数据：" + ByteStringHexUtil.bytesToHexString(txValue));
+            LogUtils.e("接收到的数据："+ ByteStringHexUtil.bytesToHexString(txValue));
             //关闭超时计时器
             stopTimeOut();
             //发送数据广播
             broadcastUpdate(ACTION_DATA_AVAILABLE, txValue);
         }
     };
+
+
+    /**
+     * 重新连接蓝牙
+     * @param status
+     */
+    public void resumeConnect(int status){
+        if(isConnect){
+            isConnect=false;
+            mHandler.postDelayed(new Runnable() {
+                public void run() {
+                    LogUtils.e("重连一次蓝牙");
+                    connect(MyApplication.spUtil.getString(SPUtil.DEVICE_MAC));
+                }
+            },500);
+            return;
+        }
+        //发送蓝牙连接断开的广播
+        broadcastUpdate(ACTION_GATT_DISCONNECTED,status);
+    }
 
     /**
      * 扫描信标计时器
@@ -490,7 +518,7 @@ public class BleService extends Service {
         mBluetoothGatt.disconnect();
     }
 
-    public void close() {
+    public void closeGatt() {
         if (mBluetoothGatt == null) {
             return;
         }

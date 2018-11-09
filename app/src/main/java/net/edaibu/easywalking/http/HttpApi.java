@@ -126,4 +126,24 @@ public interface HttpApi {
     @FormUrlEncoded
     @POST(HttpConstant.SET_DAZZLE)
     Call<BaseBean> setDiy(@FieldMap Map<String, String> map);
+
+
+    /**
+     * 查询订单信息
+     * @param map
+     * @return
+     */
+    @FormUrlEncoded
+    @POST(HttpConstant.GET_ORDER_INFO)
+    Call<ResponseBody> getOrderInfo(@FieldMap Map<String, String> map);
+
+
+    /**
+     * 随机预约时，先查询车辆信息
+     * @param map
+     * @return
+     */
+    @FormUrlEncoded
+    @POST(HttpConstant.RANDOM_BESPOKE)
+    Call<ResponseBody> getBikeByRandom(@FieldMap Map<String, String> map);
 }

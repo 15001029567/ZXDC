@@ -58,12 +58,10 @@ public class AesUtils {
         try {
             // 判断Key是否正确
             if (cKey == null) {
-                LogUtils.e("Key为空null");
                 return null;
             }
             // 判断Key是否为16位
             if (cKey.length != 16) {
-                LogUtils.e("Key长度不是16位");
                 return null;
             }
             byte[] raw = cKey;

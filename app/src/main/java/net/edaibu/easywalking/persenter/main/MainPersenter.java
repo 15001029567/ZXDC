@@ -22,4 +22,23 @@ public interface MainPersenter extends BasePersenter {
      * @param bikeBean
      */
     void getOrderByScan(BikeBean bikeBean);
+
+
+    /**
+     * 查询订单信息
+     */
+    void getOrderInfo();
+
+    /**
+     * 获取订单后展示订单界面
+     * @param bikeBean
+     */
+    void showOrderInfo(BikeBean bikeBean);
+
+
+    /**
+     * 随机预约时，先查询车辆信息
+     * @param bikeBean
+     */
+    void getRandomBespokeBike(BikeBean bikeBean);
 }

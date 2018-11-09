@@ -102,7 +102,7 @@ public class BleAgreement {
 
 
     //寻车响铃命令
-    public static byte[] findLock(String imei, int type) {
+    public static byte[] findLock(String imei) {
         byte[] im = imeiToByte(imei,16);
         byte[] result = new byte[im.length + 5];
         result[0] = (byte) 0xAB;
@@ -113,7 +113,7 @@ public class BleAgreement {
         for (int i = 0; i < im.length; i++) {
             result[i + 4] = im[i];
         }
-        result[result.length - 1] = (byte) type;
+        result[result.length - 1] = (byte) 0x00;
         return result;
     }
 

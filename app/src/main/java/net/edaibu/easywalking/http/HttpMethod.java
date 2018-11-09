@@ -322,4 +322,50 @@ public class HttpMethod extends BaseRequst {
         });
     }
 
+
+    /**
+     * 查询订单信息
+     * @param handler
+     */
+    public static void getOrderInfo(final Handler handler) {
+        Map<String, String> map = new HashMap<>();
+        Http.getRetrofit().create(HttpApi.class).getOrderInfo(map).enqueue(new Callback<ResponseBody>() {
+            public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
+                try {
+                    sendMessage(handler, HandlerConstant.GET_ORDER_INFO_SUCCESS, response.body().string());
+                }catch (Exception e){
+                    e.printStackTrace();
+                    sendMessage(handler, HandlerConstant.GET_DATA_ERROR, null);
+                }
+            }
+            public void onFailure(Call<ResponseBody> call, Throwable t) {
+                LogUtils.e("查询数据报错："+t.getMessage());
+                sendMessage(handler, HandlerConstant.REQUST_ERROR, null);
+            }
+        });
+    }
+
+
+    /**
+     * 随机预约时，先查询车辆信息
+     * @param handler
+     */
+    public static void getBikeByRandom(final Handler handler) {
+        Map<String, String> map = new HashMap<>();
+        Http.getRetrofit().create(HttpApi.class).getBikeByRandom(map).enqueue(new Callback<ResponseBody>() {
+            public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
+                try {
+                    sendMessage(handler, HandlerConstant.RANDOM_BESPOKE_SUCCESS, response.body().string());
+                }catch (Exception e){
+                    e.printStackTrace();
+                    sendMessage(handler, HandlerConstant.GET_DATA_ERROR, null);
+                }
+            }
+            public void onFailure(Call<ResponseBody> call, Throwable t) {
+                LogUtils.e("查询数据报错："+t.getMessage());
+                sendMessage(handler, HandlerConstant.REQUST_ERROR, null);
+            }
+        });
+    }
+
 }

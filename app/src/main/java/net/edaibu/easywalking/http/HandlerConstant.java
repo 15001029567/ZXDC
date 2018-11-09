@@ -17,4 +17,6 @@ public class HandlerConstant {
     public static final int GET_DIY_LIST_SUCCESS=10013;
     public static final int SET_DIY_SUCCESS=10014;
     public static final int GET_USER_INFO_SUCCESS=10015;
+    public static final int GET_ORDER_INFO_SUCCESS=10016;
+    public static final int RANDOM_BESPOKE_SUCCESS=10017;
 }

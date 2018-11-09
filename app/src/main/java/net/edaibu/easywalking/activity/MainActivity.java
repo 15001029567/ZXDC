@@ -7,6 +7,7 @@ import android.content.IntentFilter;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.annotation.Nullable;
+import android.text.TextUtils;
 import android.view.KeyEvent;
 import android.view.View;
 
@@ -14,6 +15,7 @@ import net.edaibu.easywalking.R;
 import net.edaibu.easywalking.activity.scan.ScanActivity;
 import net.edaibu.easywalking.application.MyApplication;
 import net.edaibu.easywalking.bean.BikeBean;
+import net.edaibu.easywalking.fragment.BespokeFragment;
 import net.edaibu.easywalking.fragment.CyclingFragment;
 import net.edaibu.easywalking.fragment.MapFragment;
 import net.edaibu.easywalking.persenter.main.MainPersenter;
@@ -47,6 +49,8 @@ public class MainActivity extends BaseActivity implements MainPersenter,View.OnC
     private MapFragment mapFragment=new MapFragment();
     //骑行界面的fragment
     private CyclingFragment cyclingFragment=new CyclingFragment();
+    //预约界面的fragment
+    private BespokeFragment bespokeFragment=new BespokeFragment();
     //车辆对象
     private BikeBean bikeBean;
     private Handler mHandler=new Handler();
@@ -73,6 +77,7 @@ public class MainActivity extends BaseActivity implements MainPersenter,View.OnC
         mainPersenter=new MainPersenterImpl(MainActivity.this,this);
         //打开地图fragment
         mainPersenter.showFragment(mapFragment, true, R.id.fragment_map);
+        mapFragment.setMainCallBack(this);
     }
 
     /**
@@ -136,7 +141,6 @@ public class MainActivity extends BaseActivity implements MainPersenter,View.OnC
         registerReceiver(mBroadcastReceiver, myIntentFilter);
     }
 
-    private boolean isConnect = true;
     private BroadcastReceiver mBroadcastReceiver = new BroadcastReceiver() {
         public void onReceive(Context context, Intent intent) {
             switch (intent.getAction()){
@@ -148,20 +152,11 @@ public class MainActivity extends BaseActivity implements MainPersenter,View.OnC
                       break;
                 //蓝牙连接断开
                 case BleService.ACTION_GATT_DISCONNECTED:
-                      final int status=intent.getIntExtra("status",0);
-                      //重连一次蓝牙
-                      if (status!=0 && isConnect) {
-                           LogUtils.e("重新连接一次蓝牙!");
-                           isConnect=false;
-                           mHandler.postDelayed(new Runnable() {
-                              public void run() {
-                                  bleService.connect(MyApplication.spUtil.getString(SPUtil.DEVICE_MAC));
-                              }
-                           },500);
-                           return;
-                      }
-                      isConnect=true;
                       clearTask();
+                      final int status=intent.getIntExtra("status",0);
+                      if(status!=0){
+                          showMsg(getString(R.string.bluetooth_disconnected_please_try_again));
+                      }
                       break;
                 //蓝牙通信通道成功
                 case BleService.ACTION_ENABLE_NOTIFICATION_SUCCES:
@@ -213,33 +208,8 @@ public class MainActivity extends BaseActivity implements MainPersenter,View.OnC
     }
 
 
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-        switch (resultCode){
-            //扫码回执
-            case Constant.SCAN_BACK:
-                 bikeBean= (BikeBean) data.getSerializableExtra("bikeBean");
-                 if(null==bikeBean){
-                     return;
-                 }
-                 showProgress(getString(R.string.opening_lock),false);
-                 sendBleCmd(BleStatus.BLE_OPEN_LOCK_ING);
-                 break;
-             default:
-                 break;
-        }
-    }
-
     /**
-     * 初始化蓝牙
-     * @param bleService
-     */
-    public void initBleService(BleService bleService) {
-        this.bleService=bleService;
-    }
-
-    /**
-     * 扫码开锁后获取骑行单
+     * 扫码开锁获取骑行单
      * @param bikeBean
      */
     public void getOrderByScan(BikeBean bikeBean) {
@@ -247,6 +217,66 @@ public class MainActivity extends BaseActivity implements MainPersenter,View.OnC
         mainPersenter.showFragment(cyclingFragment, true, R.id.fragment_map);
         //查询电子围栏
         mapFragment.findFencing(bikeBean.getBikeCode());
+    }
+
+
+    /**
+     * 查询订单信息
+     */
+    public void getOrderInfo() {
+        mainPersenter.getOrderInfo();
+    }
+
+
+    /**
+     * 获取订单后展示订单界面
+     * @param bikeBean
+     */
+    public void showOrderInfo(BikeBean bikeBean) {
+        //有预约单
+        if(TextUtils.isEmpty(bikeBean.getCyclingId())){
+
+        }
+        //有骑行单
+        else{
+            getOrderByScan(bikeBean);
+        }
+    }
+
+
+    /**
+     * 随机预约时，先查询车辆信息
+     * @param bikeBean
+     */
+    public void getRandomBespokeBike(BikeBean bikeBean) {
+        bespokeFragment.setBikeBean(bikeBean);
+        mainPersenter.showFragment(bespokeFragment, true, R.id.fragment_map);
+    }
+
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        switch (resultCode){
+            //扫码回执
+            case Constant.SCAN_BACK:
+                bikeBean= (BikeBean) data.getSerializableExtra("bikeBean");
+                if(null==bikeBean){
+                    return;
+                }
+                showProgress(getString(R.string.opening_lock),false);
+                sendBleCmd(BleStatus.BLE_OPEN_LOCK_ING);
+                break;
+            default:
+                break;
+        }
+    }
+
+
+    /**
+     * 初始化蓝牙
+     * @param bleService
+     */
+    public void initBleService(BleService bleService) {
+        this.bleService=bleService;
     }
 
     /**
@@ -272,11 +302,9 @@ public class MainActivity extends BaseActivity implements MainPersenter,View.OnC
     }
 
 
-    @Override
     protected void onSaveInstanceState(Bundle outState) {
-//        super.onSaveInstanceState(outState);
+        //super.onSaveInstanceState(outState);
     }
-
 
     @Override
     protected void onResume() {
