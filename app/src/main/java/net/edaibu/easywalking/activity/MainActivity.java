@@ -279,8 +279,10 @@ public class MainActivity extends BaseActivity implements MainPersenter,View.OnC
      * 关闭预约fragment界面
      */
     public void closeBespokeUI(){
+        //关闭预约界面
         mainPersenter.showFragment(bespokeFragment);
-        mapFragment.clearMap();
+        //显示出附近的车辆
+        mapFragment.setBikeMark(mapFragment.bikeList);
     }
 
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
