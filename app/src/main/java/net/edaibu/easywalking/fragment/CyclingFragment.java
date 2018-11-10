@@ -14,7 +14,12 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 import net.edaibu.easywalking.R;
+import net.edaibu.easywalking.application.MyApplication;
 import net.edaibu.easywalking.bean.BikeBean;
+import net.edaibu.easywalking.http.HandlerConstant;
+import net.edaibu.easywalking.http.HttpMethod;
+import net.edaibu.easywalking.utils.JsonUtils;
+import net.edaibu.easywalking.utils.SPUtil;
 import net.edaibu.easywalking.utils.TimerUtil;
 
 /**
@@ -26,7 +31,7 @@ public class CyclingFragment extends BaseFragment {
     private BikeBean bikeBean;
     private TextView tvTime, tvDistance,tvKa,tvBikeCode,tvMoney;
     //是否锁屏或者进入桌面
-    private boolean isHome=false;
+    private String IS_CLOSE_PHONE="IS_CLOSE_PHONE";
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         //注册广播
@@ -49,6 +54,18 @@ public class CyclingFragment extends BaseFragment {
 
     private Handler mHandler=new Handler(new Handler.Callback() {
         public boolean handleMessage(Message msg) {
+            switch (msg.what){
+                //获取订单信息
+                case HandlerConstant.GET_ORDER_INFO_SUCCESS:
+                    bikeBean= JsonUtils.getBikeBean(msg.obj.toString());
+                    if(null==bikeBean){
+                        break;
+                    }
+                    if(bikeBean.isSussess()){
+
+                    }
+                    break;
+            }
             return false;
         }
     });
@@ -123,17 +140,24 @@ public class CyclingFragment extends BaseFragment {
                 case Intent.ACTION_CLOSE_SYSTEM_DIALOGS://点击home键广播
                     final String reason = intent.getStringExtra("reason");
                     if (TextUtils.equals(reason, "homekey")) {
-                        isHome=true;
+                        MyApplication.spUtil.addBoolean(IS_CLOSE_PHONE,true);
                     }
                     break;
                 case Intent.ACTION_SCREEN_OFF://锁屏广播
-                    isHome=true;
+                    MyApplication.spUtil.addBoolean(IS_CLOSE_PHONE,true);
                     break;
                 default:
                     break;
             }
         }
     };
+
+    /**
+     * 查询订单信息
+     */
+    public void getOrderInfo(){
+        HttpMethod.getOrderInfo(mHandler);
+    }
 
     public void setBikeBean(BikeBean bikeBean){
         this.bikeBean=bikeBean;
@@ -142,10 +166,9 @@ public class CyclingFragment extends BaseFragment {
     @Override
     public void onResume() {
         super.onResume();
-        if(isHome){
-            isHome=false;
-            bikeBean.setDateTime(System.currentTimeMillis());
-            showData();
+        if(MyApplication.spUtil.getBoolean(IS_CLOSE_PHONE)){
+            getOrderInfo();
+            MyApplication.spUtil.removeMessage(IS_CLOSE_PHONE);
         }
     }
 

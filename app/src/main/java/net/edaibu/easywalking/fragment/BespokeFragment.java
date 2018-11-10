@@ -8,6 +8,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.support.annotation.Nullable;
+import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -20,8 +21,12 @@ import com.baidu.mapapi.search.geocode.OnGetGeoCoderResultListener;
 import com.baidu.mapapi.search.geocode.ReverseGeoCodeOption;
 import com.baidu.mapapi.search.geocode.ReverseGeoCodeResult;
 import net.edaibu.easywalking.R;
+import net.edaibu.easywalking.application.MyApplication;
 import net.edaibu.easywalking.bean.BikeBean;
+import net.edaibu.easywalking.http.HandlerConstant;
+import net.edaibu.easywalking.http.HttpMethod;
 import net.edaibu.easywalking.persenter.main.MainPersenter;
+import net.edaibu.easywalking.utils.JsonUtils;
 import net.edaibu.easywalking.utils.TimerUtil;
 import net.edaibu.easywalking.utils.map.GetRoutePlan;
 
@@ -34,6 +39,8 @@ public class BespokeFragment extends BaseFragment implements View.OnClickListene
     private BikeBean bikeBean;
     private TextView tvAddress,tvBikeCode,tvDistance,tvTime,tvTimeDes;
     private MainPersenter mainPersenter;
+    //是否锁屏或者进入桌面
+    private String IS_CLOSE_PHONE="IS_CLOSE_PHONE";
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         //注册广播
@@ -58,6 +65,18 @@ public class BespokeFragment extends BaseFragment implements View.OnClickListene
 
     private Handler mHandler=new Handler(new Handler.Callback() {
         public boolean handleMessage(Message msg) {
+            switch (msg.what){
+                //获取订单信息
+                case HandlerConstant.GET_ORDER_INFO_SUCCESS:
+                    bikeBean= JsonUtils.getBikeBean(msg.obj.toString());
+                    if(null==bikeBean){
+                        break;
+                    }
+                    if(bikeBean.isSussess()){
+
+                    }
+                    break;
+            }
             return false;
         }
     });
@@ -185,10 +204,15 @@ public class BespokeFragment extends BaseFragment implements View.OnClickListene
                           }
                       }
                       break;
-                case Intent.ACTION_CLOSE_SYSTEM_DIALOGS:
-                    break;
-                case Intent.ACTION_SCREEN_OFF:
-                    break;
+                case Intent.ACTION_CLOSE_SYSTEM_DIALOGS://点击home键广播
+                     final String reason = intent.getStringExtra("reason");
+                     if (TextUtils.equals(reason, "homekey")) {
+                        MyApplication.spUtil.addBoolean(IS_CLOSE_PHONE,true);
+                     }
+                     break;
+                case Intent.ACTION_SCREEN_OFF://锁屏广播
+                     MyApplication.spUtil.addBoolean(IS_CLOSE_PHONE,true);
+                     break;
                 default:
                     break;
             }
@@ -221,6 +245,24 @@ public class BespokeFragment extends BaseFragment implements View.OnClickListene
         geoCoder.reverseGeoCode(new ReverseGeoCodeOption().location(latLng));
         // 释放地理编码检索实例
         geoCoder.destroy();
+    }
+
+
+    /**
+     * 查询订单信息
+     */
+    public void getOrderInfo(){
+        HttpMethod.getOrderInfo(mHandler);
+    }
+
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        if(MyApplication.spUtil.getBoolean(IS_CLOSE_PHONE)){
+            getOrderInfo();
+            MyApplication.spUtil.removeMessage(IS_CLOSE_PHONE);
+        }
     }
 
 
