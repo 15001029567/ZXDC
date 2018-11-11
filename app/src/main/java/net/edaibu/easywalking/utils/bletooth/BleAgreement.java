@@ -23,29 +23,15 @@ public class BleAgreement {
     }
 
 
-    //租用开锁命令
-    public static byte[] rentLock(String imei) {
-        byte[] im = imeiToByte(imei,16);
-        byte[] result = new byte[im.length + 4];
-        result[0] = (byte) 0xAB;
-        result[1] = (byte) 0xAB;
-        result[2] = (byte) 0x8C;
-        result[3] = (byte) im.length;
-
-        for (int i = 0; i < im.length; i++) {
-            result[i + 4] = im[i];
-        }
-        return result;
-    }
-
     //开锁命令
-    public static byte[] openLock(String imei) {
-        byte[] im = imeiToByte(imei,16);
+    public static byte[] openLock(String orderCode) {
+        byte[] im = imeiToByte(orderCode,16);
         byte[] result = new byte[im.length + 4];
         result[0] = (byte) 0xAB;
         result[1] = (byte) 0xAB;
         result[2] = (byte) 0x81;
-        result[3] = (byte) im.length;
+        result[3] = (byte) 0x01;
+        result[4] = (byte) im.length;
 
         for (int i = 0; i < im.length; i++) {
             result[i + 4] = im[i];
@@ -55,13 +41,14 @@ public class BleAgreement {
 
 
     //临时关锁命令
-    public static byte[] closeLock(String imei) {
-        byte[] im = imeiToByte(imei,16);
+    public static byte[] closeLock(String orderCode) {
+        byte[] im = imeiToByte(orderCode,16);
         byte[] result = new byte[im.length + 4];
         result[0] = (byte) 0xAB;
         result[1] = (byte) 0xAB;
-        result[2] = (byte) 0x82;
-        result[3] = (byte) im.length;
+        result[2] = (byte) 0x81;
+        result[3] = (byte) 0x03;
+        result[4] = (byte) im.length;
 
         for (int i = 0; i < im.length; i++) {
             result[i + 4] = im[i];
@@ -71,13 +58,14 @@ public class BleAgreement {
 
 
     //结算还车
-    public static byte[] balanceCar(String imei) {
-        byte[] im = imeiToByte(imei,16);
+    public static byte[] balanceCar(String orderCode) {
+        byte[] im = imeiToByte(orderCode,16);
         byte[] result = new byte[im.length + 4];
         result[0] = (byte) 0xAB;
         result[1] = (byte) 0xAB;
-        result[2] = (byte) 0x8B;
-        result[3] = (byte) im.length;
+        result[2] = (byte) 0x81;
+        result[3] = (byte) 0x02;
+        result[4] = (byte) im.length;
 
         for (int i = 0; i < im.length; i++) {
             result[i + 4] = im[i];
@@ -85,14 +73,15 @@ public class BleAgreement {
         return result;
     }
 
-    //强制结算还车
-    public static byte[] forcedBalance(String imei) {
-        byte[] im = imeiToByte(imei,16);
+    //强制锁车
+    public static byte[] forcedCloseLock(String orderCode) {
+        byte[] im = imeiToByte(orderCode,16);
         byte[] result = new byte[im.length + 4];
         result[0] = (byte) 0xAB;
         result[1] = (byte) 0xAB;
-        result[2] = (byte) 0x8F;
-        result[3] = (byte) im.length;
+        result[2] = (byte) 0x81;
+        result[3] = (byte) 0x04;
+        result[4] = (byte) im.length;
 
         for (int i = 0; i < im.length; i++) {
             result[i + 4] = im[i];
@@ -102,18 +91,14 @@ public class BleAgreement {
 
 
     //寻车响铃命令
-    public static byte[] findLock(String imei) {
-        byte[] im = imeiToByte(imei,16);
-        byte[] result = new byte[im.length + 5];
+    public static byte[] findLock(int code) {
+        byte[] result = new byte[6];
         result[0] = (byte) 0xAB;
         result[1] = (byte) 0xAB;
-        result[2] = (byte) 0x83;
-        result[3] = (byte) (im.length + 1);
-
-        for (int i = 0; i < im.length; i++) {
-            result[i + 4] = im[i];
-        }
-        result[result.length - 1] = (byte) 0x00;
+        result[2] = (byte) 0x81;
+        result[3] = (byte) 0x05;
+        result[4] = (byte) 0x01;
+        result[5] = (byte) code;
         return result;
     }
 
@@ -138,31 +123,6 @@ public class BleAgreement {
         result[12] = audioBy[0];
         result[13] = (byte) 0x00;
         result[14] = (byte) 0x00;
-        return result;
-    }
-
-
-
-    //告诉锁U数据上报失败了
-    public static byte[] uError() {
-        byte[] result = new byte[5];
-        result[0] = (byte) 0xAB;
-        result[1] = (byte) 0xAB;
-        result[2] = (byte) 0x87;
-        result[3] = (byte) 0x01;
-        result[4] = (byte) 0x46;
-        return result;
-    }
-
-
-    //告诉锁U数据上报成功了
-    public static byte[] uSuccess() {
-        byte[] result = new byte[5];
-        result[0] = (byte) 0xAB;
-        result[1] = (byte) 0xAB;
-        result[2] = (byte) 0x87;
-        result[3] = (byte) 0x01;
-        result[4] = (byte) 0x53;
         return result;
     }
 
@@ -243,51 +203,6 @@ public class BleAgreement {
             return b;
         }
     }
-
-
-
-    //发送开始扫描信标
-    public static byte[] sendStartScanMark() {
-        byte[] result = new byte[5];
-        result[0] = (byte) 0xAB;
-        result[1] = (byte) 0xAB;
-        result[2] = (byte) 0x92;
-        result[3] = (byte) 0x07;
-        result[4] = (byte) 0x01;
-        return result;
-    }
-
-
-    //发送扫描信标成功命令
-    public static byte[] sendScanMarkSuccess(String macAddress) {
-        byte[] result = new byte[11];
-        result[0] = (byte) 0xAB;
-        result[1] = (byte) 0xAB;
-        result[2] = (byte) 0x92;
-        result[3] = (byte) 0x07;
-        result[4] = (byte) 0x53;
-
-        byte[] macBy=ByteStringHexUtil.hexStringToByte(macAddress);
-        if(null!=macBy){
-            for(int i=0,len=macBy.length;i<len;i++){
-                result[i+5]=macBy[i];
-            }
-        }
-        return result;
-    }
-
-    //发送扫描信标失败命令
-    public static byte[] sendScanMarkFailure() {
-        byte[] result = new byte[5];
-        result[0] = (byte) 0xAB;
-        result[1] = (byte) 0xAB;
-        result[2] = (byte) 0x92;
-        result[3] = (byte) 0x07;
-        result[4] = (byte) 0x46;
-        return result;
-    }
-
-
 
     /**
      * 将字符串转换为16进制的byte数组

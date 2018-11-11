@@ -138,7 +138,7 @@ public class MainActivity extends BaseActivity implements MainPersenter,View.OnC
             bleService.connectScan(bikeBean.getBikeNumber());
             return;
         }
-        SendBleAgreement.getInstance().sendBleData(status,bikeBean.getImei());
+        SendBleAgreement.getInstance().sendBleData(status,bikeBean.getImei(),"");
     }
 
 
