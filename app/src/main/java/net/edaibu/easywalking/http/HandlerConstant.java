@@ -19,4 +19,7 @@ public class HandlerConstant {
     public static final int GET_USER_INFO_SUCCESS=10015;
     public static final int GET_ORDER_INFO_SUCCESS=10016;
     public static final int RANDOM_BESPOKE_SUCCESS=10017;
+    public static final int CONFIRM_BESPOKE_SUCCESS=10018;
+    public static final int GET_CANCLE_NUM_SUCCESS=10019;
+    public static final int CANCLE_BESPOKE_SUCCESS=10020;
 }

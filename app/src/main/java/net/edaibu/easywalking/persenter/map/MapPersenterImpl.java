@@ -78,14 +78,18 @@ public class MapPersenterImpl {
                       break;
                 //获取电子围栏等数据
                 case HandlerConstant.FIND_FENCING_SUCCESS:
-                      final Fanceing fanceing= (Fanceing) msg.obj;
-                      if(null==fanceing){
-                          break;
-                      }
-                      if(fanceing.isSussess()){
-                          mapPersenter.showFencing(fanceing);
-                      }else{
-                          mapPersenter.showToast(fanceing.getMsg());
+                      try {
+                          final Fanceing fanceing= (Fanceing) msg.obj;
+                          if(null==fanceing){
+                              break;
+                          }
+                          if(fanceing.isSussess()){
+                              mapPersenter.showFencing(fanceing);
+                          }else{
+                              mapPersenter.showToast(fanceing.getMsg());
+                          }
+                      }catch (Exception e){
+                          e.printStackTrace();
                       }
                       break;
                 case HandlerConstant.REQUST_ERROR:

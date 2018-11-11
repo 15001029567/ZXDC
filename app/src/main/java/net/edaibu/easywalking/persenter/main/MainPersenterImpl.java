@@ -54,7 +54,7 @@ public class MainPersenterImpl{
                          break;
                      }
                      if(bikeBean.isSussess()){
-                         mainPersenter.getOrderByScan(bikeBean);
+                         mainPersenter.showCycling(bikeBean,false);
                      }else{
                          mainPersenter.showToast(bikeBean.getMsg());
                      }
@@ -66,7 +66,7 @@ public class MainPersenterImpl{
                           break;
                       }
                       if(bikeBean.isSussess()){
-                          mainPersenter.getRandomBespokeBike(bikeBean);
+                          mainPersenter.showBespoke(bikeBean);
                       }else{
                           mainPersenter.showToast(bikeBean.getMsg());
                       }

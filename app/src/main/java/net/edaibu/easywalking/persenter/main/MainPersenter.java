@@ -21,7 +21,7 @@ public interface MainPersenter extends BasePersenter {
      * 扫码开锁后获取骑行单
      * @param bikeBean
      */
-    void getOrderByScan(BikeBean bikeBean);
+    void showCycling(BikeBean bikeBean,boolean isScan);
 
 
     /**
@@ -40,7 +40,13 @@ public interface MainPersenter extends BasePersenter {
      * 随机预约时，先查询车辆信息
      * @param bikeBean
      */
-    void getRandomBespokeBike(BikeBean bikeBean);
+    void showBespoke(BikeBean bikeBean);
+
+
+    /**
+     * 预约成功后扫描蓝牙并响铃
+     */
+    void bespokeBell();
 
     /**
      * 关闭预约fragment界面

@@ -22,7 +22,9 @@ import com.baidu.mapapi.search.geocode.ReverseGeoCodeOption;
 import com.baidu.mapapi.search.geocode.ReverseGeoCodeResult;
 import net.edaibu.easywalking.R;
 import net.edaibu.easywalking.application.MyApplication;
+import net.edaibu.easywalking.bean.BaseBean;
 import net.edaibu.easywalking.bean.BikeBean;
+import net.edaibu.easywalking.bean.CancleNum;
 import net.edaibu.easywalking.http.HandlerConstant;
 import net.edaibu.easywalking.http.HttpMethod;
 import net.edaibu.easywalking.persenter.main.MainPersenter;
@@ -65,6 +67,7 @@ public class BespokeFragment extends BaseFragment implements View.OnClickListene
 
     private Handler mHandler=new Handler(new Handler.Callback() {
         public boolean handleMessage(Message msg) {
+            clearTask();
             switch (msg.what){
                 //获取订单信息
                 case HandlerConstant.GET_ORDER_INFO_SUCCESS:
@@ -75,6 +78,50 @@ public class BespokeFragment extends BaseFragment implements View.OnClickListene
                     if(bikeBean.isSussess()){
 
                     }
+                    break;
+                //确定预约车辆回执
+                case HandlerConstant.CONFIRM_BESPOKE_SUCCESS:
+                    bikeBean= JsonUtils.getBikeBean(msg.obj.toString());
+                    if(null==bikeBean){
+                        break;
+                    }
+                    if(bikeBean.isSussess()){
+                        showData();
+                    }else{
+                        showMsg(bikeBean.getMsg());
+                    }
+                    break;
+                //获取免费预约还剩多少次
+                case HandlerConstant.GET_CANCLE_NUM_SUCCESS:
+                     final CancleNum cancleNum= (CancleNum) msg.obj;
+                     if(null==cancleNum){
+                         break;
+                     }
+                     if(cancleNum.isSussess()){
+
+                     }else{
+                        showMsg(cancleNum.getMsg());
+                     }
+                     break;
+                //取消预约回执
+                case HandlerConstant.CANCLE_BESPOKE_SUCCESS:
+                     final BaseBean baseBean= (BaseBean) msg.obj;
+                     if(null==baseBean){
+                         break;
+                     }
+                     if(baseBean.isSussess()){
+                         mainPersenter.closeBespokeUI();
+                     }else{
+                        showMsg(baseBean.getMsg());
+                     }
+                     break;
+                case HandlerConstant.REQUST_ERROR:
+                     showMsg(getString(R.string.http_error));
+                    break;
+                case HandlerConstant.GET_DATA_ERROR:
+                     showMsg(getString(R.string.Data_parsing_error_please_try_again_later));
+                    break;
+                default:
                     break;
             }
             return false;
@@ -247,6 +294,13 @@ public class BespokeFragment extends BaseFragment implements View.OnClickListene
         geoCoder.destroy();
     }
 
+
+    /**
+     * 确定预约车辆
+     */
+    private void confirmBespoke(){
+        HttpMethod.confirmBespoke(bikeBean.getBikeCode(),mHandler);
+    }
 
     /**
      * 查询订单信息

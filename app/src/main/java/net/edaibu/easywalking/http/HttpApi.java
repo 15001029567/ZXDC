@@ -2,6 +2,7 @@ package net.edaibu.easywalking.http;
 
 import net.edaibu.easywalking.bean.BaseBean;
 import net.edaibu.easywalking.bean.BikeList;
+import net.edaibu.easywalking.bean.CancleNum;
 import net.edaibu.easywalking.bean.DiyBean;
 import net.edaibu.easywalking.bean.Fanceing;
 import net.edaibu.easywalking.bean.UserBean;
@@ -146,4 +147,34 @@ public interface HttpApi {
     @FormUrlEncoded
     @POST(HttpConstant.RANDOM_BESPOKE)
     Call<ResponseBody> getBikeByRandom(@FieldMap Map<String, String> map);
+
+
+    /**
+     * 确定预约车辆
+     * @param map
+     * @return
+     */
+    @FormUrlEncoded
+    @POST(HttpConstant.CONFIRM_BESPOKE)
+    Call<ResponseBody> confirmBespoke(@FieldMap Map<String, String> map);
+
+
+    /**
+     * 获取免费预约还剩多少次
+     * @param map
+     * @return
+     */
+    @FormUrlEncoded
+    @POST(HttpConstant.GET_BESPOKE_CANCLE_NUM)
+    Call<CancleNum> getCancleNum(@FieldMap Map<String, String> map);
+
+
+    /**
+     * 取消预约
+     * @param map
+     * @return
+     */
+    @FormUrlEncoded
+    @POST(HttpConstant.CANCLE_BESPEAK)
+    Call<BaseBean> cancleBespoke(@FieldMap Map<String, String> map);
 }

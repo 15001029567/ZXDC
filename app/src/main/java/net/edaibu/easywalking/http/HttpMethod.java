@@ -4,6 +4,7 @@ import android.os.Handler;
 
 import net.edaibu.easywalking.bean.BaseBean;
 import net.edaibu.easywalking.bean.BikeList;
+import net.edaibu.easywalking.bean.CancleNum;
 import net.edaibu.easywalking.bean.DiyBean;
 import net.edaibu.easywalking.bean.DownLoad;
 import net.edaibu.easywalking.bean.Fanceing;
@@ -362,6 +363,79 @@ public class HttpMethod extends BaseRequst {
                 }
             }
             public void onFailure(Call<ResponseBody> call, Throwable t) {
+                LogUtils.e("查询数据报错："+t.getMessage());
+                sendMessage(handler, HandlerConstant.REQUST_ERROR, null);
+            }
+        });
+    }
+
+
+    /**
+     * 确定预约车辆
+     * @param bikeCode
+     * @param handler
+     */
+    public static void confirmBespoke(String bikeCode,final Handler handler) {
+        Map<String, String> map = new HashMap<>();
+        map.put("bikeCode",bikeCode);
+        Http.getRetrofit().create(HttpApi.class).confirmBespoke(map).enqueue(new Callback<ResponseBody>() {
+            public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
+                try {
+                    sendMessage(handler, HandlerConstant.CONFIRM_BESPOKE_SUCCESS, response.body().string());
+                }catch (Exception e){
+                    e.printStackTrace();
+                    sendMessage(handler, HandlerConstant.GET_DATA_ERROR, null);
+                }
+            }
+            public void onFailure(Call<ResponseBody> call, Throwable t) {
+                LogUtils.e("查询数据报错："+t.getMessage());
+                sendMessage(handler, HandlerConstant.REQUST_ERROR, null);
+            }
+        });
+    }
+
+
+    /**
+     * 获取免费预约还剩多少次
+     * @param handler
+     */
+    public static void getCancleNum(final Handler handler) {
+        Map<String, String> map = new HashMap<>();
+        Http.getRetrofit().create(HttpApi.class).getCancleNum(map).enqueue(new Callback<CancleNum>() {
+            public void onResponse(Call<CancleNum> call, Response<CancleNum> response) {
+                try {
+                    sendMessage(handler, HandlerConstant.GET_CANCLE_NUM_SUCCESS, response.body());
+                }catch (Exception e){
+                    e.printStackTrace();
+                    sendMessage(handler, HandlerConstant.GET_DATA_ERROR, null);
+                }
+            }
+            public void onFailure(Call<CancleNum> call, Throwable t) {
+                LogUtils.e("查询数据报错："+t.getMessage());
+                sendMessage(handler, HandlerConstant.REQUST_ERROR, null);
+            }
+        });
+    }
+
+
+    /**
+     * 取消预约
+     * @param reservationId
+     * @param handler
+     */
+    public static void cancleBespoke(String reservationId,final Handler handler) {
+        Map<String, String> map = new HashMap<>();
+        map.put("reservationId",reservationId);
+        Http.getRetrofit().create(HttpApi.class).cancleBespoke(map).enqueue(new Callback<BaseBean>() {
+            public void onResponse(Call<BaseBean> call, Response<BaseBean> response) {
+                try {
+                    sendMessage(handler, HandlerConstant.CANCLE_BESPOKE_SUCCESS, response.body());
+                }catch (Exception e){
+                    e.printStackTrace();
+                    sendMessage(handler, HandlerConstant.GET_DATA_ERROR, null);
+                }
+            }
+            public void onFailure(Call<BaseBean> call, Throwable t) {
                 LogUtils.e("查询数据报错："+t.getMessage());
                 sendMessage(handler, HandlerConstant.REQUST_ERROR, null);
             }

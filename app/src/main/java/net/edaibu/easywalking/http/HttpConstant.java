@@ -46,4 +46,13 @@ public class HttpConstant {
 
     //随机预约时，先查询车辆信息
     public static final String RANDOM_BESPOKE="user/reserve/byrandom/hint";
+
+    //确定预约车辆
+    public static final String CONFIRM_BESPOKE = "user/reserve/bybike/gcj";
+
+    //获取免费预约还剩多少次
+    public static final String GET_BESPOKE_CANCLE_NUM="user/reserve/cancel/num";
+
+    //取消预约
+    public static final String CANCLE_BESPEAK = "user/reserve/cancel";
 }

@@ -204,17 +204,20 @@ public class MainActivity extends BaseActivity implements MainPersenter,View.OnC
         switch (resultCode){
             //认证成功后
             case BleStatus.BLE_CERTIFICATION_SUCCESS:
-                  final int SEND_BLE_STATUS=MyApplication.spUtil.getInteger(SPUtil.SEND_BLE_STATUS);
-                  if(SEND_BLE_STATUS!=0){
-                      sendBleCmd(SEND_BLE_STATUS);
-                      MyApplication.spUtil.removeMessage(SPUtil.SEND_BLE_STATUS);
+                  BLE_STATUS=MyApplication.spUtil.getInteger(SPUtil.SEND_BLE_STATUS);
+                  MyApplication.spUtil.removeMessage(SPUtil.SEND_BLE_STATUS);
+                  if(BLE_STATUS!=0){
+                      if(Constant.PLAY_STATUS==0){
+                          //获取骑行单
+                          mainPersenter.getOrderByScan(bikeBean.getBikeCode());
+                          return;
+                      }
+                      sendBleCmd(BLE_STATUS);
                   }
                   break;
              //开锁成功
             case BleStatus.BLE_OPEN_LOCK_SUCCESS:
                   clearTask();
-                  //获取骑行单
-                  mainPersenter.getOrderByScan(bikeBean.getBikeCode());
                   break;
             default:
                   break;
@@ -223,14 +226,20 @@ public class MainActivity extends BaseActivity implements MainPersenter,View.OnC
 
 
     /**
-     * 扫码开锁获取骑行单
+     * 展示骑行界面
      * @param bikeBean
+     * @param isScan：是否是退出后重新查询的订单
      */
-    public void getOrderByScan(BikeBean bikeBean) {
+    public void showCycling(BikeBean bikeBean,boolean isScan) {
+        Constant.PLAY_STATUS=1;
         cyclingFragment.setBikeBean(bikeBean);
         mainPersenter.showFragment(cyclingFragment);
         //查询电子围栏
         mapFragment.findFencing(bikeBean.getBikeCode());
+        //发送蓝牙开锁
+        if(!isScan){
+            sendBleCmd(BLE_STATUS);
+        }
     }
 
 
@@ -249,20 +258,20 @@ public class MainActivity extends BaseActivity implements MainPersenter,View.OnC
     public void showOrderInfo(BikeBean bikeBean) {
         //有预约单
         if(TextUtils.isEmpty(bikeBean.getCyclingId())){
-            getRandomBespokeBike(bikeBean);
+            showBespoke(bikeBean);
+            return;
         }
         //有骑行单
-        else{
-            getOrderByScan(bikeBean);
-        }
+        showCycling(bikeBean,true);
     }
 
 
     /**
-     * 随机预约时，先查询车辆信息
+     * 展示预约界面
      * @param bikeBean
      */
-    public void getRandomBespokeBike(BikeBean bikeBean) {
+    public void showBespoke(BikeBean bikeBean) {
+        Constant.PLAY_STATUS=2;
         bespokeFragment.setBikeBean(bikeBean,this);
         if(bespokeFragment.isAdded()){
             bespokeFragment.showData();
@@ -276,9 +285,17 @@ public class MainActivity extends BaseActivity implements MainPersenter,View.OnC
 
 
     /**
+     * 预约成功后扫描蓝牙并响铃
+     */
+    public void bespokeBell(){
+
+    }
+
+    /**
      * 关闭预约fragment界面
      */
     public void closeBespokeUI(){
+        Constant.PLAY_STATUS=0;
         //关闭预约界面
         mainPersenter.showFragment(bespokeFragment);
         //显示出附近的车辆
