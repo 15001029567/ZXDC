@@ -208,7 +208,8 @@ public class MainActivity extends BaseActivity implements MainPersenter,View.OnC
                   BLE_STATUS=MyApplication.spUtil.getInteger(SPUtil.SEND_BLE_STATUS);
                   MyApplication.spUtil.removeMessage(SPUtil.SEND_BLE_STATUS);
                   if(BLE_STATUS!=0){
-                      if(Constant.PLAY_STATUS==0){
+                      //先生成骑行单再开锁
+                      if(BLE_STATUS==BleStatus.BLE_OPEN_LOCK_ING && TextUtils.isEmpty(bikeBean.getCyclingId())){
                           //获取骑行单
                           mainPersenter.getOrderByScan(bikeBean.getBikeCode());
                           return;
