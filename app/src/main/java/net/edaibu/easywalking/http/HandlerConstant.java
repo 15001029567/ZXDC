@@ -22,4 +22,5 @@ public class HandlerConstant {
     public static final int CONFIRM_BESPOKE_SUCCESS=10018;
     public static final int GET_CANCLE_NUM_SUCCESS=10019;
     public static final int CANCLE_BESPOKE_SUCCESS=10020;
+    public static final int GET_PARKING_SUCCESS=10021;
 }

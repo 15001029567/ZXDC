@@ -5,6 +5,7 @@ import net.edaibu.easywalking.bean.BikeList;
 import net.edaibu.easywalking.bean.CancleNum;
 import net.edaibu.easywalking.bean.DiyBean;
 import net.edaibu.easywalking.bean.Fanceing;
+import net.edaibu.easywalking.bean.Parking;
 import net.edaibu.easywalking.bean.UserBean;
 import net.edaibu.easywalking.bean.Version;
 
@@ -177,4 +178,14 @@ public interface HttpApi {
     @FormUrlEncoded
     @POST(HttpConstant.CANCLE_BESPEAK)
     Call<BaseBean> cancleBespoke(@FieldMap Map<String, String> map);
+
+
+    /**
+     * 查询附近的停车点
+     * @param map
+     * @return
+     */
+    @FormUrlEncoded
+    @POST(HttpConstant.GET_PARKING)
+    Call<Parking> getParking(@FieldMap Map<String, String> map);
 }

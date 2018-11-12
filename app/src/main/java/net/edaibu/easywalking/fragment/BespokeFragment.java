@@ -31,6 +31,7 @@ import net.edaibu.easywalking.persenter.main.MainPersenter;
 import net.edaibu.easywalking.utils.JsonUtils;
 import net.edaibu.easywalking.utils.TimerUtil;
 import net.edaibu.easywalking.utils.map.GetRoutePlan;
+import net.edaibu.easywalking.view.DialogView;
 
 /**
  * 预约车辆的fragment
@@ -43,6 +44,7 @@ public class BespokeFragment extends BaseFragment implements View.OnClickListene
     private MainPersenter mainPersenter;
     //是否锁屏或者进入桌面
     private String IS_CLOSE_PHONE="IS_CLOSE_PHONE";
+    private DialogView dialogView;
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         //注册广播
@@ -98,7 +100,13 @@ public class BespokeFragment extends BaseFragment implements View.OnClickListene
                          break;
                      }
                      if(cancleNum.isSussess()){
-
+                         dialogView = new DialogView(mActivity, cancleNum.getData(), getString(R.string.confirm), getString(R.string.cancel), new View.OnClickListener() {
+                             public void onClick(View v) {
+                                 dialogView.dismiss();
+                                 cancleBespoke();
+                             }
+                         }, null);
+                         dialogView.show();
                      }else{
                         showMsg(cancleNum.getMsg());
                      }
@@ -303,9 +311,24 @@ public class BespokeFragment extends BaseFragment implements View.OnClickListene
     }
 
     /**
+     * 取消预约车辆
+     */
+    private void cancleBespoke(){
+        HttpMethod.cancleBespoke(bikeBean.getResserveId(),mHandler);
+    }
+
+
+    /**
+     * 获取免费预约还剩多少次
+     */
+    private void getCancleNum(){
+        HttpMethod.getCancleNum(mHandler);
+    }
+
+    /**
      * 查询订单信息
      */
-    public void getOrderInfo(){
+    private void getOrderInfo(){
         HttpMethod.getOrderInfo(mHandler);
     }
 

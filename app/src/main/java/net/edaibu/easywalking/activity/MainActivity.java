@@ -12,6 +12,7 @@ import android.view.View;
 import net.edaibu.easywalking.R;
 import net.edaibu.easywalking.activity.scan.ScanActivity;
 import net.edaibu.easywalking.application.MyApplication;
+import net.edaibu.easywalking.bean.Balance;
 import net.edaibu.easywalking.bean.BikeBean;
 import net.edaibu.easywalking.fragment.BespokeFragment;
 import net.edaibu.easywalking.fragment.CyclingFragment;
@@ -300,6 +301,15 @@ public class MainActivity extends BaseActivity implements MainPersenter,View.OnC
         mainPersenter.showFragment(bespokeFragment);
         //显示出附近的车辆
         mapFragment.showBikeMark();
+    }
+
+
+    /**
+     * 结算还车
+     * @param balance
+     */
+    public void balance(Balance balance){
+        Constant.PLAY_STATUS=0;
     }
 
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {

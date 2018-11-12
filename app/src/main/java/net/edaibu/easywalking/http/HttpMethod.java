@@ -8,6 +8,7 @@ import net.edaibu.easywalking.bean.CancleNum;
 import net.edaibu.easywalking.bean.DiyBean;
 import net.edaibu.easywalking.bean.DownLoad;
 import net.edaibu.easywalking.bean.Fanceing;
+import net.edaibu.easywalking.bean.Parking;
 import net.edaibu.easywalking.bean.UserBean;
 import net.edaibu.easywalking.bean.Version;
 import net.edaibu.easywalking.http.base.BaseRequst;
@@ -437,6 +438,33 @@ public class HttpMethod extends BaseRequst {
             }
             public void onFailure(Call<BaseBean> call, Throwable t) {
                 LogUtils.e("查询数据报错："+t.getMessage());
+                sendMessage(handler, HandlerConstant.REQUST_ERROR, null);
+            }
+        });
+    }
+
+
+    /**
+     * 查询附近的停车点
+     * @param lat
+     * @param lon
+     * @param handler
+     */
+    public static void getParking(String lat,String lon,final Handler handler) {
+        Map<String, String> map = new HashMap<>();
+        map.put("lat",lat);
+        map.put("lon",lon);
+        Http.getRetrofit().create(HttpApi.class).getParking(map).enqueue(new Callback<Parking>() {
+            public void onResponse(Call<Parking> call, Response<Parking> response) {
+                try {
+                    sendMessage(handler, HandlerConstant.GET_PARKING_SUCCESS, response.body());
+                }catch (Exception e){
+                    e.printStackTrace();
+                    sendMessage(handler, HandlerConstant.REQUST_ERROR, null);
+                }
+            }
+
+            public void onFailure(Call<Parking> call, Throwable t) {
                 sendMessage(handler, HandlerConstant.REQUST_ERROR, null);
             }
         });

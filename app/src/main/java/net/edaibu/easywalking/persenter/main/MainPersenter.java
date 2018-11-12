@@ -1,5 +1,6 @@
 package net.edaibu.easywalking.persenter.main;
 
+import net.edaibu.easywalking.bean.Balance;
 import net.edaibu.easywalking.bean.BikeBean;
 import net.edaibu.easywalking.persenter.BasePersenter;
 import net.edaibu.easywalking.service.BleService;
@@ -52,4 +53,11 @@ public interface MainPersenter extends BasePersenter {
      * 关闭预约fragment界面
      */
     void closeBespokeUI();
+
+
+    /**
+     * 结算还车
+     * @param balance
+     */
+    void balance(Balance balance);
 }

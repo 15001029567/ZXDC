@@ -55,4 +55,7 @@ public class HttpConstant {
 
     //取消预约
     public static final String CANCLE_BESPEAK = "user/reserve/cancel";
+
+    //查询附近停车点
+    public static final String GET_PARKING = "parking/space/gcj";
 }
