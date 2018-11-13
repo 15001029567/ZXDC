@@ -110,6 +110,9 @@ public class BaseActivity extends FragmentActivity {
      * @param view
      */
     public Dialog dialogPop(View view, boolean b) {
+        if (baseDialog != null) {
+            baseDialog.dismiss();
+        }
         baseDialog = new Dialog(mContext, R.style.ActionSheetDialogStyle);
         baseDialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
         baseDialog.setTitle(null);
@@ -120,12 +123,6 @@ public class BaseActivity extends FragmentActivity {
         baseDialog.show();
         return baseDialog;
     }
-    public void closeDialog() {
-        if (baseDialog != null) {
-            baseDialog.dismiss();
-        }
-    }
-
 
     /**
      * 隐藏键盘

@@ -67,11 +67,6 @@ public class SendBleAgreement {
                   bleByte=AesUtils.encrypt(BleAgreement.balanceCar(orderCode));
                   isTimeOut=true;
                   break;
-            //获取旋轮DIY命令
-            case BleStatus.BLE_SEND_DIY_ING:
-                  bleByte=AesUtils.encrypt(BleAgreement.sendDIY());
-                  isTimeOut=true;
-                  break;
               default:
                   break;
         }

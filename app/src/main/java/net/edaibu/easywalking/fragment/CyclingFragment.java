@@ -19,7 +19,6 @@ import net.edaibu.easywalking.bean.BikeBean;
 import net.edaibu.easywalking.http.HandlerConstant;
 import net.edaibu.easywalking.http.HttpMethod;
 import net.edaibu.easywalking.utils.JsonUtils;
-import net.edaibu.easywalking.utils.SPUtil;
 import net.edaibu.easywalking.utils.TimerUtil;
 
 /**

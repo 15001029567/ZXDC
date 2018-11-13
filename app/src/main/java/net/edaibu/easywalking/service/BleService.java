@@ -349,6 +349,9 @@ public class BleService extends Service {
             if(null==txValue){
                 return;
             }
+            if(txValue.length<5){
+                return;
+            }
             if (ByteUtil.byteToInt(txValue[2]) != 128) {
                 txValue = AesUtils.decrypt(txValue);
             }
@@ -525,5 +528,17 @@ public class BleService extends Service {
         mBluetoothGatt.close();
         mBluetoothGatt = null;
         LogUtils.e("gatt释放了");
+    }
+
+
+    /**
+     * 蓝牙是否断开连接
+     * @return
+     */
+    public boolean isDisconnect(){
+        if(connectionState==STATE_DISCONNECTED){
+            return true;
+        }
+        return false;
     }
 }

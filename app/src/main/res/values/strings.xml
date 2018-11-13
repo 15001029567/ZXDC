@@ -63,4 +63,5 @@
     <string name="free_money">免费倒计时</string>
     <string name="charging">计费</string>
     <string name="primary">元</string>
+    <string name="ring_failed">响铃失败</string>
 </resources>

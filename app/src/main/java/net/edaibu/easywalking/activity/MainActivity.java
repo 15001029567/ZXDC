@@ -5,6 +5,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.annotation.Nullable;
 import android.text.TextUtils;
 import android.view.KeyEvent;
@@ -42,8 +43,6 @@ public class MainActivity extends BaseActivity implements MainPersenter,View.OnC
     private int BLE_STATUS= BleStatus.BLE_NORMAL_STATE;
     //蓝牙服务对象
     public BleService bleService;
-    //自定义dialog
-    public DialogView dialogView;
     //地图的fragment
     private MapFragment mapFragment=new MapFragment();
     //骑行界面的fragment
@@ -52,6 +51,7 @@ public class MainActivity extends BaseActivity implements MainPersenter,View.OnC
     private BespokeFragment bespokeFragment=new BespokeFragment();
     //车辆对象
     private static BikeBean bikeBean;
+    private Handler mHandler=new Handler();
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         StatusBarUtils.transparencyBar(this);
@@ -130,7 +130,7 @@ public class MainActivity extends BaseActivity implements MainPersenter,View.OnC
      * 发送蓝牙指令
      * @param status：蓝牙指令类型
      */
-    private void sendBleCmd(int status){
+    public void sendBleCmd(int status){
         this.BLE_STATUS=status;
         //扫描并连接蓝牙
         if (bleService.connectionState != bleService.STATE_CONNECTED){
@@ -162,7 +162,7 @@ public class MainActivity extends BaseActivity implements MainPersenter,View.OnC
                 //扫描不到指定蓝牙设备
                 case BleService.ACTION_NO_SCAN_BLE_DEVICE:
                       clearTask();
-                      dialogView = new DialogView(mContext, getString(R.string.can_not_find_bluttooth_please_close_bike_and_connect_custom_service), getString(R.string.confirm), null, null, null);
+                      DialogView dialogView = new DialogView(mContext,getString(R.string.can_not_find_bluttooth_please_close_bike_and_connect_custom_service), getString(R.string.confirm), null, null, null);
                       dialogView.show();
                       break;
                 //蓝牙连接断开
@@ -203,13 +203,17 @@ public class MainActivity extends BaseActivity implements MainPersenter,View.OnC
     private void lockResult(int resultCode){
         BLE_STATUS=resultCode;
         switch (resultCode){
+            //无任何数据回执
+            case BleStatus.BLE_NORMAL_STATE:
+                  clearTask();
+                  break;
             //认证成功后
             case BleStatus.BLE_CERTIFICATION_SUCCESS:
                   BLE_STATUS=MyApplication.spUtil.getInteger(SPUtil.SEND_BLE_STATUS);
                   MyApplication.spUtil.removeMessage(SPUtil.SEND_BLE_STATUS);
                   if(BLE_STATUS!=0){
                       //先生成骑行单再开锁
-                      if(BLE_STATUS==BleStatus.BLE_OPEN_LOCK_ING && TextUtils.isEmpty(bikeBean.getCyclingId())){
+                      if(BLE_STATUS==BleStatus.BLE_OPEN_LOCK_ING && Constant.PLAY_STATUS!=1){
                           //获取骑行单
                           mainPersenter.getOrderByScan(bikeBean.getBikeCode());
                           return;
@@ -221,6 +225,42 @@ public class MainActivity extends BaseActivity implements MainPersenter,View.OnC
             case BleStatus.BLE_OPEN_LOCK_SUCCESS:
                   clearTask();
                   break;
+            //开锁失败
+            case BleStatus.BLE_OPEN_LOCK_FAILURE:
+                  break;
+             //临时关锁成功
+            case BleStatus.BLE_CLOSE_LOCK_SUCCESS:
+                  break;
+            //临时关锁失败:当前处于禁停区
+            case BleStatus.BLE_CLOSE_LOCK_FAILURE_JTQ:
+                  break;
+            //临时关锁失败:当前处于骑行围栏外
+            case BleStatus.BLE_CLOSE_LOCK_FAILURE_QXWL:
+                break;
+            //结算关锁成功
+            case BleStatus.BLE_PAY_CLOSE_LOCK_SUCCESS:
+                  break;
+             //结算锁车失败：当前处于禁停区
+            case BleStatus.BLE_PAY_CLOSE_LOCK_FAILURE_JTQ:
+                  break;
+            //结算锁车失败：当前处于骑行围栏外
+            case BleStatus.BLE_PAY_CLOSE_LOCK_FAILURE_QJWL:
+                break;
+            //强制锁车成功
+            case BleStatus.FORCE_CLOSE_LOCK_SUCCESS:
+                  break;
+            //强制锁车失败
+            case BleStatus.FORCE_CLOSE_LOCK_FAILURE:
+                 break;
+            //响铃成功
+            case BleStatus.BLE_FLASH_SUCCESS:
+                 clearTask();
+                 break;
+            //响铃失败
+            case BleStatus.BLE_FLASH_FAILURE:
+                  clearTask();
+                  showMsg(getString(R.string.ring_failed));
+                 break;
             default:
                   break;
         }
@@ -274,15 +314,14 @@ public class MainActivity extends BaseActivity implements MainPersenter,View.OnC
      */
     public void showBespoke(BikeBean bikeBean) {
         Constant.PLAY_STATUS=2;
+        MainActivity.bikeBean=bikeBean;
         bespokeFragment.setBikeBean(bikeBean,this);
-        if(bespokeFragment.isAdded()){
-            bespokeFragment.showData();
-            return;
-        }
         //打开预约的界面
         mainPersenter.showFragment(bespokeFragment);
         //设置路径规划
         mapFragment.setRoutePlan(bikeBean.getLatitude(),bikeBean.getLongitude());
+        //预约成功后扫描蓝牙并响铃
+//        bespokeBell();
     }
 
 
@@ -290,6 +329,17 @@ public class MainActivity extends BaseActivity implements MainPersenter,View.OnC
      * 预约成功后扫描蓝牙并响铃
      */
     public void bespokeBell(){
+//        if(Constant.PLAY_STATUS==2 && bleService.isDisconnect()){
+//            if(TextUtils.isEmpty(bikeBean.getResserveId())){
+//                return;
+//            }
+//            mHandler.postDelayed(new Runnable() {
+//                public void run() {
+//                    sendBleCmd(BleStatus.BLE_FLASH_ING);
+//
+//                }
+//            },10000);
+//        }
 
     }
 
@@ -302,6 +352,8 @@ public class MainActivity extends BaseActivity implements MainPersenter,View.OnC
         mainPersenter.showFragment(bespokeFragment);
         //显示出附近的车辆
         mapFragment.showBikeMark();
+        //断开蓝牙
+        bleService.disconnect();
     }
 
 
@@ -311,6 +363,8 @@ public class MainActivity extends BaseActivity implements MainPersenter,View.OnC
      */
     public void balance(Balance balance){
         Constant.PLAY_STATUS=0;
+        //断开蓝牙
+        bleService.disconnect();
     }
 
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {

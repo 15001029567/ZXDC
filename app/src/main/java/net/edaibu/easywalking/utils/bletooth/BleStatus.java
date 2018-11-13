@@ -36,62 +36,70 @@ public class BleStatus {
     public static final int BLE_OPEN_LOCK_FAILURE = 5;
 
     /**
-     * 关锁中
+     * 临时关锁中
      */
     public static final int BLE_CLOSE_LOCK_ING = 6;
 
     /**
-     * 关锁成功
+     * 临时关锁成功
      */
     public static final int BLE_CLOSE_LOCK_SUCCESS = 7;
 
     /**
-     * 关锁失败
+     * 临时关锁失败:当前处于禁停区
      */
-    public static final int BLE_CLOSE_LOCK_FAILURE = 8;
+    public static final int BLE_CLOSE_LOCK_FAILURE_JTQ = 8;
+
+    /**
+     * 临时关锁失败:当前处于骑行围栏外
+     */
+    public static final int BLE_CLOSE_LOCK_FAILURE_QXWL = 9;
 
     /**
      * 闪灯或响铃中
      */
-    public static final int BLE_FLASH_ING = 9;
+    public static final int BLE_FLASH_ING = 10;
 
     /**
      * 闪灯或响铃成功
      */
-    public static final int BLE_FLASH_SUCCESS = 10;
+    public static final int BLE_FLASH_SUCCESS = 11;
 
     /**
      * 闪灯或响铃失败
      */
-    public static final int BLE_FLASH_FAILURE = 11;
+    public static final int BLE_FLASH_FAILURE = 12;
 
     /**
      * 结算锁车中
      */
-    public static final int BLE_PAY_CLOSE_LOCK_ING = 12;
+    public static final int BLE_PAY_CLOSE_LOCK_ING = 13;
 
     /**
      * 结算锁车成功
      */
-    public static final int BLE_PAY_CLOSE_LOCK_SUCCESS = 13;
+    public static final int BLE_PAY_CLOSE_LOCK_SUCCESS = 14;
 
     /**
-     * 结算锁车失败
+     * 结算锁车失败：当前处于禁停区
      */
-    public static final int BLE_PAY_CLOSE_LOCK_FAILURE = 14;
+    public static final int BLE_PAY_CLOSE_LOCK_FAILURE_JTQ = 15;
 
     /**
-     * 发送旋轮命令中
+     * 结算锁车失败：当前处于骑行围栏外
      */
-    public static final int BLE_SEND_DIY_ING=15;
+    public static final int BLE_PAY_CLOSE_LOCK_FAILURE_QJWL = 16;
+
 
     /**
-     * 发送旋轮命令成功
+     * 强制锁车成功
      */
-    public static final int BLE_SEND_DIY_SUCCESS=16;
+    public static final int FORCE_CLOSE_LOCK_SUCCESS=17;
 
     /**
-     * 发送炫轮命令失败
+     * 强制锁车失败
      */
-    public static final int BLE_SEND_DIY_FAILURE=17;
+    public static final int FORCE_CLOSE_LOCK_FAILURE=18;
+
+
 }

@@ -54,6 +54,15 @@ public class BikeBean extends BaseBean {
     private int bikeversion;
     private int lockversion;
 
+
+    public BikeBean(){}
+
+    public BikeBean(String bikeCode,Double latitude,Double longitude){
+        this.bikeCode=bikeCode;
+        this.latitude=latitude;
+        this.longitude=longitude;
+    }
+
     public String getResserveId() {
         return resserveId;
     }

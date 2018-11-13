@@ -13,6 +13,7 @@ import com.baidu.mapapi.map.Overlay;
 import com.baidu.mapapi.map.PolylineOptions;
 import com.baidu.mapapi.model.LatLng;
 import com.baidu.mapapi.search.core.SearchResult;
+import com.baidu.mapapi.search.route.BikingRouteLine;
 import com.baidu.mapapi.search.route.BikingRouteResult;
 import com.baidu.mapapi.search.route.DrivingRouteResult;
 import com.baidu.mapapi.search.route.IndoorRouteResult;
@@ -39,7 +40,7 @@ public class GetRoutePlan implements OnGetRoutePlanResultListener {
     public final static String ACTION_GETROUTE_SUCCES = "net.edaibu.adminapp.ACTION_GETROUTE_SUCCES";
 
     //路径规划对象
-    private Overlay overlay1;
+    private Overlay overlay1,overlay2;
 
     public GetRoutePlan(BaiduMap baiduMap){
         this.mBaiduMap=baiduMap;
@@ -111,8 +112,34 @@ public class GetRoutePlan implements OnGetRoutePlanResultListener {
     }
 
     @Override
-    public void onGetBikingRouteResult(BikingRouteResult bikingRouteResult) {
+    public void onGetBikingRouteResult(BikingRouteResult result) {
+        if (result == null || result.error != SearchResult.ERRORNO.NO_ERROR) {
+        }
+        if (result.error == SearchResult.ERRORNO.AMBIGUOUS_ROURE_ADDR) {
+            return;
+        }
+        if (result.error == SearchResult.ERRORNO.NO_ERROR) {
+            BikingRouteOverlay overlay = new MyBikingRouteOverlay(mBaiduMap);
+            mBaiduMap.setOnMarkerClickListener(overlay);
+            final List<LatLng> points1 = new ArrayList<LatLng>();
+            final BikingRouteLine b = result.getRouteLines().get(0);
+            List<BikingRouteLine.BikingStep> list = b.getAllStep();
+            for (BikingRouteLine.BikingStep l : list) {
+                points1.addAll(l.getWayPoints());
+            }
+            PolylineOptions ooPolyline1 = new PolylineOptions().width(10).color(MyApplication.application.getResources().getColor(R.color.main_color)).points(points1);
+            overlay1=mBaiduMap.addOverlay(ooPolyline1);
 
+            bitmap2 = BitmapDescriptorFactory.fromResource(R.mipmap.parking);
+            MarkerOptions option2 = new MarkerOptions().position(points1.get(points1.size()-1)).icon(bitmap2);
+            //在地图上添加Marker，并显示
+            overlay2=mBaiduMap.addOverlay(option2);
+
+            MapStatus mMapStatus = new MapStatus.Builder().target(points1.get(0)).zoom(16.8f).build();
+            MapStatusUpdate mMapStatusUpdate = MapStatusUpdateFactory.newMapStatus(mMapStatus);
+            mBaiduMap.setMapStatus(mMapStatusUpdate);
+            mBaiduMap.animateMapStatus(MapStatusUpdateFactory.zoomTo(19f),1000);
+        }
     }
 
 
@@ -131,12 +158,32 @@ public class GetRoutePlan implements OnGetRoutePlanResultListener {
     }
 
 
+    private class MyBikingRouteOverlay extends BikingRouteOverlay {
+        public  MyBikingRouteOverlay(BaiduMap baiduMap) {
+            super(baiduMap);
+        }
+
+
+        public BitmapDescriptor getStartMarker() {
+            return BitmapDescriptorFactory.fromResource(R.mipmap.center_main);
+        }
+
+
+        public BitmapDescriptor getTerminalMarker() {
+            return BitmapDescriptorFactory.fromResource(R.mipmap.parking);
+        }
+    }
+
+
     /**
      * 清除路线
      */
     public void clearRoutePlan(){
         if(overlay1!=null){
             overlay1.remove();
+        }
+        if(overlay2!=null){
+            overlay2.remove();
         }
     }
 

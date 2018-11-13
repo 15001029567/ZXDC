@@ -19,6 +19,13 @@ public interface MainPersenter extends BasePersenter {
 
 
     /**
+     * 发送蓝牙指令
+     * @param status
+     */
+    void sendBleCmd(int status);
+
+
+    /**
      * 扫码开锁后获取骑行单
      * @param bikeBean
      */

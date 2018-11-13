@@ -30,11 +30,13 @@ import com.baidu.mapapi.search.route.PlanNode;
 import com.baidu.mapapi.search.route.RoutePlanSearch;
 import com.baidu.mapapi.search.route.WalkingRoutePlanOption;
 import net.edaibu.easywalking.R;
+import net.edaibu.easywalking.bean.BikeBean;
 import net.edaibu.easywalking.bean.BikeList;
 import net.edaibu.easywalking.bean.Fanceing;
 import net.edaibu.easywalking.persenter.main.MainPersenter;
 import net.edaibu.easywalking.persenter.map.MapPersenter;
 import net.edaibu.easywalking.persenter.map.MapPersenterImpl;
+import net.edaibu.easywalking.utils.Constant;
 import net.edaibu.easywalking.utils.LogUtils;
 import net.edaibu.easywalking.utils.Util;
 import net.edaibu.easywalking.utils.map.GetRoutePlan;
@@ -126,8 +128,17 @@ public class MapFragment extends BaseFragment implements MapPersenter, OnGetGeoC
             return true;
         }
         final int index = marker.getZIndex();
-        final BikeList.BikeInfoList bikeInfoList=bikeList.get(index);
-        setRoutePlan(bikeInfoList.getLatitude(),bikeInfoList.getLongitude());
+        switch (Constant.PLAY_STATUS){
+            //展示预约界面
+            case 0:
+                 final BikeList.BikeInfoList bikeInfoList=bikeList.get(index);
+                 if(null==bikeInfoList){
+                    return true;
+                 }
+                 final BikeBean bikeBean=new BikeBean(bikeInfoList.getBikecode(),bikeInfoList.getLatitude(),bikeInfoList.getLongitude());
+                 mainPersenter.showBespoke(bikeBean);
+                 break;
+        }
         return true;
     }
 
