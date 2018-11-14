@@ -74,8 +74,8 @@ public class MainActivity extends BaseActivity implements MainPersenter,View.OnC
     private void initPersenter(){
         mainPersenter=new MainPersenterImpl(MainActivity.this,this);
         //打开地图fragment
-        mainPersenter.showMapFragment(mapFragment);
         mapFragment.setMainCallBack(this);
+        mainPersenter.showMapFragment(mapFragment);
     }
 
     /**
@@ -98,28 +98,17 @@ public class MainActivity extends BaseActivity implements MainPersenter,View.OnC
      * 按钮点击事件
      * @param v
      */
-    boolean b=true;
     public void onClick(View v) {
+        if(!Util.isLogin(this)){
+            return;
+        }
         switch (v.getId()){
             //扫码用车
             case R.id.img_scan:
-//                  if(!Util.isLogin(this)){
-//                     return;
-//                  }
-//                  setClass(ScanActivity.class, Constant.SCAN_BACK);
-                  if(b){
-                      b=false;
-                      mainPersenter.showFragment(bespokeFragment);
-                  }else{
-                      b=true;
-                      mainPersenter.showFragment(bespokeFragment);
-                  }
+                  setClass(ScanActivity.class, Constant.SCAN_BACK);
                   break;
             //随机预约
             case R.id.img_bespoke:
-                 if(!Util.isLogin(this)){
-                     return;
-                  }
                   mainPersenter.getRandomBespoke();
                   break;
         }
@@ -162,7 +151,7 @@ public class MainActivity extends BaseActivity implements MainPersenter,View.OnC
                 //扫描不到指定蓝牙设备
                 case BleService.ACTION_NO_SCAN_BLE_DEVICE:
                       clearTask();
-                      DialogView dialogView = new DialogView(mContext,getString(R.string.can_not_find_bluttooth_please_close_bike_and_connect_custom_service), getString(R.string.confirm), null, null, null);
+                      DialogView dialogView = new DialogView(mContext,getString(R.string.not_find_bluttooth), getString(R.string.confirm), null, null, null);
                       dialogView.show();
                       break;
                 //蓝牙连接断开
@@ -278,6 +267,8 @@ public class MainActivity extends BaseActivity implements MainPersenter,View.OnC
         mainPersenter.showFragment(cyclingFragment);
         //查询电子围栏
         mapFragment.findFencing(bikeBean.getBikeCode());
+        //查询附近的停放点
+        mapFragment.getParking();
         //发送蓝牙开锁
         if(!isScan){
             sendBleCmd(BLE_STATUS);
@@ -363,6 +354,8 @@ public class MainActivity extends BaseActivity implements MainPersenter,View.OnC
      */
     public void balance(Balance balance){
         Constant.PLAY_STATUS=0;
+        mapFragment.clearMap();
+        mainPersenter.showFragment(cyclingFragment);
         //断开蓝牙
         bleService.disconnect();
     }
@@ -372,13 +365,10 @@ public class MainActivity extends BaseActivity implements MainPersenter,View.OnC
         switch (resultCode){
             //扫码回执
             case Constant.SCAN_BACK:
-                bikeBean= (BikeBean) data.getSerializableExtra("bikeBean");
-                if(null==bikeBean){
-                    return;
-                }
-                showProgress(getString(R.string.opening_lock),false);
-                sendBleCmd(BleStatus.BLE_OPEN_LOCK_ING);
-                break;
+                 bikeBean= (BikeBean) data.getSerializableExtra("bikeBean");
+                 showProgress(getString(R.string.opening_lock),false);
+                 sendBleCmd(BleStatus.BLE_OPEN_LOCK_ING);
+                 break;
             default:
                 break;
         }

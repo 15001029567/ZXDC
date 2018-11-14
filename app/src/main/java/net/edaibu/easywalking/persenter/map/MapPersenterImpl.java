@@ -9,7 +9,6 @@ import android.net.ConnectivityManager;
 import android.os.Handler;
 import android.os.Message;
 import android.text.TextUtils;
-
 import com.baidu.mapapi.map.BaiduMap;
 import com.baidu.mapapi.map.MapView;
 import com.baidu.mapapi.map.MyLocationData;
@@ -18,11 +17,12 @@ import net.edaibu.easywalking.R;
 import net.edaibu.easywalking.application.MyApplication;
 import net.edaibu.easywalking.bean.BikeList;
 import net.edaibu.easywalking.bean.Fanceing;
+import net.edaibu.easywalking.bean.Parking;
 import net.edaibu.easywalking.http.HandlerConstant;
 import net.edaibu.easywalking.http.HttpMethod;
+import net.edaibu.easywalking.utils.Constant;
 import net.edaibu.easywalking.utils.NetUtils;
 import net.edaibu.easywalking.utils.SPUtil;
-import net.edaibu.easywalking.utils.Util;
 import net.edaibu.easywalking.utils.map.GetLocation;
 import net.edaibu.easywalking.utils.map.MyOrientationListener;
 import java.io.File;
@@ -39,9 +39,11 @@ public class MapPersenterImpl {
     private MapPersenter mapPersenter;
     //地图传感器
     private MyOrientationListener myOrientationListener;
-    ////是否是第一次定位
-    private boolean isFis=true;
     private BaiduMap mBaiduMap;
+    //手机是否锁屏
+    private boolean IS_CLOSE_PHONE=false;
+    //是否是第一次定位
+    private boolean isFis=true;
     public MapPersenterImpl(Activity activity,MapPersenter mapPersenter){
         this.activity=activity;
         this.mapPersenter=mapPersenter;
@@ -55,11 +57,12 @@ public class MapPersenterImpl {
                      if (mBaiduMap == null || mBaiduMap.getLocationData() == null) {
                          //关闭进度条
                          mapPersenter.closeLoding();
+                         GetLocation.isOPen(activity);
                         break;
                      }
-                     if (isFis) {
-                         isFis = false;
-                         LatLng latLng = new LatLng(mBaiduMap.getLocationData().latitude, mBaiduMap.getLocationData().longitude);
+                     if(isFis){
+                         isFis=false;
+                         final LatLng latLng = new LatLng(mBaiduMap.getLocationData().latitude, mBaiduMap.getLocationData().longitude);
                          mapPersenter.locationSuccess(latLng);
                      }
                 //获取当前位置的车辆
@@ -90,6 +93,18 @@ public class MapPersenterImpl {
                           }
                       }catch (Exception e){
                           e.printStackTrace();
+                      }
+                      break;
+                //获取附近的停放点
+                case HandlerConstant.GET_PARKING_SUCCESS:
+                      final Parking parking= (Parking) msg.obj;
+                      if(null==parking){
+                          break;
+                      }
+                      if(parking.isSussess()){
+
+                      }else{
+                          mapPersenter.showToast(parking.getMsg());
                       }
                       break;
                 case HandlerConstant.REQUST_ERROR:
@@ -128,29 +143,28 @@ public class MapPersenterImpl {
 
 
     /**
+     * 查询附近的停放点
+     */
+    public void getParking(){
+        String strLat=MyApplication.spUtil.getString(SPUtil.LOCATION_LAT);
+        String strLon=MyApplication.spUtil.getString(SPUtil.LOCATION_LONG);
+        HttpMethod.getParking(strLat,strLon,mHandler);
+    }
+
+
+    /**
      * 定位
      */
     public void startLocation() {
-        if (!isFis) {
-            return;
-        }
         //判断网络能否使用
         if (!NetUtils.isNetConnected(activity)) {
             mapPersenter.showToast(activity.getString(R.string.network_can_not_be_accessed_please_check_the_network_connection));
             return;
         }
         mapPersenter.showLoding(activity.getString(R.string.locating));
+        isFis=true;
         GetLocation.getInstance().stopLocation();
         GetLocation.getInstance().startLocation(activity, mHandler, mBaiduMap);
-    }
-
-
-    /**
-     * 重新定位
-     */
-    public void resumeLocation(){
-        isFis=true;
-        startLocation();
     }
 
 
@@ -176,7 +190,12 @@ public class MapPersenterImpl {
      */
     public void register() {
         IntentFilter myIntentFilter = new IntentFilter();
-        myIntentFilter.addAction(ConnectivityManager.CONNECTIVITY_ACTION);//监听网络
+        //监听网络
+        myIntentFilter.addAction(ConnectivityManager.CONNECTIVITY_ACTION);
+        //锁屏广播，由系统发出
+        myIntentFilter.addAction(Intent.ACTION_SCREEN_OFF);
+        //点击home键广播，由系统发出
+        myIntentFilter.addAction(Intent.ACTION_CLOSE_SYSTEM_DIALOGS);
         // 注册广播监听
         activity.registerReceiver(mBroadcastReceiver, myIntentFilter);
     }
@@ -184,8 +203,21 @@ public class MapPersenterImpl {
     private BroadcastReceiver mBroadcastReceiver = new BroadcastReceiver() {
         public void onReceive(Context context, Intent intent) {
             String action = intent.getAction();
-            if (action.equals(ConnectivityManager.CONNECTIVITY_ACTION)) {
-                startLocation();
+            switch (action){
+                case ConnectivityManager.CONNECTIVITY_ACTION:
+                      startLocation();
+                      break;
+                case Intent.ACTION_CLOSE_SYSTEM_DIALOGS://点击home键广播
+                    final String reason = intent.getStringExtra("reason");
+                    if (TextUtils.equals(reason, "homekey")) {
+                        IS_CLOSE_PHONE=true;
+                    }
+                    break;
+                case Intent.ACTION_SCREEN_OFF://锁屏广播
+                    IS_CLOSE_PHONE=true;
+                    break;
+                default:
+                    break;
             }
         }
     };
@@ -263,6 +295,13 @@ public class MapPersenterImpl {
         MapView.setCustomMapStylePath(moduleName + "/custom_config_1009.json");
     }
 
+
+    public void onResume(){
+        if(Constant.PLAY_STATUS==1 && IS_CLOSE_PHONE){
+            getParking();
+            IS_CLOSE_PHONE=false;
+        }
+    }
 
     public void onStart(){
         myOrientationListener.start();

@@ -20,6 +20,7 @@ import net.edaibu.easywalking.bean.BaseBean;
 import net.edaibu.easywalking.http.HandlerConstant;
 import net.edaibu.easywalking.http.HttpMethod;
 import net.edaibu.easywalking.utils.SPUtil;
+import net.edaibu.easywalking.utils.StatusBarUtils;
 import net.edaibu.easywalking.view.ClickTextView;
 import org.json.JSONObject;
 import java.util.Timer;
@@ -38,7 +39,7 @@ public class LoginActivity extends BaseActivity implements View.OnClickListener 
     private int time = 0;
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        requestWindowFeature(Window.FEATURE_NO_TITLE);
+        StatusBarUtils.transparencyBar(this);
         setContentView(R.layout.activity_login);
         initView();
         //判断验证码秒数是否超过一分钟

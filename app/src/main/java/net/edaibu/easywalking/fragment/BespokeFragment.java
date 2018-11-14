@@ -21,13 +21,13 @@ import com.baidu.mapapi.search.geocode.OnGetGeoCoderResultListener;
 import com.baidu.mapapi.search.geocode.ReverseGeoCodeOption;
 import com.baidu.mapapi.search.geocode.ReverseGeoCodeResult;
 import net.edaibu.easywalking.R;
-import net.edaibu.easywalking.application.MyApplication;
 import net.edaibu.easywalking.bean.BaseBean;
 import net.edaibu.easywalking.bean.BikeBean;
 import net.edaibu.easywalking.bean.CancleNum;
 import net.edaibu.easywalking.http.HandlerConstant;
 import net.edaibu.easywalking.http.HttpMethod;
 import net.edaibu.easywalking.persenter.main.MainPersenter;
+import net.edaibu.easywalking.utils.Constant;
 import net.edaibu.easywalking.utils.JsonUtils;
 import net.edaibu.easywalking.utils.TimerUtil;
 import net.edaibu.easywalking.utils.map.GetRoutePlan;
@@ -42,9 +42,9 @@ public class BespokeFragment extends BaseFragment implements View.OnClickListene
     private BikeBean bikeBean;
     private TextView tvAddress,tvBikeCode,tvDistance,tvTime,tvTimeDes;
     private MainPersenter mainPersenter;
-    //是否锁屏或者进入桌面
-    private String IS_CLOSE_PHONE="IS_CLOSE_PHONE";
     private DialogView dialogView;
+    //手机是否锁屏
+    private boolean IS_CLOSE_PHONE=false;
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         //注册广播
@@ -59,7 +59,6 @@ public class BespokeFragment extends BaseFragment implements View.OnClickListene
         tvDistance=(TextView)view.findViewById(R.id.tv_distance);
         tvTime=(TextView)view.findViewById(R.id.tv_fb_time);
         tvTimeDes=(TextView)view.findViewById(R.id.tv_fb_time_des);
-        view.findViewById(R.id.rel_fb).setOnClickListener(this);
         //展示数据
         showData();
         return view;
@@ -139,7 +138,7 @@ public class BespokeFragment extends BaseFragment implements View.OnClickListene
     /**
      * 展示数据
      */
-    private int hours, minutes, seconds, time, time2,totalSeconds=-1;
+    private int hours, minutes, seconds, time, time2;
     private TimerUtil timerUtil;
     public void showData(){
         if(null==bikeBean){
@@ -148,6 +147,9 @@ public class BespokeFragment extends BaseFragment implements View.OnClickListene
         //反地理编码查询地址
         reverseGeoCode(new LatLng(bikeBean.getLatitude(),bikeBean.getLongitude()));
         tvBikeCode.setText(bikeBean.getBikeCode());
+        if(TextUtils.isEmpty(bikeBean.getResserveId())){
+            return;
+        }
         /**
          *  l1:服务器时间与预约开始时间差值
          *  time：免费预约剩余时间，初始为15min
@@ -181,7 +183,6 @@ public class BespokeFragment extends BaseFragment implements View.OnClickListene
      * 开始计时器
      */
     private void timerTask(){
-        totalSeconds++;
         if (time > 0) {
             time--;
             hours = time / 3600;
@@ -218,10 +219,6 @@ public class BespokeFragment extends BaseFragment implements View.OnClickListene
 
     public void onClick(View v) {
         switch (v.getId()){
-            //关闭预约界面
-            case R.id.rel_fb:
-                 mainPersenter.closeBespokeUI();
-                 break;
         }
     }
 
@@ -262,11 +259,11 @@ public class BespokeFragment extends BaseFragment implements View.OnClickListene
                 case Intent.ACTION_CLOSE_SYSTEM_DIALOGS://点击home键广播
                      final String reason = intent.getStringExtra("reason");
                      if (TextUtils.equals(reason, "homekey")) {
-                        MyApplication.spUtil.addBoolean(IS_CLOSE_PHONE,true);
+                         IS_CLOSE_PHONE=true;
                      }
                      break;
                 case Intent.ACTION_SCREEN_OFF://锁屏广播
-                     MyApplication.spUtil.addBoolean(IS_CLOSE_PHONE,true);
+                     IS_CLOSE_PHONE=true;
                      break;
                 default:
                     break;
@@ -336,9 +333,9 @@ public class BespokeFragment extends BaseFragment implements View.OnClickListene
     @Override
     public void onResume() {
         super.onResume();
-        if(MyApplication.spUtil.getBoolean(IS_CLOSE_PHONE)){
+        if(IS_CLOSE_PHONE){
             getOrderInfo();
-            MyApplication.spUtil.removeMessage(IS_CLOSE_PHONE);
+            IS_CLOSE_PHONE=false;
         }
     }
 

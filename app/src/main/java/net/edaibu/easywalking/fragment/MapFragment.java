@@ -20,12 +20,6 @@ import com.baidu.mapapi.map.PolygonOptions;
 import com.baidu.mapapi.map.PolylineOptions;
 import com.baidu.mapapi.map.Stroke;
 import com.baidu.mapapi.model.LatLng;
-import com.baidu.mapapi.search.core.SearchResult;
-import com.baidu.mapapi.search.geocode.GeoCodeResult;
-import com.baidu.mapapi.search.geocode.GeoCoder;
-import com.baidu.mapapi.search.geocode.OnGetGeoCoderResultListener;
-import com.baidu.mapapi.search.geocode.ReverseGeoCodeOption;
-import com.baidu.mapapi.search.geocode.ReverseGeoCodeResult;
 import com.baidu.mapapi.search.route.PlanNode;
 import com.baidu.mapapi.search.route.RoutePlanSearch;
 import com.baidu.mapapi.search.route.WalkingRoutePlanOption;
@@ -33,11 +27,11 @@ import net.edaibu.easywalking.R;
 import net.edaibu.easywalking.bean.BikeBean;
 import net.edaibu.easywalking.bean.BikeList;
 import net.edaibu.easywalking.bean.Fanceing;
+import net.edaibu.easywalking.bean.Parking;
 import net.edaibu.easywalking.persenter.main.MainPersenter;
 import net.edaibu.easywalking.persenter.map.MapPersenter;
 import net.edaibu.easywalking.persenter.map.MapPersenterImpl;
 import net.edaibu.easywalking.utils.Constant;
-import net.edaibu.easywalking.utils.LogUtils;
 import net.edaibu.easywalking.utils.Util;
 import net.edaibu.easywalking.utils.map.GetRoutePlan;
 import java.util.ArrayList;
@@ -45,14 +39,13 @@ import java.util.List;
 /**
  * 首页地图fragment
  */
-public class MapFragment extends BaseFragment implements MapPersenter, OnGetGeoCoderResultListener,View.OnClickListener,BaiduMap.OnMarkerClickListener,BaiduMap.OnMapClickListener {
+public class MapFragment extends BaseFragment implements MapPersenter,View.OnClickListener,BaiduMap.OnMarkerClickListener,BaiduMap.OnMapClickListener {
 
     private MapPersenterImpl mapPersenter;
     private MapView mMapView;
     public BaiduMap mBaiduMap;
     //中心图标
     private ImageView imgCenter;
-    private GeoCoder mSearch = null;
     //中心点坐标
     private LatLng latLng;
     //地图上的marker图标
@@ -61,6 +54,8 @@ public class MapFragment extends BaseFragment implements MapPersenter, OnGetGeoC
     private RoutePlanSearch rpSearch = null;
     //附近车辆集合
     private List<BikeList.BikeInfoList> bikeList=new ArrayList<>();
+    //停车点的marker集合
+    private List<Marker> parkMarker = new ArrayList<>();
     private MainPersenter mainPersenter;
     public void onCreate(Bundle savedInstanceState) {
         //初始化MVP接口
@@ -101,9 +96,6 @@ public class MapFragment extends BaseFragment implements MapPersenter, OnGetGeoC
         imgCenter=(ImageView)view.findViewById(R.id.img_center);
         //隐藏缩放按钮
         mMapView.showZoomControls(false);
-        // 根据经纬度搜索
-        mSearch = GeoCoder.newInstance();
-        mSearch.setOnGetGeoCodeResultListener(this);
         //路径规划
         rpSearch = RoutePlanSearch.newInstance();
         rpSearch.setOnGetRoutePlanResultListener(new GetRoutePlan(mBaiduMap));
@@ -118,8 +110,19 @@ public class MapFragment extends BaseFragment implements MapPersenter, OnGetGeoC
 
     }
 
+    public void onClick(View v) {
+        switch (v.getId()){
+            //重新定位
+            case R.id.img_location:
+                 mapPersenter.startLocation();
+                 break;
+            default:
+                break;
+        }
+    }
+
     /**
-     * 车辆覆盖物点击事件
+     * 地图覆盖物点击事件
      * @param marker
      * @return
      */
@@ -138,6 +141,9 @@ public class MapFragment extends BaseFragment implements MapPersenter, OnGetGeoC
                  final BikeBean bikeBean=new BikeBean(bikeInfoList.getBikecode(),bikeInfoList.getLatitude(),bikeInfoList.getLongitude());
                  mainPersenter.showBespoke(bikeBean);
                  break;
+            //展示到停放点的路径规划
+            case 1:
+                 break;
         }
         return true;
     }
@@ -149,6 +155,17 @@ public class MapFragment extends BaseFragment implements MapPersenter, OnGetGeoC
      * @return
      */
     public void onMapClick(LatLng latLng) {
+        switch (Constant.PLAY_STATUS){
+            //处于骑行界面
+            case 1:
+                 break;
+            //处于预约界面
+            case 2:
+                 mainPersenter.closeBespokeUI();
+                 break;
+             default:
+                 break;
+        }
 
     }
     public boolean onMapPoiClick(MapPoi mapPoi) {
@@ -157,25 +174,38 @@ public class MapFragment extends BaseFragment implements MapPersenter, OnGetGeoC
 
 
     /**
-     * 设置路径规划
+     * 定位成功
+     * @param latLng
      */
-    public void setRoutePlan(double latitude,double longitude){
-        final LatLng latLng=mapPersenter.getNewLatLng();
-        if(null==latLng){
-            return;
+    public void locationSuccess(LatLng latLng) {
+        clearTask();
+        this.latLng=latLng;
+        mBaiduMap.setMapStatus(MapStatusUpdateFactory.newLatLng(latLng));
+        if(Constant.PLAY_STATUS==0){
+            mBaiduMap.animateMapStatus(MapStatusUpdateFactory.zoomTo(19f), 500);
+            //获取当前位置的车辆信息
+            mapPersenter.getLocationBike(latLng.latitude,latLng.longitude);
+            //去查询订单信息
+            mainPersenter.getOrderInfo();
         }
-        mapPersenter.clearMap();
-        PlanNode stNode = PlanNode.withLocation(latLng);
-        PlanNode enNode = PlanNode.withLocation(new LatLng(latitude, longitude));
-        rpSearch.walkingSearch((new WalkingRoutePlanOption()).from(stNode).to(enNode));
     }
 
 
     /**
-     * 绘制附近的车辆图标
+     * 展示电子围栏，禁停区等
+     * @param fanceing
+     */
+    public void showFencing(Fanceing fanceing) {
+        setFencing(fanceing);
+        banStopCar(fanceing);
+        banWalkCar(fanceing);
+    }
+
+    /**
+     * 显示附近的车辆信息
      * @param list
      */
-    private void setBikeMark(List<BikeList.BikeInfoList> list) {
+    public void showLocationBike(List<BikeList.BikeInfoList> list) {
         bikeList=list;
         showBikeMark();
     }
@@ -245,6 +275,50 @@ public class MapFragment extends BaseFragment implements MapPersenter, OnGetGeoC
         }
     }
 
+
+    /**
+     * 显示附近的停放点
+     * @param list
+     */
+    public void showParking(List<Parking.ParkingBean> list){
+        //清空停放点的marker
+        removeParking();
+        bitmap = BitmapDescriptorFactory.fromResource(R.mipmap.parking);
+        for (int i = 0, len = list.size(); i < len; i++) {
+            MarkerOptions op = new MarkerOptions().position(new LatLng(Double.parseDouble(list.get(i).getLatitude()), Double.parseDouble(list.get(i).getLongitude()))).icon(bitmap).zIndex(i);
+            Marker marker = (Marker) mBaiduMap.addOverlay(op);
+            parkMarker.add(marker);
+        }
+    }
+
+
+    /**
+     * 清空停放点的marker
+     */
+    private void removeParking(){
+        for (int i = 0; i < parkMarker.size(); i++) {
+            if (parkMarker.get(i) != null) {
+                parkMarker.get(i).remove();
+            }
+        }
+    }
+
+
+    /**
+     * 设置路径规划
+     */
+    public void setRoutePlan(double latitude,double longitude){
+        final LatLng latLng=mapPersenter.getNewLatLng();
+        if(null==latLng){
+            return;
+        }
+        mapPersenter.clearMap();
+        PlanNode stNode = PlanNode.withLocation(latLng);
+        PlanNode enNode = PlanNode.withLocation(new LatLng(latitude, longitude));
+        rpSearch.walkingSearch((new WalkingRoutePlanOption()).from(stNode).to(enNode));
+    }
+
+
     /**
      * 地图触摸状态改变监听(地图移动获取坐标)
      */
@@ -254,7 +328,7 @@ public class MapFragment extends BaseFragment implements MapPersenter, OnGetGeoC
         public void onMapStatusChangeFinish(MapStatus mapStatus) {
             // 计算距离
             final Double distance = Util.GetShortDistance(latLng.longitude, latLng.latitude, mapStatus.target.longitude, mapStatus.target.latitude);
-            if(distance>300){
+            if(Constant.PLAY_STATUS==0 && distance>300){
                 latLng=mapStatus.target;
                 //查询附近的车辆信息
                 mapPersenter.getLocationBike(latLng.latitude,latLng.longitude);
@@ -265,67 +339,6 @@ public class MapFragment extends BaseFragment implements MapPersenter, OnGetGeoC
         }
         public void onMapStatusChangeStart(MapStatus mapStatus, int i) {
         }
-    }
-
-
-    /**
-     * 根据经纬度定位
-     * @param geoCodeResult
-     */
-    public void onGetGeoCodeResult(GeoCodeResult geoCodeResult) {
-    }
-    public void onGetReverseGeoCodeResult(ReverseGeoCodeResult reverseGeoCodeResult) {
-        clearTask();
-        if (reverseGeoCodeResult == null || reverseGeoCodeResult.error != SearchResult.ERRORNO.NO_ERROR) {
-            return;
-        }
-        mBaiduMap.setMapStatus(MapStatusUpdateFactory.newLatLng(reverseGeoCodeResult.getLocation()));
-        mBaiduMap.animateMapStatus(MapStatusUpdateFactory.zoomTo(19f), 500);
-        //获取当前位置的车辆信息
-        mapPersenter.getLocationBike(reverseGeoCodeResult.getLocation().latitude,reverseGeoCodeResult.getLocation().longitude);
-        //去查询订单信息
-        mainPersenter.getOrderInfo();
-    }
-
-    @Override
-    public void onClick(View v) {
-        switch (v.getId()){
-            //重新定位
-            case R.id.img_location:
-                 mapPersenter.resumeLocation();
-                 break;
-             default:
-                 break;
-        }
-    }
-
-
-    /**
-     * 定位成功
-     * @param latLng
-     */
-    public void locationSuccess(LatLng latLng) {
-        this.latLng=latLng;
-        //根据经纬度去定位
-        mSearch.reverseGeoCode(new ReverseGeoCodeOption().location(latLng));
-    }
-
-    /**
-     * 展示电子围栏，禁停区等
-     * @param fanceing
-     */
-    public void showFencing(Fanceing fanceing) {
-        setFencing(fanceing);
-        banStopCar(fanceing);
-        banWalkCar(fanceing);
-    }
-
-    /**
-     * 显示附近的车辆信息
-     * @param list
-     */
-    public void showLocationBike(List<BikeList.BikeInfoList> list) {
-        setBikeMark(list);
     }
 
     /**
@@ -358,6 +371,15 @@ public class MapFragment extends BaseFragment implements MapPersenter, OnGetGeoC
     public void findFencing(String bikeCode){
         mapPersenter.findFencing(bikeCode);
     }
+
+
+    /**
+     * 查询附近的停放点
+     */
+    public void getParking(){
+        mapPersenter.getParking();
+    }
+
 
     /**
      * 清空map上遮盖物
@@ -395,6 +417,7 @@ public class MapFragment extends BaseFragment implements MapPersenter, OnGetGeoC
     public void onResume() {
         super.onResume();
         mMapView.onResume();
+        mapPersenter.onResume();
     }
 
 

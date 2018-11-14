@@ -24,7 +24,6 @@ android {
         main {
             jniLibs.srcDirs = ['libs']
         }
-
     }
 
     signingConfigs {

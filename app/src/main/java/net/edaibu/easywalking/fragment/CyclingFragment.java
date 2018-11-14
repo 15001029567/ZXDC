@@ -14,7 +14,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 import net.edaibu.easywalking.R;
-import net.edaibu.easywalking.application.MyApplication;
 import net.edaibu.easywalking.bean.BikeBean;
 import net.edaibu.easywalking.http.HandlerConstant;
 import net.edaibu.easywalking.http.HttpMethod;
@@ -29,8 +28,8 @@ public class CyclingFragment extends BaseFragment {
     //骑行对象
     private BikeBean bikeBean;
     private TextView tvTime, tvDistance,tvKa,tvBikeCode,tvMoney;
-    //是否锁屏或者进入桌面
-    private String IS_CLOSE_PHONE="IS_CLOSE_PHONE";
+    //手机是否锁屏
+    private boolean IS_CLOSE_PHONE=false;
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         //注册广播
@@ -72,7 +71,7 @@ public class CyclingFragment extends BaseFragment {
     /**
      * 展示界面数据
      */
-    private int time, totalSeconds=-1;
+    private int time;
     private TimerUtil timerUtil;
     private void showData(){
         if(null==bikeBean){
@@ -100,7 +99,6 @@ public class CyclingFragment extends BaseFragment {
      */
     private void timerTask(){
         time++;
-        totalSeconds++;
         final int hoursInt = time / 3600;
         final int minutesInt = (time - hoursInt * 3600) / 60;
         final int secondsInt = time - hoursInt * 3600 - minutesInt * 60;
@@ -139,11 +137,11 @@ public class CyclingFragment extends BaseFragment {
                 case Intent.ACTION_CLOSE_SYSTEM_DIALOGS://点击home键广播
                     final String reason = intent.getStringExtra("reason");
                     if (TextUtils.equals(reason, "homekey")) {
-                        MyApplication.spUtil.addBoolean(IS_CLOSE_PHONE,true);
+                        IS_CLOSE_PHONE=true;
                     }
                     break;
                 case Intent.ACTION_SCREEN_OFF://锁屏广播
-                    MyApplication.spUtil.addBoolean(IS_CLOSE_PHONE,true);
+                    IS_CLOSE_PHONE=true;
                     break;
                 default:
                     break;
@@ -165,9 +163,9 @@ public class CyclingFragment extends BaseFragment {
     @Override
     public void onResume() {
         super.onResume();
-        if(MyApplication.spUtil.getBoolean(IS_CLOSE_PHONE)){
+        if(IS_CLOSE_PHONE){
             getOrderInfo();
-            MyApplication.spUtil.removeMessage(IS_CLOSE_PHONE);
+            IS_CLOSE_PHONE=false;
         }
     }
 

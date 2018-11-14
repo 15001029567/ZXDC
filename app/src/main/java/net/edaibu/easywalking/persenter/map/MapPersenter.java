@@ -4,6 +4,7 @@ import com.baidu.mapapi.model.LatLng;
 
 import net.edaibu.easywalking.bean.BikeList;
 import net.edaibu.easywalking.bean.Fanceing;
+import net.edaibu.easywalking.bean.Parking;
 import net.edaibu.easywalking.persenter.BasePersenter;
 
 import java.util.List;
@@ -33,5 +34,12 @@ public interface MapPersenter extends BasePersenter {
      * @param list
      */
     void showLocationBike(List<BikeList.BikeInfoList> list);
+
+
+    /**
+     * 显示附近的停放点
+     * @param list
+     */
+    void showParking(List<Parking.ParkingBean> list);
 
 }
