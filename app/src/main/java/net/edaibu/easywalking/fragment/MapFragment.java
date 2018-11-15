@@ -20,6 +20,7 @@ import com.baidu.mapapi.map.PolygonOptions;
 import com.baidu.mapapi.map.PolylineOptions;
 import com.baidu.mapapi.map.Stroke;
 import com.baidu.mapapi.model.LatLng;
+import com.baidu.mapapi.search.route.BikingRoutePlanOption;
 import com.baidu.mapapi.search.route.PlanNode;
 import com.baidu.mapapi.search.route.RoutePlanSearch;
 import com.baidu.mapapi.search.route.WalkingRoutePlanOption;
@@ -32,6 +33,7 @@ import net.edaibu.easywalking.persenter.main.MainPersenter;
 import net.edaibu.easywalking.persenter.map.MapPersenter;
 import net.edaibu.easywalking.persenter.map.MapPersenterImpl;
 import net.edaibu.easywalking.utils.Constant;
+import net.edaibu.easywalking.utils.LogUtils;
 import net.edaibu.easywalking.utils.Util;
 import net.edaibu.easywalking.utils.map.GetRoutePlan;
 import java.util.ArrayList;
@@ -52,6 +54,7 @@ public class MapFragment extends BaseFragment implements MapPersenter,View.OnCli
     private BitmapDescriptor bitmap;
     //路径规划对象
     private RoutePlanSearch rpSearch = null;
+    private GetRoutePlan getRoutePlan;
     //附近车辆集合
     private List<BikeList.BikeInfoList> bikeList=new ArrayList<>();
     //停车点的marker集合
@@ -98,7 +101,8 @@ public class MapFragment extends BaseFragment implements MapPersenter,View.OnCli
         mMapView.showZoomControls(false);
         //路径规划
         rpSearch = RoutePlanSearch.newInstance();
-        rpSearch.setOnGetRoutePlanResultListener(new GetRoutePlan(mBaiduMap));
+        getRoutePlan=new GetRoutePlan(mBaiduMap);
+        rpSearch.setOnGetRoutePlanResultListener(getRoutePlan);
         //注册地图上覆盖物的点击事件
         mBaiduMap.setOnMarkerClickListener(this);
         //注册地图点击事件
@@ -130,19 +134,17 @@ public class MapFragment extends BaseFragment implements MapPersenter,View.OnCli
         if(null==marker){
             return true;
         }
-        final int index = marker.getZIndex();
         switch (Constant.PLAY_STATUS){
             //展示预约界面
             case 0:
-                 final BikeList.BikeInfoList bikeInfoList=bikeList.get(index);
-                 if(null==bikeInfoList){
-                    return true;
-                 }
-                 final BikeBean bikeBean=new BikeBean(bikeInfoList.getBikecode(),bikeInfoList.getLatitude(),bikeInfoList.getLongitude());
+                 final BikeBean bikeBean=new BikeBean(marker.getTitle(),marker.getPosition().latitude,marker.getPosition().longitude);
                  mainPersenter.showBespoke(bikeBean);
                  break;
             //展示到停放点的路径规划
             case 1:
+                 setRoutePlanByParking(marker.getPosition().latitude,marker.getPosition().longitude);
+                 break;
+             default:
                  break;
         }
         return true;
@@ -218,7 +220,7 @@ public class MapFragment extends BaseFragment implements MapPersenter,View.OnCli
         mapPersenter.clearMap();
         for (int i = 0, len = bikeList.size(); i < len; i++) {
             bitmap = BitmapDescriptorFactory.fromResource(R.mipmap.img_bike);
-            MarkerOptions op = new MarkerOptions().position(new LatLng(bikeList.get(i).getLatitude(), bikeList.get(i).getLongitude())).icon(bitmap).zIndex(i).animateType(MarkerOptions.MarkerAnimateType.grow);
+            MarkerOptions op = new MarkerOptions().position(new LatLng(bikeList.get(i).getLatitude(), bikeList.get(i).getLongitude())).icon(bitmap).zIndex(i).title(bikeList.get(i).getBikecode()).animateType(MarkerOptions.MarkerAnimateType.grow);
             mBaiduMap.addOverlay(op);
         }
     }
@@ -305,17 +307,24 @@ public class MapFragment extends BaseFragment implements MapPersenter,View.OnCli
 
 
     /**
-     * 设置路径规划
+     * 设置预约时路径规划
      */
     public void setRoutePlan(double latitude,double longitude){
-        final LatLng latLng=mapPersenter.getNewLatLng();
-        if(null==latLng){
-            return;
-        }
         mapPersenter.clearMap();
-        PlanNode stNode = PlanNode.withLocation(latLng);
+        PlanNode stNode = PlanNode.withLocation(mapPersenter.getNewLatLng());
         PlanNode enNode = PlanNode.withLocation(new LatLng(latitude, longitude));
         rpSearch.walkingSearch((new WalkingRoutePlanOption()).from(stNode).to(enNode));
+    }
+
+
+    /**
+     * 设置骑行到停车点的路径规划
+     */
+    private void setRoutePlanByParking(double latitude, double longitude) {
+        getRoutePlan.clearRoutePlan();
+        PlanNode stNode = PlanNode.withLocation(mapPersenter.getNewLatLng());
+        PlanNode enNode = PlanNode.withLocation(new LatLng(latitude, longitude));
+        rpSearch.bikingSearch((new BikingRoutePlanOption()).from(stNode).to(enNode));
     }
 
 

@@ -263,7 +263,7 @@ public class MainActivity extends BaseActivity implements MainPersenter,View.OnC
      */
     public void showCycling(BikeBean bikeBean,boolean isScan) {
         Constant.PLAY_STATUS=1;
-        cyclingFragment.setBikeBean(bikeBean);
+        cyclingFragment.setBikeBean(bikeBean,this);
         mainPersenter.showFragment(cyclingFragment);
         //查询电子围栏
         mapFragment.findFencing(bikeBean.getBikeCode());

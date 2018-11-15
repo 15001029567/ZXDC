@@ -329,7 +329,6 @@ public class BespokeFragment extends BaseFragment implements View.OnClickListene
         HttpMethod.getOrderInfo(mHandler);
     }
 
-
     @Override
     public void onResume() {
         super.onResume();

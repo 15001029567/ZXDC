@@ -17,6 +17,7 @@ import net.edaibu.easywalking.R;
 import net.edaibu.easywalking.bean.BikeBean;
 import net.edaibu.easywalking.http.HandlerConstant;
 import net.edaibu.easywalking.http.HttpMethod;
+import net.edaibu.easywalking.persenter.main.MainPersenter;
 import net.edaibu.easywalking.utils.JsonUtils;
 import net.edaibu.easywalking.utils.TimerUtil;
 
@@ -30,6 +31,7 @@ public class CyclingFragment extends BaseFragment {
     private TextView tvTime, tvDistance,tvKa,tvBikeCode,tvMoney;
     //手机是否锁屏
     private boolean IS_CLOSE_PHONE=false;
+    private MainPersenter mainPersenter;
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         //注册广播
@@ -156,8 +158,9 @@ public class CyclingFragment extends BaseFragment {
         HttpMethod.getOrderInfo(mHandler);
     }
 
-    public void setBikeBean(BikeBean bikeBean){
+    public void setBikeBean(BikeBean bikeBean,MainPersenter mainPersenter){
         this.bikeBean=bikeBean;
+        this.mainPersenter=mainPersenter;
     }
 
     @Override
