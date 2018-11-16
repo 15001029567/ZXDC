@@ -160,12 +160,12 @@ public class BaseActivity extends FragmentActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        CockroachUtil.install();
+//        CockroachUtil.install();
     }
 
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        CockroachUtil.clear();
+//        CockroachUtil.clear();
     }
 }

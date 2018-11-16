@@ -45,6 +45,7 @@ public class ActivitysLifecycle implements Application.ActivityLifecycleCallback
         }
         //释放cpu
         WakeLockUtil.getInstance().releaseWakeLock();
+        System.gc();
         System.exit(0);
     }
     @Override

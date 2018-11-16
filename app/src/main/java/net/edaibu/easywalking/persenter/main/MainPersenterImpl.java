@@ -13,7 +13,6 @@ import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.text.TextUtils;
-
 import net.edaibu.easywalking.R;
 import net.edaibu.easywalking.application.MyApplication;
 import net.edaibu.easywalking.bean.BikeBean;
@@ -22,10 +21,8 @@ import net.edaibu.easywalking.http.HandlerConstant;
 import net.edaibu.easywalking.http.HttpMethod;
 import net.edaibu.easywalking.service.BleService;
 import net.edaibu.easywalking.utils.JsonUtils;
-import net.edaibu.easywalking.utils.LogUtils;
 import net.edaibu.easywalking.utils.SPUtil;
 import net.edaibu.easywalking.utils.bletooth.SendBleAgreement;
-
 /**
  * 首页MainActivity 的接口
  */
@@ -45,7 +42,7 @@ public class MainPersenterImpl{
             if(msg.what!=HandlerConstant.GET_USER_INFO_SUCCESS){
                 mainPersenter.closeLoding();
             }
-            BikeBean bikeBean=null;
+            BikeBean bikeBean;
             switch (msg.what){
                 //扫码开锁后生成骑行单
                 case HandlerConstant.GET_ORDER_BY_SCAN_SUCCESS:
@@ -54,7 +51,8 @@ public class MainPersenterImpl{
                          break;
                      }
                      if(bikeBean.isSussess()){
-                         mainPersenter.showCycling(bikeBean,false);
+                         mainPersenter.setBikeBean(bikeBean);
+                         mainPersenter.showCycling(false);
                      }else{
                          mainPersenter.showToast(bikeBean.getMsg());
                      }
@@ -66,7 +64,8 @@ public class MainPersenterImpl{
                           break;
                       }
                       if(bikeBean.isSussess()){
-                          mainPersenter.showBespoke(bikeBean);
+                          mainPersenter.setBikeBean(bikeBean);
+                          mainPersenter.showBespoke();
                       }else{
                           mainPersenter.showToast(bikeBean.getMsg());
                       }
@@ -78,7 +77,8 @@ public class MainPersenterImpl{
                          break;
                       }
                       if(bikeBean.isSussess()){
-                         mainPersenter.showOrderInfo(bikeBean);
+                          mainPersenter.setBikeBean(bikeBean);
+                          mainPersenter.showOrderInfo();
                       }else{
                          mainPersenter.showToast(bikeBean.getMsg());
                       }

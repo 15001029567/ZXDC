@@ -26,10 +26,16 @@ public interface MainPersenter extends BasePersenter {
 
 
     /**
-     * 扫码开锁后获取骑行单
+     * 设置车辆/订单对象
      * @param bikeBean
      */
-    void showCycling(BikeBean bikeBean,boolean isScan);
+    void setBikeBean(BikeBean bikeBean);
+
+
+    /**
+     * 扫码开锁后获取骑行单
+     */
+    void showCycling(boolean isScan);
 
 
     /**
@@ -39,16 +45,14 @@ public interface MainPersenter extends BasePersenter {
 
     /**
      * 获取订单后展示订单界面
-     * @param bikeBean
      */
-    void showOrderInfo(BikeBean bikeBean);
+    void showOrderInfo();
 
 
     /**
      * 随机预约时，先查询车辆信息
-     * @param bikeBean
      */
-    void showBespoke(BikeBean bikeBean);
+    void showBespoke();
 
 
     /**

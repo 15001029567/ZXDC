@@ -10,6 +10,7 @@ import com.tencent.bugly.crashreport.CrashReport;
 import net.edaibu.easywalking.utils.ActivitysLifecycle;
 import net.edaibu.easywalking.utils.SPUtil;
 import net.edaibu.easywalking.utils.Util;
+import net.edaibu.easywalking.utils.error.CockroachUtil;
 
 public class MyApplication extends Application {
 
@@ -23,6 +24,9 @@ public class MyApplication extends Application {
         application = this;
         gson = new Gson();
         spUtil = SPUtil.getInstance(this);
+
+        //开启小强
+        CockroachUtil.install();
 
         //初始化bugly异常捕获
 //        initBugly();

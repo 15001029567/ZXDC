@@ -79,14 +79,29 @@ public class Util extends ClassLoader {
 
 
     /**
-     * 保留两位小数的double数据
+     * 保留小数的double数据
      * @param d
      * @return
      */
-    public static String setDouble(double d){
-        final DecimalFormat df = new DecimalFormat("0.00");
+    public static String setDouble(double d,int type){
+        DecimalFormat df=null;
+        switch (type){
+            case 1:
+                df = new DecimalFormat("0.0");
+                break;
+            case 2:
+                df = new DecimalFormat("0.00");
+                break;
+            case 3:
+                df = new DecimalFormat("0.000");
+                break;
+            case 4:
+                df = new DecimalFormat("0.0000");
+                break;
+        }
         return df.format(d);
     }
+
 
     /**
      * 只允许字母、数字和汉字

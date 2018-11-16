@@ -38,6 +38,5 @@ public class CockroachUtil {
      */
     public static void clear(){
         Cockroach.uninstall();
-        install();
     }
 }

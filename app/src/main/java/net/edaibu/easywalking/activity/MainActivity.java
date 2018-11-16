@@ -31,6 +31,7 @@ import net.edaibu.easywalking.utils.WakeLockUtil;
 import net.edaibu.easywalking.utils.bletooth.BleStatus;
 import net.edaibu.easywalking.utils.bletooth.ParseBleDataTask;
 import net.edaibu.easywalking.utils.bletooth.SendBleAgreement;
+import net.edaibu.easywalking.utils.error.CockroachUtil;
 import net.edaibu.easywalking.view.DialogView;
 
 /**
@@ -42,7 +43,7 @@ public class MainActivity extends BaseActivity implements MainPersenter,View.OnC
     //蓝牙指令状态
     private int BLE_STATUS= BleStatus.BLE_NORMAL_STATE;
     //蓝牙服务对象
-    public BleService bleService;
+    private BleService bleService;
     //地图的fragment
     private MapFragment mapFragment=new MapFragment();
     //骑行界面的fragment
@@ -50,7 +51,7 @@ public class MainActivity extends BaseActivity implements MainPersenter,View.OnC
     //预约界面的fragment
     private BespokeFragment bespokeFragment=new BespokeFragment();
     //车辆对象
-    private static BikeBean bikeBean;
+    private BikeBean bikeBean;
     private Handler mHandler=new Handler();
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -258,11 +259,11 @@ public class MainActivity extends BaseActivity implements MainPersenter,View.OnC
 
     /**
      * 展示骑行界面
-     * @param bikeBean
      * @param isScan：是否是退出后重新查询的订单
      */
-    public void showCycling(BikeBean bikeBean,boolean isScan) {
+    public void showCycling(boolean isScan) {
         Constant.PLAY_STATUS=1;
+        //展示骑行界面
         cyclingFragment.setBikeBean(bikeBean,this);
         mainPersenter.showFragment(cyclingFragment);
         //查询电子围栏
@@ -286,26 +287,23 @@ public class MainActivity extends BaseActivity implements MainPersenter,View.OnC
 
     /**
      * 获取订单后展示订单界面
-     * @param bikeBean
      */
-    public void showOrderInfo(BikeBean bikeBean) {
+    public void showOrderInfo() {
         //有预约单
         if(TextUtils.isEmpty(bikeBean.getCyclingId())){
-            showBespoke(bikeBean);
+            showBespoke();
             return;
         }
         //有骑行单
-        showCycling(bikeBean,true);
+        showCycling(true);
     }
 
 
     /**
      * 展示预约界面
-     * @param bikeBean
      */
-    public void showBespoke(BikeBean bikeBean) {
+    public void showBespoke() {
         Constant.PLAY_STATUS=2;
-        MainActivity.bikeBean=bikeBean;
         bespokeFragment.setBikeBean(bikeBean,this);
         //打开预约的界面
         mainPersenter.showFragment(bespokeFragment);
@@ -354,7 +352,9 @@ public class MainActivity extends BaseActivity implements MainPersenter,View.OnC
      */
     public void balance(Balance balance){
         Constant.PLAY_STATUS=0;
+        //清空地图覆盖物
         mapFragment.clearMap();
+        //关闭骑行界面
         mainPersenter.showFragment(cyclingFragment);
         //断开蓝牙
         bleService.disconnect();
@@ -372,6 +372,15 @@ public class MainActivity extends BaseActivity implements MainPersenter,View.OnC
             default:
                 break;
         }
+    }
+
+
+    /**
+     * 设置车辆/订单对象
+     * @param bikeBean
+     */
+    public void setBikeBean(BikeBean bikeBean){
+        this.bikeBean=bikeBean;
     }
 
 
@@ -441,6 +450,8 @@ public class MainActivity extends BaseActivity implements MainPersenter,View.OnC
         mainPersenter.disconnect();
         //关闭广播
         unregisterReceiver(mBroadcastReceiver);
+        //关闭小强
+        CockroachUtil.clear();
         mainPersenter.onDestory();
     }
 

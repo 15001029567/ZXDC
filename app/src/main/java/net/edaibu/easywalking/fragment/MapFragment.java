@@ -138,7 +138,8 @@ public class MapFragment extends BaseFragment implements MapPersenter,View.OnCli
             //展示预约界面
             case 0:
                  final BikeBean bikeBean=new BikeBean(marker.getTitle(),marker.getPosition().latitude,marker.getPosition().longitude);
-                 mainPersenter.showBespoke(bikeBean);
+                 mainPersenter.setBikeBean(bikeBean);
+                 mainPersenter.showBespoke();
                  break;
             //展示到停放点的路径规划
             case 1:

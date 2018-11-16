@@ -124,7 +124,7 @@ public class BaseFragment extends Fragment {
     @Override
     public void onResume() {
         super.onResume();
-        CockroachUtil.install();
+//        CockroachUtil.install();
     }
 
     public void onDetach(){
@@ -134,6 +134,6 @@ public class BaseFragment extends Fragment {
 
     public void onDestroy() {
         super.onDestroy();
-        CockroachUtil.clear();
+//        CockroachUtil.clear();
     }
 }
