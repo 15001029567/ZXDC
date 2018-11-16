@@ -318,17 +318,6 @@ public class MainActivity extends BaseActivity implements MainPersenter,View.OnC
      * 预约成功后扫描蓝牙并响铃
      */
     public void bespokeBell(){
-//        if(Constant.PLAY_STATUS==2 && bleService.isDisconnect()){
-//            if(TextUtils.isEmpty(bikeBean.getResserveId())){
-//                return;
-//            }
-//            mHandler.postDelayed(new Runnable() {
-//                public void run() {
-//                    sendBleCmd(BleStatus.BLE_FLASH_ING);
-//
-//                }
-//            },10000);
-//        }
 
     }
 
@@ -375,45 +364,25 @@ public class MainActivity extends BaseActivity implements MainPersenter,View.OnC
     }
 
 
-    /**
-     * 设置车辆/订单对象
-     * @param bikeBean
-     */
     public void setBikeBean(BikeBean bikeBean){
         this.bikeBean=bikeBean;
     }
 
-
-    /**
-     * 初始化蓝牙
-     * @param bleService
-     */
     public void initBleService(BleService bleService) {
         this.bleService=bleService;
     }
 
-    /**
-     * 展示加载滚动条
-     */
     public void showLoding(String msg) {
         showProgress(msg,true);
     }
 
-    /**
-     * 关闭加载滚动条
-     */
     public void closeLoding() {
         clearTask();
     }
 
-    /**
-     * 展示Toast数据
-     * @param msg
-     */
     public void showToast(String msg) {
         showMsg(msg);
     }
-
 
     protected void onSaveInstanceState(Bundle outState) {
         //super.onSaveInstanceState(outState);
