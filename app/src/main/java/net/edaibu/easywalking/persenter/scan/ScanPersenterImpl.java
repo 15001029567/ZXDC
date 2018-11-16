@@ -11,6 +11,7 @@ import net.edaibu.easywalking.http.HandlerConstant;
 import net.edaibu.easywalking.http.HttpMethod;
 import net.edaibu.easywalking.utils.JsonUtils;
 import net.edaibu.easywalking.utils.scan.cameras.CameraManager;
+import net.edaibu.easywalking.view.DialogView;
 /**
  * 扫码的MVP接口类
  */
@@ -26,7 +27,6 @@ public class ScanPersenterImpl {
         this.scanPersenter=scanPersenter;
     }
 
-
     private Handler mHandler=new Handler(new Handler.Callback() {
         public boolean handleMessage(Message msg) {
             scanPersenter.closeLoding();
@@ -40,6 +40,19 @@ public class ScanPersenterImpl {
                       if(bikeBean.isSussess()){
                           scanPersenter.getBikeBean(bikeBean);
                       }else{
+                          switch (bikeBean.getCode()){
+                              //有未支付订单
+                              case 435:
+                                   break;
+                              //车辆有问题，或者不能用
+                              case 416:
+                                   DialogView dialogView = new DialogView(activity,bikeBean.getMsg(), activity.getString(R.string.confirm), null, null, null);
+                                   dialogView.show();
+                                   break;
+                               default:
+                                   scanPersenter.showToast(bikeBean.getMsg());
+                                   break;
+                          }
                           scanPersenter.showToast(bikeBean.getMsg());
                       }
                       break;
