@@ -52,7 +52,6 @@ public class MainActivity extends BaseActivity implements MainPersenter,View.OnC
     private BespokeFragment bespokeFragment=new BespokeFragment();
     //车辆对象
     private BikeBean bikeBean;
-    private Handler mHandler=new Handler();
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         StatusBarUtils.transparencyBar(this);
@@ -349,14 +348,20 @@ public class MainActivity extends BaseActivity implements MainPersenter,View.OnC
         bleService.disconnect();
     }
 
+
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         switch (resultCode){
             //扫码回执
             case Constant.SCAN_BACK:
                  bikeBean= (BikeBean) data.getSerializableExtra("bikeBean");
-                 showProgress(getString(R.string.opening_lock),false);
-                 sendBleCmd(BleStatus.BLE_OPEN_LOCK_ING);
+                 if(null!=bikeBean){
+                     showProgress(getString(R.string.opening_lock),false);
+                     sendBleCmd(BleStatus.BLE_OPEN_LOCK_ING);
+                 }else{
+                     //随机预约
+                     mainPersenter.getRandomBespoke();
+                 }
                  break;
             default:
                 break;

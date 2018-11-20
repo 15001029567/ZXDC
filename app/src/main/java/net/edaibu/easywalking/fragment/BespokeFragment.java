@@ -4,6 +4,7 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.net.ConnectivityManager;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
@@ -27,7 +28,6 @@ import net.edaibu.easywalking.bean.CancleNum;
 import net.edaibu.easywalking.http.HandlerConstant;
 import net.edaibu.easywalking.http.HttpMethod;
 import net.edaibu.easywalking.persenter.main.MainPersenter;
-import net.edaibu.easywalking.utils.Constant;
 import net.edaibu.easywalking.utils.JsonUtils;
 import net.edaibu.easywalking.utils.TimerUtil;
 import net.edaibu.easywalking.utils.map.GetRoutePlan;
@@ -77,7 +77,7 @@ public class BespokeFragment extends BaseFragment implements View.OnClickListene
                         break;
                     }
                     if(bikeBean.isSussess()){
-
+                        showData();
                     }
                     break;
                 //确定预约车辆回执
@@ -234,6 +234,8 @@ public class BespokeFragment extends BaseFragment implements View.OnClickListene
         myIntentFilter.addAction(Intent.ACTION_SCREEN_OFF);
         //点击home键广播，由系统发出
         myIntentFilter.addAction(Intent.ACTION_CLOSE_SYSTEM_DIALOGS);
+        //添加动作，监听网络
+        myIntentFilter.addAction(ConnectivityManager.CONNECTIVITY_ACTION);
         mActivity.registerReceiver(mBroadcastReceiver, myIntentFilter);
     }
 
@@ -265,6 +267,10 @@ public class BespokeFragment extends BaseFragment implements View.OnClickListene
                 case Intent.ACTION_SCREEN_OFF://锁屏广播
                      IS_CLOSE_PHONE=true;
                      break;
+                case ConnectivityManager.CONNECTIVITY_ACTION://监听网络
+                    //查询订单信息
+                    getOrderInfo();
+                    break;
                 default:
                     break;
             }
@@ -326,16 +332,16 @@ public class BespokeFragment extends BaseFragment implements View.OnClickListene
      * 查询订单信息
      */
     private void getOrderInfo(){
-        HttpMethod.getOrderInfo(mHandler);
+        if(IS_CLOSE_PHONE){
+            HttpMethod.getOrderInfo(mHandler);
+            IS_CLOSE_PHONE=false;
+        }
     }
 
     @Override
     public void onResume() {
         super.onResume();
-        if(IS_CLOSE_PHONE){
-            getOrderInfo();
-            IS_CLOSE_PHONE=false;
-        }
+        getOrderInfo();
     }
 
 

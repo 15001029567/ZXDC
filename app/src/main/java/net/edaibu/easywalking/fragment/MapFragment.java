@@ -351,28 +351,6 @@ public class MapFragment extends BaseFragment implements MapPersenter,View.OnCli
         }
     }
 
-    /**
-     * 展示加载滚动条
-     */
-    public void showLoding(String msg) {
-        showProgress(msg,true);
-    }
-
-    /**
-     * 关闭加载滚动条
-     */
-    public void closeLoding() {
-       clearTask();
-    }
-
-    /**
-     * Toast提示
-     * @param msg
-     */
-    public void showToast(String msg) {
-        showMsg(msg);
-    }
-
 
     /**
      * 查询电子围栏等
@@ -405,7 +383,18 @@ public class MapFragment extends BaseFragment implements MapPersenter,View.OnCli
         this.mainPersenter=mainPersenter;
     }
 
-    @Override
+    public void showLoding(String msg) {
+        showProgress(msg,true);
+    }
+
+    public void closeLoding() {
+       clearTask();
+    }
+
+    public void showToast(String msg) {
+        showMsg(msg);
+    }
+
     public void onStart() {
         super.onStart();
         mapPersenter.onStart();

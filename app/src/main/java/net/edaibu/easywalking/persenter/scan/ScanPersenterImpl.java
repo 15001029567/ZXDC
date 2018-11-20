@@ -4,6 +4,8 @@ import android.app.Activity;
 import android.os.Handler;
 import android.os.Message;
 import android.text.TextUtils;
+import android.view.View;
+
 import com.google.zxing.Result;
 import net.edaibu.easywalking.R;
 import net.edaibu.easywalking.bean.BikeBean;
@@ -27,6 +29,8 @@ public class ScanPersenterImpl {
         this.scanPersenter=scanPersenter;
     }
 
+
+    DialogView dialogView;
     private Handler mHandler=new Handler(new Handler.Callback() {
         public boolean handleMessage(Message msg) {
             scanPersenter.closeLoding();
@@ -39,22 +43,31 @@ public class ScanPersenterImpl {
                       }
                       if(bikeBean.isSussess()){
                           scanPersenter.getBikeBean(bikeBean);
-                      }else{
-                          switch (bikeBean.getCode()){
-                              //有未支付订单
-                              case 435:
-                                   break;
-                              //车辆有问题，或者不能用
-                              case 416:
-                                   DialogView dialogView = new DialogView(activity,bikeBean.getMsg(), activity.getString(R.string.confirm), null, null, null);
-                                   dialogView.show();
-                                   break;
-                               default:
-                                   scanPersenter.showToast(bikeBean.getMsg());
-                                   break;
-                          }
-                          scanPersenter.showToast(bikeBean.getMsg());
+                          break;
                       }
+                    switch (bikeBean.getCode()){
+                        //有未支付订单
+                        case 435:
+                            break;
+                        //车辆有问题，或者不能用
+                        case 416:
+                            dialogView = new DialogView(activity,bikeBean.getMsg(), activity.getString(R.string.confirm), null, null, null);
+                            dialogView.show();
+                            break;
+                        //提示用户预约附近车辆
+                        case 426:
+                            dialogView = new DialogView(activity, bikeBean.getMsg(), activity.getString(R.string.confirm), null, new View.OnClickListener() {
+                                public void onClick(View v) {
+                                    dialogView.dismiss();
+                                    scanPersenter.getBikeBean(null);
+                                }
+                            }, null);
+                            dialogView.show();
+                            break;
+                        default:
+                            scanPersenter.showToast(bikeBean.getMsg());
+                            break;
+                    }
                       break;
                 case HandlerConstant.REQUST_ERROR:
                      scanPersenter.showToast(activity.getString(R.string.http_error));
